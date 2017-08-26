@@ -1,0 +1,3 @@
+Version Control – Add /v1/prefix to all routes so future changes (v2) don't break things.
+Authentication – Investigate JSON web tokens: http://jwt.io/. This will prevent things like vulnerability scans from exhausing the supply of serial numbers. 
+Scaling - Investigate eTags: http://en.wikipedia.org/wiki/HTTP_ETag.
