@@ -13,3 +13,18 @@
 // limitations under the License.
 
 package main
+
+type USBDevice struct {
+	HostName	string		`json:"hostname"`
+	VendorID	string		`json:"vendor_id"`
+	ProductID	string		`json:"product_id"`
+	VendorName	string		`json:"vendor_name"`
+	ProductName	string		`json:"product_name"`
+	SerialNum	string		`json:"serial_num"`
+	DeviceSN	string		`json:"device_sn"`
+	FactorySN	string		`json:"factory_sn"`
+	DescriptorSN	string		`json:"descriptor_sn"`
+	ProductVer	string		`json:"product_ver"`
+	SoftwareID	string		`json:"software_id"`
+	Deltas		[][]string	`json:"deltas"`
+}
