@@ -17,39 +17,19 @@ package main
 // Source: https://thenewstack.io/make-a-restful-json-api-go/
 
 import (
-	"database/sql"
 	"net/http"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
-
-func init() {
-
-	config, err := getConfig()
-
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	db, err := sql.Open("mysql", config.FormatDSN())
-
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	if err = db.Ping(); err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	var version string
-	db.QueryRow("SELECT VERSION()").Scan(&version)
-	log.Printf("Connected to %s", version)
-}
-
 func main() {
+
+	defer checkinStmt.Close()
+	defer deviceStmt.Close()
+	defer auditStmt.Close()
+	defer serialStmt.Close()
+	//defer db.Close()
 
 	router := NewRouter()
 	log.Fatal(http.ListenAndServe(":8080", router))
