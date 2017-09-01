@@ -27,9 +27,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var checkinSQL string = `
+var checkinInsertSQL string = `
 
-	INSERT INTO device_checkins (
+	INSERT INTO checkin_log (
 		host_name,
 		vendor_id,
 		product_id,
@@ -42,9 +42,9 @@ var checkinSQL string = `
 
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
-var deviceSQL string =
+var deviceInsertSQL string = `
 
-	`INSERT INTO devices (
+	INSERT INTO devices (
 		host_name,
 		vendor_id,
 		product_id,
@@ -67,9 +67,9 @@ var deviceSQL string =
 		software_id = ?,
 		object_type = ?;`
 
-var auditSQL string =
+var auditInsertSQL string = `
 
-	`INSERT INTO device_audits (
+	INSERT INTO audit_log (
 		serial_number,
 		field_name,
 		old_value,
@@ -77,27 +77,33 @@ var auditSQL string =
 
 	VALUES (?, ?, ?, ?)`
 
-var serialSQL string =
+var serialInsertSQL string = `
 
-	`INSERT INTO issued_serials (
+	INSERT INTO serial_log (
 		host_name,
 		vendor_id,
 		product_id,
-		serial_number,
 		vendor_name,
 		product_name,
 		product_ver,
 		software_id,
 		object_type)
 
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+
+var serialUpdateSQL string = `
+
+	UPDATE serial_log
+	SET serial_number = ?
+	WHERE id = ?;`
 
 var db *sql.DB
 
-var checkinStmt *sql.Stmt
-var deviceStmt *sql.Stmt
-var auditStmt *sql.Stmt
-var serialStmt *sql.Stmt
+var checkinInsertStmt *sql.Stmt
+var deviceInsertStmt *sql.Stmt
+var auditInsertStmt *sql.Stmt
+var serialInsertStmt *sql.Stmt
+var serialUpdateStmt *sql.Stmt
 
 func init() {
 
@@ -117,25 +123,31 @@ func init() {
 		log.Fatalf("%v", err)
 	}
 
-	checkinStmt, err = db.Prepare(checkinSQL)
+	checkinInsertStmt, err = db.Prepare(checkinInsertSQL)
 
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	deviceStmt, err = db.Prepare(deviceSQL)
+	deviceInsertStmt, err = db.Prepare(deviceInsertSQL)
 
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	auditStmt, err = db.Prepare(auditSQL)
+	auditInsertStmt, err = db.Prepare(auditInsertSQL)
 
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	serialStmt, err = db.Prepare(serialSQL)
+	serialInsertStmt, err = db.Prepare(serialInsertSQL)
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	serialUpdateStmt, err = db.Prepare(serialUpdateSQL)
 
 	if err != nil {
 		log.Fatalf("%v", err)

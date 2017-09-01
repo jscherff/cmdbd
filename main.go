@@ -23,12 +23,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func init() {
+	log.SetFlags(log.Flags() | log.Lshortfile)
+}
+
 func main() {
 
-	defer checkinStmt.Close()
-	defer deviceStmt.Close()
-	defer auditStmt.Close()
-	defer serialStmt.Close()
+
+	defer checkinInsertStmt.Close()
+	defer deviceInsertStmt.Close()
+	defer auditInsertStmt.Close()
+	defer serialInsertStmt.Close()
+	defer serialUpdateStmt.Close()
 	//defer db.Close()
 
 	router := NewRouter()

@@ -47,22 +47,48 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	device := new(webapi.Device)
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	if err := json.Unmarshal(body, &device); err != nil {
 
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+		return
 	}
 
-	if len(device.SerialNum) == 0 {
+	if len(device.SerialNum) != 0 {
 
-		device.SerialNum = fmt.Sprintf("24F%04x", 1)	//TODO: generate actual serial number
-		fmt.Println(device, objectType)			//TODO: remove
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+	var insertId int64
+
+	result, err := serialInsertStmt.Exec(
+		device.HostName,
+		device.VendorID,
+		device.ProductID,
+		device.VendorName,
+		device.ProductName,
+		device.ProductVer,
+		device.SoftwareID,
+		objectType,
+	)
+
+	if err == nil {
+		insertId, err = result.LastInsertId()
+	}
+
+	if err == nil {
+		device.SerialNum = fmt.Sprintf("24F%04x", insertId)
+		result, err = serialUpdateStmt.Exec(device.SerialNum, insertId)
+	}
+
+	if err == nil {
+
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(device); err != nil {
@@ -71,8 +97,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
@@ -96,20 +121,49 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 
 	device := new(webapi.Device)
 
-	if err := json.Unmarshal(body, &device); err != nil {
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+	if err = json.Unmarshal(body, &device); err != nil {
+
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+
+		return
 	}
 
-	fmt.Println(device, objectType)	//TODO: record checkin to database
+	_, err = checkinInsertStmt.Exec(
+		device.HostName,
+		device.VendorID,
+		device.ProductID,
+		device.SerialNum,
+		device.VendorName,
+		device.ProductName,
+		device.ProductVer,
+		device.SoftwareID,
+		objectType,
+		device.HostName,
+		device.VendorID,
+		device.ProductID,
+		device.VendorName,
+		device.ProductName,
+		device.ProductVer,
+		device.SoftwareID,
+		objectType,
+	)
 
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-	w.WriteHeader(http.StatusAccepted)
+	fmt.Println(err)
+
+	if err == nil {
+
+		w.WriteHeader(http.StatusAccepted)
+
+	} else {
+
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func Audit(w http.ResponseWriter, r *http.Request) {
@@ -134,14 +188,17 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	changes := new(webapi.Changes)
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	if err := json.Unmarshal(body, &changes); err != nil {
 
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			panic(err)
 		}
+
+		return
 	}
 
 	fmt.Println(changes, serialNum)	//TODO: record changes to database
