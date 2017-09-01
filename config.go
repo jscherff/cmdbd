@@ -14,37 +14,27 @@
 
 package main
 
-import "net/http"
+import (
+	"path/filepath"
+	"encoding/json"
+	"os"
 
-type Route struct {
-	Name		string
-	Method		string
-	Pattern		string
-	HandlerFunc	http.HandlerFunc
-}
+	"github.com/go-sql-driver/mysql"
+)
 
-type Routes []Route
+const configFile string = "config.json"
 
-var routes = Routes {
+func getConfig() (c *mysql.Config, e error) {
 
-	Route {
-		Name:		"Serial",
-		Method:		"POST",
-		Pattern:	"/serial/{objectType}",
-		HandlerFunc:	Serial,
-	},
+	fn := filepath.Join(filepath.Dir(os.Args[0]), configFile)
+	fh, e := os.Open(fn)
 
-	Route {
-		Name:		"Checkin",
-		Method:		"POST",
-		Pattern:	"/checkin/{objectType}",
-		HandlerFunc:	Checkin,
-	},
+	if e == nil {
+		jd := json.NewDecoder(fh)
+		e = jd.Decode(&c)
+	}
 
-	Route {
-		Name:		"Audit",
-		Method:		"POST",
-		Pattern:	"/audit/{serialNum}",
-		HandlerFunc:	Audit,
-	},
+	defer fh.Close()
+
+	return c, e
 }

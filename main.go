@@ -1,11 +1,53 @@
+// Copyright 2017 John Scherff
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 // Source: https://thenewstack.io/make-a-restful-json-api-go/
 
 import (
+	"database/sql"
 	"net/http"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
+
+var db *sql.DB
+
+func init() {
+
+	config, err := getConfig()
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	db, err := sql.Open("mysql", config.FormatDSN())
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	if err = db.Ping(); err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	var version string
+	db.QueryRow("SELECT VERSION()").Scan(&version)
+	log.Printf("Connected to %s", version)
+}
 
 func main() {
 
