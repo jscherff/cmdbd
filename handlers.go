@@ -16,10 +16,10 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/jscherff/gocmdb/webapi"
 	"github.com/gorilla/mux"
@@ -27,10 +27,12 @@ import (
 
 const sizeLimit int64 = 1048576
 
+// Serial creates a new record in the 'serials' table when a device
+// requests a serial number. It generates a new device serial number
+// based on the INT primary key of the table, offers it to the device,
+// then updates the 'serial_number' column of the table with the new
+// serial number.
 func Serial(w http.ResponseWriter, r *http.Request) {
-
-	// Need object type because different types of devices may 
-	// have different formats and series of serial numbers.
 
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
@@ -87,24 +89,23 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 		result, err = serialUpdateStmt.Exec(device.SerialNum, insertId)
 	}
 
-	if err == nil {
-
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(device); err != nil {
 			panic(err)
 		}
-
-	} else {
-
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
+// Checkin creates a new record in the 'checkin' table when a device
+// checks in. A DB trigger then creates a new record in the 'devices'
+// table if one does not exist or updates the existing record with data
+// from every column except the serial number. The trigger also updates
+// the 'last_seen' column of the 'devices' table with the checkin date.
 func Checkin(w http.ResponseWriter, r *http.Request) {
-
-	// Need object type in order to instantiate the correct
-	// object from the 'gocmdb' package.
 
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
@@ -133,7 +134,7 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
+fmt.Println(device)
 	_, err = checkinInsertStmt.Exec(
 		device.HostName,
 		device.VendorID,
@@ -144,34 +145,19 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 		device.ProductVer,
 		device.SoftwareID,
 		objectType,
-		device.HostName,
-		device.VendorID,
-		device.ProductID,
-		device.VendorName,
-		device.ProductName,
-		device.ProductVer,
-		device.SoftwareID,
-		objectType,
 	)
 
-	fmt.Println(err)
-
-	if err == nil {
-
-		w.WriteHeader(http.StatusAccepted)
-
-	} else {
-
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusAccepted)
 	}
 }
 
+// Audit records property changes reported by the device in the 'audits'
+// table. Each report is associated with a single serial number but may
+// contain multiple changes.
 func Audit(w http.ResponseWriter, r *http.Request) {
-
-	// Need only serial number, not object type, because method
-	// will only log changes in the form {date, name, old, new}
-	// associated with a device serial number. Serial number can
-	// be matched to registration record.
 
 	vars := mux.Vars(r)
 	serialNum := vars["serialNum"]
@@ -200,7 +186,28 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+/*
+	for _, c := range changes {
 
+	_, err = auditInsertStmt.Exec(
+		device.HostName,
+		device.VendorID,
+		device.ProductID,
+		device.SerialNum,
+		device.VendorName,
+		device.ProductName,
+		device.ProductVer,
+		device.SoftwareID,
+		objectType,
+		device.HostName,
+		device.VendorID,
+		device.ProductID,
+		device.VendorName,
+		device.ProductName,
+		device.ProductVer,
+		device.SoftwareID,
+		objectType,
+*/
 	fmt.Println(changes, serialNum)	//TODO: record changes to database
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")

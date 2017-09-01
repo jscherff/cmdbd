@@ -27,59 +27,36 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var checkinInsertSQL string = `
-
-	INSERT INTO checkin_log (
-		host_name,
-		vendor_id,
-		product_id,
-		serial_number,
-		vendor_name,
-		product_name,
-		product_ver,
-		software_id,
-		object_type)
-
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
-
-var deviceInsertSQL string = `
-
-	INSERT INTO devices (
-		host_name,
-		vendor_id,
-		product_id,
-		serial_number,
-		vendor_name,
-		product_name,
-		product_ver,
-		software_id,
-		object_type)
-
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-
-	ON DUPLICATE KEY UPDATE 
-		host_name = ?,
-		vendor_id = ?,
-		product_id = ?,
-		vendor_name = ?,
-		product_name = ?,
-		product_ver = ?,
-		software_id = ?,
-		object_type = ?;`
-
 var auditInsertSQL string = `
 
-	INSERT INTO audit_log (
+	INSERT INTO audits (
 		serial_number,
 		field_name,
 		old_value,
-		new_value)
+		new_value
+	)
 
 	VALUES (?, ?, ?, ?)`
 
+var checkinInsertSQL string = `
+
+	INSERT INTO checkins (
+		host_name,
+		vendor_id,
+		product_id,
+		serial_number,
+		vendor_name,
+		product_name,
+		product_ver,
+		software_id,
+		object_type
+	)
+
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
 var serialInsertSQL string = `
 
-	INSERT INTO serial_log (
+	INSERT INTO serials (
 		host_name,
 		vendor_id,
 		product_id,
@@ -87,21 +64,21 @@ var serialInsertSQL string = `
 		product_name,
 		product_ver,
 		software_id,
-		object_type)
+		object_type
+	)
 
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
 var serialUpdateSQL string = `
 
-	UPDATE serial_log
+	UPDATE serials
 	SET serial_number = ?
-	WHERE id = ?;`
+	WHERE id = ?`
 
 var db *sql.DB
 
-var checkinInsertStmt *sql.Stmt
-var deviceInsertStmt *sql.Stmt
 var auditInsertStmt *sql.Stmt
+var checkinInsertStmt *sql.Stmt
 var serialInsertStmt *sql.Stmt
 var serialUpdateStmt *sql.Stmt
 
@@ -123,19 +100,13 @@ func init() {
 		log.Fatalf("%v", err)
 	}
 
-	checkinInsertStmt, err = db.Prepare(checkinInsertSQL)
-
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	deviceInsertStmt, err = db.Prepare(deviceInsertSQL)
-
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
 	auditInsertStmt, err = db.Prepare(auditInsertSQL)
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	checkinInsertStmt, err = db.Prepare(checkinInsertSQL)
 
 	if err != nil {
 		log.Fatalf("%v", err)

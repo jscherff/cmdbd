@@ -29,13 +29,11 @@ func init() {
 
 func main() {
 
-
-	defer checkinInsertStmt.Close()
-	defer deviceInsertStmt.Close()
+	defer db.Close()
 	defer auditInsertStmt.Close()
+	defer checkinInsertStmt.Close()
 	defer serialInsertStmt.Close()
 	defer serialUpdateStmt.Close()
-	//defer db.Close()
 
 	router := NewRouter()
 	log.Fatal(http.ListenAndServe(":8080", router))
