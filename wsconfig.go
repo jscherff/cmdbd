@@ -17,24 +17,33 @@ package main
 import (
 	"path/filepath"
 	"encoding/json"
+	"log"
 	"os"
-
-	"github.com/go-sql-driver/mysql"
 )
 
-const configFile string = "config.json"
+type WsConfig struct {
+	LogDir string `json:"log_dir"`
+}
 
-func getConfig() (c *mysql.Config, e error) {
+const wsConfigFile string = "wsconfig.json"
 
-	fn := filepath.Join(filepath.Dir(os.Args[0]), configFile)
-	fh, e := os.Open(fn)
+var wsConfig *WsConfig
 
-	if e == nil {
-		jd := json.NewDecoder(fh)
-		e = jd.Decode(&c)
+func init() {
+
+	var err error
+
+	fn := filepath.Join(filepath.Dir(os.Args[0]), wsConfigFile)
+	fh, err := os.Open(fn)
+
+	if err != nil {
+		log.Fatalf("%v", err)
 	}
 
 	defer fh.Close()
+	jd := json.NewDecoder(fh)
 
-	return c, e
+	if err = jd.Decode(&wsConfig); err != nil {
+		log.Fatalf("%v", err)
+	}
 }

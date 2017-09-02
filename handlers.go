@@ -73,6 +73,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 		device.HostName,
 		device.VendorID,
 		device.ProductID,
+		device.SerialNum,
 		device.VendorName,
 		device.ProductName,
 		device.ProductVer,
@@ -134,7 +135,7 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-fmt.Println(device)
+
 	_, err = checkinInsertStmt.Exec(
 		device.HostName,
 		device.VendorID,
@@ -186,30 +187,35 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-/*
-	for _, c := range changes {
 
-	_, err = auditInsertStmt.Exec(
-		device.HostName,
-		device.VendorID,
-		device.ProductID,
-		device.SerialNum,
-		device.VendorName,
-		device.ProductName,
-		device.ProductVer,
-		device.SoftwareID,
-		objectType,
-		device.HostName,
-		device.VendorID,
-		device.ProductID,
-		device.VendorName,
-		device.ProductName,
-		device.ProductVer,
-		device.SoftwareID,
-		objectType,
-*/
-	fmt.Println(changes, serialNum)	//TODO: record changes to database
+	tx, err := db.Begin()
 
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-	w.WriteHeader(http.StatusAccepted)
+	if err == nil {
+
+		for _, change := range *changes {
+
+			_, err = tx.Stmt(auditInsertStmt).Exec(
+				serialNum,
+				change.FieldName,
+				change.OldValue,
+				change.NewValue,
+			)
+
+			if err != nil {
+				break
+			}
+		}
+	}
+
+	if err != nil {
+		err = tx.Rollback()
+	} else {
+		err = tx.Commit()
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusAccepted)
+	}
 }

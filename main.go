@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
-
 // Source: https://thenewstack.io/make-a-restful-json-api-go/
+
+package main
 
 import (
 	"net/http"
 	"log"
 
-	_ "github.com/go-sql-driver/mysql"
+	// _ "github.com/go-sql-driver/mysql"
 )
-
-func init() {
-	log.SetFlags(log.Flags() | log.Lshortfile)
-}
 
 func main() {
 
