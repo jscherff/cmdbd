@@ -79,7 +79,7 @@ const (
 
 var (
 	db *sql.DB
-	config *mysql.Config
+	dbConfig *mysql.Config
 	auditInsertStmt *sql.Stmt
 	checkinInsertStmt *sql.Stmt
 	serialInsertStmt *sql.Stmt
@@ -102,13 +102,13 @@ func init() {
 	defer fh.Close()
 	jd := json.NewDecoder(fh)
 
-	if err = jd.Decode(&config); err != nil {
+	if err = jd.Decode(&dbConfig); err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// Open the database and test connectivity.
 
-	if db, err = sql.Open("mysql", config.FormatDSN()); err != nil {
+	if db, err = sql.Open("mysql", dbConfig.FormatDSN()); err != nil {
 		log.Fatalf("%v", err)
 	}
 
@@ -116,10 +116,10 @@ func init() {
 		log.Fatalf("%v", err)
 	}
 
-	var dbVersion string
+	var dbVer string
 
-	db.QueryRow("SELECT VERSION()").Scan(&dbVersion)
-	log.Printf("Connected to %s", dbVersion)
+	db.QueryRow("SELECT VERSION()").Scan(&dbVer)
+	log.Printf("Connected to %s on %s as %s.", dbVer, dbConfig.Addr, dbConfig.User)
 
 	// Create database prepared statements.
 

@@ -19,18 +19,23 @@ package main
 import (
 	"net/http"
 	"log"
-
-	// _ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
 
-	defer db.Close()
-	defer auditInsertStmt.Close()
-	defer checkinInsertStmt.Close()
-	defer serialInsertStmt.Close()
-	defer serialUpdateStmt.Close()
-
 	router := NewRouter()
 	log.Fatal(http.ListenAndServe(":8080", router))
+
+	srvLog.Flush()
+	srvLogFile.Close()
+
+	errLog.Flush()
+	errLogFile.Close()
+
+	auditInsertStmt.Close()
+	checkinInsertStmt.Close()
+	serialInsertStmt.Close()
+	serialUpdateStmt.Close()
+
+	db.Close()
 }

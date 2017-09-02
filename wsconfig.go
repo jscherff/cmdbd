@@ -17,17 +17,24 @@ package main
 import (
 	"path/filepath"
 	"encoding/json"
+	"bufio"
 	"log"
 	"os"
+	//"io"
 )
 
 type WsConfig struct {
 	LogDir string `json:"log_dir"`
+	ServerLog string `json:"server_log"`
+	ErrorLog string `json:"error_log"`
 }
 
 const wsConfigFile string = "wsconfig.json"
 
 var wsConfig *WsConfig
+
+var srvLogFile, errLogFile *os.File
+var srvLog, errLog *bufio.Writer
 
 func init() {
 
@@ -46,4 +53,28 @@ func init() {
 	if err = jd.Decode(&wsConfig); err != nil {
 		log.Fatalf("%v", err)
 	}
+
+	err = os.MkdirAll(wsConfig.LogDir, 0755)
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	fn = filepath.Join(wsConfig.LogDir, wsConfig.ServerLog)
+	srvLogFile, err = os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	srvLog = bufio.NewWriter(srvLogFile)
+
+	fn = filepath.Join(wsConfig.LogDir, wsConfig.ErrorLog)
+	errLogFile, err = os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	errLog = bufio.NewWriter(errLogFile)
 }
