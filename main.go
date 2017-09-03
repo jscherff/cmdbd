@@ -76,10 +76,10 @@ func init() {
 	db, err = NewDatabase("mysql.json")
 
 	if err != nil {
-		systemLog.WriteString(fmt.Sprintf("%v\n", err))
+		systemLog.WriteString(fmt.Sprintf("%v", err))
 	}
 
-	systemLog.WriteString(db.Info + "\n")
+	systemLog.WriteString(db.Info)
 }
 
 func main() {
