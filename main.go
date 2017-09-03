@@ -35,12 +35,6 @@ func init() {
 
 	var err error
 
-	db, err = NewDatabase("mysql.json")
-
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
 	config, err = NewConfig("config.json")
 
 	if err != nil {
@@ -79,7 +73,13 @@ func init() {
 		errorLog.Add(os.Stderr)
 	}
 
-	accessLog.Write([]byte(db.Info))
+	db, err = NewDatabase("mysql.json")
+
+	if err != nil {
+		systemLog.WriteString(fmt.Sprintf("%v\n", err))
+	}
+
+	systemLog.WriteString(db.Info + "\n")
 }
 
 func main() {

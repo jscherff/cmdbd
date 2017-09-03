@@ -97,6 +97,11 @@ func (this *MultiWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
+//WriteString converts string input to []byte and then calls Write.
+func (this *MultiWriter) WriteString(s string) (n int, err error) {
+	return this.Write([]byte(s))
+}
+
 // Count returns the number of writers in MultiWriter.
 func (this *MultiWriter) Count() (n int) {
 	return len(this.writers)

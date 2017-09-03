@@ -69,7 +69,7 @@ func NewDatabase(cf string) (this *Database, err error) {
 	}
 
 	this.Handle.QueryRow("SELECT VERSION()").Scan(&this.Info)
-	this.Info = fmt.Sprintf("%s (%s@%s)", this.Info, this.Config.Addr, this.Config.User)
+	this.Info = fmt.Sprintf("Connected to %s (%s@%s)", this.Info, this.Config.User, this.Config.Addr)
 
 	if this.Stmt.AuditInsert, err = this.Handle.Prepare(AuditInsertSQL); err != nil {
 		return this, err
