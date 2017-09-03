@@ -22,8 +22,59 @@ import (
 const (
 	AccessPriority = srslog.LOG_DAEMON|srslog.LOG_INFO
 	ErrorPriority = srslog.LOG_DAEMON|srslog.LOG_ERR
+
 	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
 	LogFileMode = 0644
 	LogDirMode = 0755
-)
 
+	HttpBodySizeLimit int64 = 1048576
+
+	AuditInsertSQL string = `
+
+		INSERT INTO audits (
+			Serial_number,
+			field_name,
+			old_value,
+			new_value
+		)
+
+		VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))`
+
+	CheckinInsertSQL string = `
+
+		INSERT INTO checkins (
+			host_name,
+			vendor_id,
+			product_id,
+			Serial_number,
+			vendor_name,
+			product_name,
+			product_ver,
+			software_id,
+			object_type
+		)
+
+		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
+
+	SerialInsertSQL string = `
+	
+		INSERT INTO Serials (
+			host_name,
+			vendor_id,
+			product_id,
+			Serial_number,
+			vendor_name,
+			product_name,
+			product_ver,
+			software_id,
+			object_type
+		)
+
+		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
+
+	SerialUpdateSQL string = `
+
+		UPDATE Serials
+		SET Serial_number = ?
+		WHERE id = ?`
+)

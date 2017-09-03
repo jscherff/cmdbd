@@ -18,39 +18,46 @@ import (
 	"path/filepath"
 	"encoding/json"
 	"runtime"
+	"strings"
 	"fmt"
 	"os"
 )
 
+// Config contains infomation about the server process and log writers.
 type Config struct {
 
-	useSyslog bool
-
-	useLogFiles bool
-
-	syslog struct {
-		tag string
-		port string
-		protocol string
-		hostname string
+	Server struct {
+		ListenerAddress string
+		ListenerPort string
 	}
 
-	logFiles struct {
-		windows struct {
-			logDir string
-			accessLog string
-			errorLog string
+	Syslog struct {
+		Tag string
+		Port string
+		Protocol string
+		Hostname string
+	}
+
+	LogFiles struct {
+		Windows struct {
+			LogDir string
+			AccessLog string
+			ErrorLog string
 		}
-		linux struct {
-			logDir string
-			accessLog string
-			errorLog string
+		Linux struct {
+			LogDir string
+			AccessLog string
+			ErrorLog string
 		}
 	}
 
-	usbDbUrl string
+	UseSyslog bool
+	UseLogFiles bool
+	UsbDbUrl string
 }
 
+// NewConfig creates a new Config object and reads its configuration from
+// the provided JSON configuration file.
 func NewConfig(cf string) (this *Config, err error) {
 
 	this = new(Config)
@@ -64,20 +71,13 @@ func NewConfig(cf string) (this *Config, err error) {
 	}
 
 	jd := json.NewDecoder(fh)
-
 	err = jd.Decode(&this)
 
 	return this, err
 }
 
-func (this *Config) UseLogFiles() (bool) {
-	return this.useLogFiles
-}
-
-func (this *Config) UseSyslog() (bool) {
-	return this.useSyslog
-}
-
+// LogFileInfo builds and returns the full log file path based on the
+// operating system and configuration information.
 func (this *Config) LogFileInfo() (afn, efn string, err error) {
 
 	appDir := filepath.Dir(os.Args[0])
@@ -85,14 +85,14 @@ func (this *Config) LogFileInfo() (afn, efn string, err error) {
 	switch runtime.GOOS {
 
 	case "windows":
-		dir := filepath.Join(appDir, this.logFiles.windows.logDir)
-		afn = filepath.Join(dir, this.logFiles.windows.accessLog)
-		efn = filepath.Join(dir, this.logFiles.windows.errorLog)
+		dir := filepath.Join(appDir, this.LogFiles.Windows.LogDir)
+		afn = filepath.Join(dir, this.LogFiles.Windows.AccessLog)
+		efn = filepath.Join(dir, this.LogFiles.Windows.ErrorLog)
 
 	case "linux":
-		dir := this.logFiles.linux.logDir
-		afn = filepath.Join(dir, this.logFiles.linux.accessLog)
-		efn = filepath.Join(dir, this.logFiles.linux.errorLog)
+		dir := this.LogFiles.Linux.LogDir
+		afn = filepath.Join(dir, this.LogFiles.Linux.AccessLog)
+		efn = filepath.Join(dir, this.LogFiles.Linux.ErrorLog)
 
 	default:
 		err = fmt.Errorf("operating system '%v' not supported", runtime.GOOS)
@@ -101,8 +101,10 @@ func (this *Config) LogFileInfo() (afn, efn string, err error) {
 	return afn, efn, err
 }
 
+// SyslogInfo builds and returns syslog parameters from the configuration
+// information.
 func (this *Config) SyslogInfo() (proto, raddr, tag string) {
 
-	raddr = fmt.Sprintf("%s:%s", this.syslog.hostname, this.syslog.port)
-	return this.syslog.protocol, raddr, this.syslog.tag
+	raddr = strings.Join([]string{this.Syslog.Hostname, this.Syslog.Port}, ":")
+	return this.Syslog.Protocol, raddr, this.Syslog.Tag
 }

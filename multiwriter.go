@@ -71,8 +71,6 @@ func (this *MultiWriter) AddSyslog(proto, raddr, tag string, pri srslog.Priority
 	} else {
 		log.Printf("%v", err)
 	}
-
-	//TODO: test each syslog with a write, set to nil on error
 }
 
 

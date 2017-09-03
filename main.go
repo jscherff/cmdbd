@@ -18,6 +18,7 @@ package main
 
 import (
 	"net/http"
+	"fmt"
 	"log"
 	"os"
 )
@@ -48,16 +49,16 @@ func init() {
 	accessLog = NewMultiWriter()
 	errorLog = NewMultiWriter()
 
-	if config.UseLogFiles() {
-		if accessLogFile, errorLogFile, err := config.LogFileInfo(); err == nil {
-			accessLog.AddFiles(accessLogFile)
-			errorLog.AddFiles(errorLogFile)
+	if config.UseLogFiles {
+		if alf, elf, err := config.LogFileInfo(); err == nil {
+			accessLog.AddFiles(alf)
+			errorLog.AddFiles(elf)
 		} else {
 			log.Printf("%v", err)
 		}
 	}
 
-	if config.UseSyslog() {
+	if config.UseSyslog {
 		proto, raddr, tag := config.SyslogInfo()
 		accessLog.AddSyslog(proto, raddr, tag, AccessPriority)
 		accessLog.AddSyslog(proto, raddr, tag, ErrorPriority)
@@ -75,7 +76,8 @@ func init() {
 func main() {
 
 	router := NewRouter()
-	log.Fatal(http.ListenAndServe(":8080", router))
+	listener := fmt.Sprintf("%s:%s", config.Server.ListenerAddress, config.Server.ListenerPort)
+	log.Fatal(http.ListenAndServe(listener, router))
 
 	accessLog.Close()
 	errorLog.Close()

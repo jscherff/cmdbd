@@ -25,8 +25,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const sizeLimit int64 = 1048576
-
 // Serial creates a new record in the 'serials' table when a device
 // requests a serial number. It generates a new device serial number
 // based on the INT primary key of the table, offers it to the device,
@@ -37,7 +35,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, sizeLimit))
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
 		panic(err)
@@ -69,7 +67,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	var insertId int64
 
-	result, err := db.stmt.serialInsert.Exec(
+	result, err := db.Stmt.SerialInsert.Exec(
 		device.HostName,
 		device.VendorID,
 		device.ProductID,
@@ -87,7 +85,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		device.SerialNum = fmt.Sprintf("24F%04x", insertId)
-		result, err = db.stmt.serialUpdate.Exec(device.SerialNum, insertId)
+		result, err = db.Stmt.SerialUpdate.Exec(device.SerialNum, insertId)
 	}
 
 	if err != nil {
@@ -111,7 +109,7 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, sizeLimit))
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
 		panic(err)
@@ -136,7 +134,7 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.stmt.checkinInsert.Exec(
+	_, err = db.Stmt.CheckinInsert.Exec(
 		device.HostName,
 		device.VendorID,
 		device.ProductID,
@@ -163,7 +161,7 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	serialNum := vars["serialNum"]
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, sizeLimit))
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
 		panic(err)
@@ -188,13 +186,13 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.handle.Begin()
+	tx, err := db.Handle.Begin()
 
 	if err == nil {
 
 		for _, change := range *changes {
 
-			_, err = tx.Stmt(db.stmt.auditInsert).Exec(
+			_, err = tx.Stmt(db.Stmt.AuditInsert).Exec(
 				serialNum,
 				change.FieldName,
 				change.OldValue,

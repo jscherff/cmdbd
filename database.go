@@ -24,72 +24,24 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-const (
-	auditInsertSQL string = `
-
-		INSERT INTO audits (
-			serial_number,
-			field_name,
-			old_value,
-			new_value
-		)
-
-		VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))`
-
-	checkinInsertSQL string = `
-
-		INSERT INTO checkins (
-			host_name,
-			vendor_id,
-			product_id,
-			serial_number,
-			vendor_name,
-			product_name,
-			product_ver,
-			software_id,
-			object_type
-		)
-
-		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
-
-	serialInsertSQL string = `
-	
-		INSERT INTO serials (
-			host_name,
-			vendor_id,
-			product_id,
-			serial_number,
-			vendor_name,
-			product_name,
-			product_ver,
-			software_id,
-			object_type
-		)
-
-		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
-
-	serialUpdateSQL string = `
-
-		UPDATE serials
-		SET serial_number = ?
-		WHERE id = ?`
-)
-
+// Database contains the database configuration, handle, and prepared statements.
 type Database struct {
 
-	handle *sql.DB
-	config *mysql.Config
+	Handle *sql.DB
+	Config *mysql.Config
 
-	info string
+	Info string
 
-	stmt struct {
-		auditInsert	*sql.Stmt
-		checkinInsert	*sql.Stmt
-		serialInsert	*sql.Stmt
-		serialUpdate	*sql.Stmt
+	Stmt struct {
+		AuditInsert	*sql.Stmt
+		CheckinInsert	*sql.Stmt
+		SerialInsert	*sql.Stmt
+		SerialUpdate	*sql.Stmt
 	}
 }
 
+// NewDatbase initializes the database object, initializes the database handle,
+// and prepares the prepared statements.
 func NewDatabase(cf string) (this *Database, err error) {
 
 	this = new(Database)
@@ -104,46 +56,47 @@ func NewDatabase(cf string) (this *Database, err error) {
 
 	jd := json.NewDecoder(fh)
 
-	if err = jd.Decode(&this.config); err != nil {
+	if err = jd.Decode(&this.Config); err != nil {
 		return this, err
 	}
 
-	if this.handle, err = sql.Open("mysql", this.config.FormatDSN()); err != nil {
+	if this.Handle, err = sql.Open("mysql", this.Config.FormatDSN()); err != nil {
 		return this, err
 	}
 
-	if err = this.handle.Ping(); err != nil {
+	if err = this.Handle.Ping(); err != nil {
 		return this, err
 	}
 
-	this.handle.QueryRow("SELECT VERSION()").Scan(&this.info)
-	this.info = fmt.Sprintf("%s (%s@%s)", this.info, this.config.Addr, this.config.User)
+	this.Handle.QueryRow("SELECT VERSION()").Scan(&this.Info)
+	this.Info = fmt.Sprintf("%s (%s@%s)", this.Info, this.Config.Addr, this.Config.User)
 
-	if this.stmt.auditInsert, err = this.handle.Prepare(auditInsertSQL); err != nil {
+	if this.Stmt.AuditInsert, err = this.Handle.Prepare(AuditInsertSQL); err != nil {
 		return this, err
 	}
 
-	if this.stmt.checkinInsert, err = this.handle.Prepare(checkinInsertSQL); err != nil {
+	if this.Stmt.CheckinInsert, err = this.Handle.Prepare(CheckinInsertSQL); err != nil {
 		return this, err
 	}
 
-	if this.stmt.serialInsert, err = this.handle.Prepare(serialInsertSQL); err != nil {
+	if this.Stmt.SerialInsert, err = this.Handle.Prepare(SerialInsertSQL); err != nil {
 		return this, err
 	}
 
-	if this.stmt.serialUpdate, err = this.handle.Prepare(serialUpdateSQL); err != nil {
+	if this.Stmt.SerialUpdate, err = this.Handle.Prepare(SerialUpdateSQL); err != nil {
 		return this, err
 	}
 
 	return this, err
 }
 
+// Close closes the prepared statements and database handle.
 func (this *Database) Close() {
 
-	this.stmt.auditInsert.Close()
-	this.stmt.checkinInsert.Close()
-	this.stmt.serialInsert.Close()
-	this.stmt.serialUpdate.Close()
+	this.Stmt.AuditInsert.Close()
+	this.Stmt.CheckinInsert.Close()
+	this.Stmt.SerialInsert.Close()
+	this.Stmt.SerialUpdate.Close()
 
-	this.handle.Close()
+	this.Handle.Close()
 }

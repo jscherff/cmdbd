@@ -1,23 +1,27 @@
 {
-	"useSyslog": true,
-	"useLogFiles": true,
-	"syslog": {
-		"tag": "gohttpd",
-		"port": "",
-		"protocol": "",
-		"hostname": ""
+	"Server": {
+		"ListenerAddress": "",
+		"ListenerPort": "8080"
 	},
-	"logFiles":{
-		"windows": {
-			"logDir": "log",
-			"accessLog": "access.log",
-			"errorLog": "error.log"
+	"Syslog": {
+		"Tag": "gohttpd",
+		"Port": "",
+		"Protocol": "",
+		"Hostname": ""
+	},
+	"LogFiles":{
+		"Windows": {
+			"LogDir": "log",
+			"AccessLog": "access.log",
+			"ErrorLog": "error.log"
 		},
-		"linux": {
-			"logDir": "/var/log/gohttpd",
-			"accessLog": "access_log",
-			"errorLog": "error_log"
+		"Linux": {
+			"LogDir": "/var/log/gohttpd",
+			"AccessLog": "access_log",
+			"ErrorLog": "error_log"
 		}
 	},
-	"usbDbUrl": "http://www.linux-usb.org/usb.ids"
+	"UseSyslog": false,
+	"UseLogFiles": true,
+	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
 }
