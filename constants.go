@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	AccessPriority = srslog.LOG_DAEMON|srslog.LOG_INFO
-	ErrorPriority = srslog.LOG_DAEMON|srslog.LOG_ERR
+	LogInfo = srslog.LOG_DAEMON|srslog.LOG_INFO
+	LogError = srslog.LOG_DAEMON|srslog.LOG_ERR
 
 	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
 	LogFileMode = 0644

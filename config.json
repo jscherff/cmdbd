@@ -21,7 +21,7 @@
 			"ErrorLog": "error_log"
 		}
 	},
-	"UseSyslog": false,
+	"UseSyslog": true,
 	"UseLogFiles": true,
 	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
 }

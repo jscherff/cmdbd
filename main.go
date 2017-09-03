@@ -26,6 +26,7 @@ import (
 var (
 	db *Database
 	config *Config
+	systemLog *MultiWriter
 	accessLog *MultiWriter
 	errorLog *MultiWriter
 )
@@ -46,6 +47,7 @@ func init() {
 		log.Fatalf("%v", err)
 	}
 
+	systemLog = NewMultiWriter()
 	accessLog = NewMultiWriter()
 	errorLog = NewMultiWriter()
 
@@ -60,8 +62,13 @@ func init() {
 
 	if config.UseSyslog {
 		proto, raddr, tag := config.SyslogInfo()
-		accessLog.AddSyslog(proto, raddr, tag, AccessPriority)
-		accessLog.AddSyslog(proto, raddr, tag, ErrorPriority)
+		systemLog.AddSyslog(proto, raddr, tag, LogInfo)
+		accessLog.AddSyslog(proto, raddr, tag, LogInfo)
+		errorLog.AddSyslog(proto, raddr, tag, LogError)
+	}
+
+	if systemLog.Count() == 0 {
+		systemLog.Add(os.Stdout)
 	}
 
 	if accessLog.Count() == 0 {
