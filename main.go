@@ -78,6 +78,8 @@ func init() {
 	if errorLog.Count() == 0 {
 		errorLog.Add(os.Stderr)
 	}
+
+	accessLog.Write([]byte(db.Info))
 }
 
 func main() {
