@@ -1,0 +1,23 @@
+{
+	"useSyslog": true,
+	"useLogFiles": true,
+	"syslog": {
+		"tag": "gohttpd",
+		"port": "",
+		"protocol": "",
+		"hostname": ""
+	},
+	"logFiles":{
+		"windows": {
+			"logDir": "log",
+			"accessLog": "access.log",
+			"errorLog": "error.log"
+		},
+		"linux": {
+			"logDir": "/var/log/gohttpd",
+			"accessLog": "access_log",
+			"errorLog": "error_log"
+		}
+	},
+	"usbDbUrl": "http://www.linux-usb.org/usb.ids"
+}

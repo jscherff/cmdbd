@@ -1,5 +1,0 @@
-{
-	"LogDir": "/var/log",
-	"ServerLog": "gohttpd.log",
-	"ErrorLog": "gohttpd.err"
-}

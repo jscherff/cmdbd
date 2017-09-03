@@ -16,7 +16,6 @@ package main
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
@@ -31,8 +30,7 @@ func NewRouter() *mux.Router {
 		var handler http.Handler
 
 		handler = route.HandlerFunc
-		handler = handlers.CombinedLoggingHandler(os.Stdout, handler) //TODO: write to log file
-		//handler = Logger(handler, route.Name)
+		handler = handlers.CombinedLoggingHandler(accessLog, handler)
 
 		router.
 			Methods(route.Method).

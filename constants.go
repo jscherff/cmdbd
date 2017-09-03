@@ -15,26 +15,15 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"time"
+	"github.com/RackSec/srslog"
+	"os"
 )
 
-func Logger(inner http.Handler, name string) http.Handler {
+const (
+	AccessPriority = srslog.LOG_DAEMON|srslog.LOG_INFO
+	ErrorPriority = srslog.LOG_DAEMON|srslog.LOG_ERR
+	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
+	LogFileMode = 0644
+	LogDirMode = 0755
+)
 
-	return http.HandlerFunc(
-
-		func(w http.ResponseWriter, r *http.Request) {
-
-			start := time.Now()
-			inner.ServeHTTP(w, r)
-
-			log.Printf("%s\t%s\t%s\t%s",
-				r.Method,
-				r.RequestURI,
-				name,
-				time.Since(start),
-			)
-		},
-	)
-}

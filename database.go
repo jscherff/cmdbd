@@ -18,15 +18,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"path/filepath"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/go-sql-driver/mysql"
 )
 
 const (
-	dbConfigFile string = "dbconfig.json"
-
 	auditInsertSQL string = `
 
 		INSERT INTO audits (
@@ -77,65 +75,75 @@ const (
 		WHERE id = ?`
 )
 
-var (
-	db *sql.DB
-	dbConfig *mysql.Config
-	auditInsertStmt *sql.Stmt
-	checkinInsertStmt *sql.Stmt
-	serialInsertStmt *sql.Stmt
-	serialUpdateStmt *sql.Stmt
-)
+type Database struct {
 
-func init() {
+	handle *sql.DB
+	config *mysql.Config
 
-	var err error
+	info string
 
-	// Open and decode the database JSON configuration file.
+	stmt struct {
+		auditInsert	*sql.Stmt
+		checkinInsert	*sql.Stmt
+		serialInsert	*sql.Stmt
+		serialUpdate	*sql.Stmt
+	}
+}
 
-	fn := filepath.Join(filepath.Dir(os.Args[0]), dbConfigFile)
-	fh, err := os.Open(fn)
+func NewDatabase(cf string) (this *Database, err error) {
+
+	this = new(Database)
+	appDir := filepath.Dir(os.Args[0])
+
+	fh, err := os.Open(filepath.Join(appDir, cf))
+	defer fh.Close()
 
 	if err != nil {
-		log.Fatalf("%v", err)
+		return this, err
 	}
 
-	defer fh.Close()
 	jd := json.NewDecoder(fh)
 
-	if err = jd.Decode(&dbConfig); err != nil {
-		log.Fatalf("%v", err)
+	if err = jd.Decode(&this.config); err != nil {
+		return this, err
 	}
 
-	// Open the database and test connectivity.
-
-	if db, err = sql.Open("mysql", dbConfig.FormatDSN()); err != nil {
-		log.Fatalf("%v", err)
+	if this.handle, err = sql.Open("mysql", this.config.FormatDSN()); err != nil {
+		return this, err
 	}
 
-	if err = db.Ping(); err != nil {
-		log.Fatalf("%v", err)
+	if err = this.handle.Ping(); err != nil {
+		return this, err
 	}
 
-	var dbVer string
+	this.handle.QueryRow("SELECT VERSION()").Scan(&this.info)
+	this.info = fmt.Sprintf("%s (%s@%s)", this.info, this.config.Addr, this.config.User)
 
-	db.QueryRow("SELECT VERSION()").Scan(&dbVer)
-	log.Printf("Connected to %s on %s as %s.", dbVer, dbConfig.Addr, dbConfig.User)
-
-	// Create database prepared statements.
-
-	if auditInsertStmt, err = db.Prepare(auditInsertSQL); err != nil {
-		log.Fatalf("%v", err)
+	if this.stmt.auditInsert, err = this.handle.Prepare(auditInsertSQL); err != nil {
+		return this, err
 	}
 
-	if checkinInsertStmt, err = db.Prepare(checkinInsertSQL); err != nil {
-		log.Fatalf("%v", err)
+	if this.stmt.checkinInsert, err = this.handle.Prepare(checkinInsertSQL); err != nil {
+		return this, err
 	}
 
-	if serialInsertStmt, err = db.Prepare(serialInsertSQL); err != nil {
-		log.Fatalf("%v", err)
+	if this.stmt.serialInsert, err = this.handle.Prepare(serialInsertSQL); err != nil {
+		return this, err
 	}
 
-	if serialUpdateStmt, err = db.Prepare(serialUpdateSQL); err != nil {
-		log.Fatalf("%v", err)
+	if this.stmt.serialUpdate, err = this.handle.Prepare(serialUpdateSQL); err != nil {
+		return this, err
 	}
+
+	return this, err
+}
+
+func (this *Database) Close() {
+
+	this.stmt.auditInsert.Close()
+	this.stmt.checkinInsert.Close()
+	this.stmt.serialInsert.Close()
+	this.stmt.serialUpdate.Close()
+
+	this.handle.Close()
 }

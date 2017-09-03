@@ -69,7 +69,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	var insertId int64
 
-	result, err := serialInsertStmt.Exec(
+	result, err := db.stmt.serialInsert.Exec(
 		device.HostName,
 		device.VendorID,
 		device.ProductID,
@@ -87,7 +87,7 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		device.SerialNum = fmt.Sprintf("24F%04x", insertId)
-		result, err = serialUpdateStmt.Exec(device.SerialNum, insertId)
+		result, err = db.stmt.serialUpdate.Exec(device.SerialNum, insertId)
 	}
 
 	if err != nil {
@@ -136,7 +136,7 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = checkinInsertStmt.Exec(
+	_, err = db.stmt.checkinInsert.Exec(
 		device.HostName,
 		device.VendorID,
 		device.ProductID,
@@ -188,13 +188,13 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.Begin()
+	tx, err := db.handle.Begin()
 
 	if err == nil {
 
 		for _, change := range *changes {
 
-			_, err = tx.Stmt(auditInsertStmt).Exec(
+			_, err = tx.Stmt(db.stmt.auditInsert).Exec(
 				serialNum,
 				change.FieldName,
 				change.OldValue,

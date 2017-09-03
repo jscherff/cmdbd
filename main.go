@@ -19,23 +19,65 @@ package main
 import (
 	"net/http"
 	"log"
+	"os"
 )
+
+var (
+	db *Database
+	config *Config
+	accessLog *MultiWriter
+	errorLog *MultiWriter
+)
+
+func init() {
+
+	var err error
+
+	db, err = NewDatabase("mysql.json")
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	config, err = NewConfig("config.json")
+
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	accessLog = NewMultiWriter()
+	errorLog = NewMultiWriter()
+
+	if config.UseLogFiles() {
+		if accessLogFile, errorLogFile, err := config.LogFileInfo(); err == nil {
+			accessLog.AddFiles(accessLogFile)
+			errorLog.AddFiles(errorLogFile)
+		} else {
+			log.Printf("%v", err)
+		}
+	}
+
+	if config.UseSyslog() {
+		proto, raddr, tag := config.SyslogInfo()
+		accessLog.AddSyslog(proto, raddr, tag, AccessPriority)
+		accessLog.AddSyslog(proto, raddr, tag, ErrorPriority)
+	}
+
+	if accessLog.Count() == 0 {
+		accessLog.Add(os.Stdout)
+	}
+
+	if errorLog.Count() == 0 {
+		errorLog.Add(os.Stderr)
+	}
+}
 
 func main() {
 
 	router := NewRouter()
 	log.Fatal(http.ListenAndServe(":8080", router))
 
-	srvLog.Flush()
-	srvLogFile.Close()
-
-	errLog.Flush()
-	errLogFile.Close()
-
-	auditInsertStmt.Close()
-	checkinInsertStmt.Close()
-	serialInsertStmt.Close()
-	serialUpdateStmt.Close()
-
+	accessLog.Close()
+	errorLog.Close()
 	db.Close()
 }
