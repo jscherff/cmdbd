@@ -25,12 +25,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Serial creates a new record in the 'serials' table when a device
-// requests a serial number. It generates a new device serial number
-// based on the INT primary key of the table, offers it to the device,
-// then updates the 'serial_number' column of the table with the new
-// serial number.
-func Serial(w http.ResponseWriter, r *http.Request) {
+// SerialHandler creates a new record in the 'serials' table when a device
+// requests a serial number. It generates a new device serial number based
+// on the INT primary key of the table, offers it to the device, then updates
+// the 'serial_number' column of the table with the new serial number.
+func SerialHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
@@ -99,12 +98,12 @@ func Serial(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Checkin creates a new record in the 'checkin' table when a device
-// checks in. A DB trigger then creates a new record in the 'devices'
-// table if one does not exist or updates the existing record with data
-// from every column except the serial number. The trigger also updates
-// the 'last_seen' column of the 'devices' table with the checkin date.
-func Checkin(w http.ResponseWriter, r *http.Request) {
+// CheckinHandler creates a new record in the 'checkin' table when a device
+// checks in. A DB trigger then creates a new record in the 'devices' table
+// if one does not exist or updates the existing record with data from every
+// column except the serial number. The trigger also updates the 'last_seen'
+// column of the 'devices' table with the checkin date.
+func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	objectType := vars["objectType"]
@@ -153,10 +152,10 @@ func Checkin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Audit records property changes reported by the device in the 'audits'
-// table. Each report is associated with a single serial number but may
-// contain multiple changes.
-func Audit(w http.ResponseWriter, r *http.Request) {
+// AuditHandler records property changes reported by the device in the 'audits'
+// table. Each report is associated with a single serial number but may contain
+// multiple changes.
+func AuditHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	serialNum := vars["serialNum"]

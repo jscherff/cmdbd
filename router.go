@@ -21,6 +21,8 @@ import (
 	"github.com/gorilla/handlers"
 )
 
+// NewRouter creates a new Gorilla Mux router and adds routes contained
+// in the routes struct.
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
