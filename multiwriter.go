@@ -28,6 +28,7 @@ import (
 // MultiWriter is an io.Writer that sends output to multiple destinations.
 type MultiWriter struct {
 	writers	[]io.Writer
+	buffers	[]*bufio.Writer
 	files	[]*os.File
 }
 
@@ -36,14 +37,14 @@ func NewMultiWriter() (this *MultiWriter) {
 	return new(MultiWriter)
 }
 
-// Add appends one or more writers to MultiWriter writers.
+// Add adds one or more writers to MultiWriter.
 func (this *MultiWriter) Add(writers ...io.Writer) {
 	for _, w := range writers {
 		this.writers = append(this.writers, w)
 	}
 }
 
-// AddFiles appends one or more file writers to MultiWriter writers.
+// AddFiles adds one or more file writers to MultiWriter.
 func (this *MultiWriter) AddFiles(files ...string) {
 
 	for _, f := range files {
@@ -53,7 +54,9 @@ func (this *MultiWriter) AddFiles(files ...string) {
 
 		if err = os.MkdirAll(filepath.Dir(f), LogDirMode); err == nil {
 			if h, err = os.OpenFile(f, LogFileFlags, LogFileMode); err == nil {
-				this.Add(bufio.NewWriter(h))
+				b := bufio.NewWriter(h)
+				this.Add(b)
+				this.buffers = append(this.buffers, b)
 				this.files = append(this.files, h)
 			}
 		}
@@ -80,7 +83,6 @@ func (this *MultiWriter) Write(p []byte) (n int, err error) {
 	var errs int
 
 	for _, w := range this.writers {
-
 		if n, err = w.Write(p); err != nil {
 			errs++
 		}
@@ -103,12 +105,13 @@ func (this *MultiWriter) Count() (n int) {
 	return len(this.writers)
 }
 
-// Flush flushes the underlying bufio writers in MultiWriter.
+// Flush flushes underlying bufio writers in MultiWriter.
 func (this *MultiWriter) Flush() (err error) {
+
 	var errs int
 
-	for _, f := range this.files {
-		if err = f.Flush(); err != nil {
+	for _, b := range this.buffers {
+		if err = b.Flush(); err != nil {
 			errs++
 		}
 	}
@@ -120,13 +123,21 @@ func (this *MultiWriter) Flush() (err error) {
 	return err
 }
 
-// Close syncs and closes file handles in MultiWriter.
-func (this *MultiWriter) Close() (err error) {
-
-	err = this.Flush()
+// Sync syncs underlying file writers in MultiWriter.
+func (this *MultiWriter) Sync() {
 
 	for _, f := range this.files {
 		f.Sync()
+	}
+}
+
+// Close syncs and closes underlying file writers in MultiWriter.
+func (this *MultiWriter) Close() (err error) {
+
+	err = this.Flush()
+	this.Sync()
+
+	for _, f := range this.files {
 		f.Close()
 	}
 
