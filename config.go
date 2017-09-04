@@ -99,7 +99,7 @@ func (this *Config) LogFileInfo() (sfn, afn, efn string, err error) {
 
 	case "linux":
 		dir := this.LogFiles.Linux.LogDir
-		sfn = filepath.Join(dir, this.LogFiles.Windows.SystemLog)
+		sfn = filepath.Join(dir, this.LogFiles.Linux.SystemLog)
 		afn = filepath.Join(dir, this.LogFiles.Linux.AccessLog)
 		efn = filepath.Join(dir, this.LogFiles.Linux.ErrorLog)
 
