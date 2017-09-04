@@ -45,9 +45,8 @@ type Database struct {
 func NewDatabase(driver, cf string) (this *Database, err error) {
 
 	this = new(Database)
-	appDir := filepath.Dir(os.Args[0])
 
-	fh, err := os.Open(filepath.Join(appDir, cf))
+	fh, err := os.Open(cf)
 	defer fh.Close()
 
 	if err != nil {

@@ -67,9 +67,8 @@ type Config struct {
 func NewConfig(cf string) (this *Config, err error) {
 
 	this = new(Config)
-	appDir := filepath.Dir(os.Args[0])
 
-	fh, err := os.Open(filepath.Join(appDir, cf))
+	fh, err := os.Open(cf)
 	defer fh.Close()
 
 	if err != nil {
