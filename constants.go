@@ -75,7 +75,7 @@ const (
 
 	SerialUpdateSQL string = `
 
-		UPDATE Serials
+		UPDATE serials
 		SET Serial_number = ?
 		WHERE id = ?`
 )
