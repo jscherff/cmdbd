@@ -37,12 +37,12 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -52,11 +52,11 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &device); err != nil {
 
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(err)
+			errorLog.WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 		return
@@ -92,13 +92,13 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(device); err != nil {
-			errorLog.WriteError(err)
+			errorLog.WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 	}
@@ -117,12 +117,12 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -132,11 +132,11 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &device); err != nil {
 
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(err)
+			errorLog.WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 
@@ -156,7 +156,7 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
@@ -174,12 +174,12 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -189,11 +189,11 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &changes); err != nil {
 
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(err)
+			errorLog.WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 
@@ -214,21 +214,21 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 			)
 
 			if err != nil {
-				errorLog.WriteError(err)
+				errorLog.WriteError(ErrorDecorator(err))
 				break
 			}
 		}
 	}
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		err = tx.Rollback()
 	} else {
 		err = tx.Commit()
 	}
 
 	if err != nil {
-		errorLog.WriteError(err)
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
