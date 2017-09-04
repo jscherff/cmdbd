@@ -17,7 +17,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"path/filepath"
 	"fmt"
 	"os"
 
