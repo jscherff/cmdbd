@@ -1,9 +1,6 @@
-# systemd startup file
-# /etc/systemd/system
-
 [Unit]
 Description=gohttpd Service
-After=network.target
+After=syslog.target network.target
 
 [Service]
 Type=simple
