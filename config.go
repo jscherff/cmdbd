@@ -51,8 +51,9 @@ type Config struct {
 		}
 	}
 
-	UseSyslog bool
-	UseLogFiles bool
+	EnableSyslog bool
+	EnableLogFiles bool
+	EnableConsole bool
 	UsbDbUrl string
 }
 

@@ -18,6 +18,8 @@ package main
 
 import (
 	"net/http"
+	"io/ioutil"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -34,8 +36,9 @@ var (
 func init() {
 
 	var err error
+	flag.Parse()
 
-	config, err = NewConfig("config.json")
+	config, err = NewConfig(*fWsConfigFile)
 
 	if err != nil {
 		log.Fatalf("%v", err)
@@ -45,35 +48,40 @@ func init() {
 	accessLog = NewMultiWriter()
 	errorLog = NewMultiWriter()
 
-	if config.UseLogFiles {
+	if config.EnableLogFiles || *fEnableLogFiles {
 		if alf, elf, err := config.LogFileInfo(); err == nil {
 			accessLog.AddFiles(alf)
 			errorLog.AddFiles(elf)
 		} else {
 			log.Printf("%v", err)
-		}
-	}
+		}}
 
-	if config.UseSyslog {
+	if config.EnableSyslog || *fEnableSyslog {
 		proto, raddr, tag := config.SyslogInfo()
 		systemLog.AddSyslog(proto, raddr, tag, LogInfo)
 		accessLog.AddSyslog(proto, raddr, tag, LogInfo)
 		errorLog.AddSyslog(proto, raddr, tag, LogError)
 	}
 
-	if systemLog.Count() == 0 {
+	if config.EnableConsole || *fEnableConsole {
 		systemLog.Add(os.Stdout)
-	}
-
-	if accessLog.Count() == 0 {
 		accessLog.Add(os.Stdout)
-	}
-
-	if errorLog.Count() == 0 {
 		errorLog.Add(os.Stderr)
 	}
 
-	db, err = NewDatabase("mysql.json")
+	if systemLog.Count() == 0 {
+		systemLog.Add(ioutil.Discard)
+	}
+
+	if accessLog.Count() == 0 {
+		accessLog.Add(ioutil.Discard)
+	}
+
+	if errorLog.Count() == 0 {
+		errorLog.Add(ioutil.Discard)
+	}
+
+	db, err = NewDatabase(*fDbConfigFile)
 
 	if err != nil {
 		systemLog.WriteString(fmt.Sprintf("%v", err))
@@ -88,7 +96,17 @@ func main() {
 	listener := fmt.Sprintf("%s:%s", config.Server.ListenerAddress, config.Server.ListenerPort)
 	log.Fatal(http.ListenAndServe(listener, router))
 
-	accessLog.Close()
-	errorLog.Close()
+	if err := systemLog.Close(); err != nil {
+		log.Printf("%v", err)
+	}
+
+	if err := accessLog.Close(); err != nil {
+		log.Printf("%v", err)
+	}
+
+	if err := errorLog.Close(); err != nil {
+		log.Printf("%v", err)
+	}
+
 	db.Close()
 }
