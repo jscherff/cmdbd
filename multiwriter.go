@@ -25,21 +25,21 @@ import (
 	"github.com/RackSec/srslog"
 )
 
+// MultiWriter is an io.Writer that sends output to multiple destinations.
+type MultiWriter struct {
+	writers	[]io.Writer
+	files	[]*os.File
+}
+
 // NewMultiWriter returns an initialized MultiWriter object.
 func NewMultiWriter() (this *MultiWriter) {
 	return new(MultiWriter)
 }
 
-// MultiWriter is an io.Writer that sends output to multiple destinations.
-type MultiWriter struct {
-	writers	[]*bufio.Writer
-	files	[]*os.File
-}
-
 // Add appends one or more writers to MultiWriter writers.
 func (this *MultiWriter) Add(writers ...io.Writer) {
 	for _, w := range writers {
-		this.writers = append(this.writers, bufio.NewWriter(w))
+		this.writers = append(this.writers, w)
 	}
 }
 
@@ -53,7 +53,7 @@ func (this *MultiWriter) AddFiles(files ...string) {
 
 		if err = os.MkdirAll(filepath.Dir(f), LogDirMode); err == nil {
 			if h, err = os.OpenFile(f, LogFileFlags, LogFileMode); err == nil {
-				this.Add(h)
+				this.Add(bufio.NewWriter(h))
 				this.files = append(this.files, h)
 			}
 		}
@@ -77,21 +77,17 @@ func (this *MultiWriter) AddSyslog(proto, raddr, tag string, pri srslog.Priority
 // Write writes output to each writer in MultiWriter.
 func (this *MultiWriter) Write(p []byte) (n int, err error) {
 
-	var fail, short int
+	var errs int
 
 	for _, w := range this.writers {
 
 		if n, err = w.Write(p); err != nil {
-			fail++
-		}
-
-		if n < len(p) {
-			short++
+			errs++
 		}
 	}
 
-	if fail > 0 || short > 0 {
-		err = fmt.Errorf("%d write errors, %d short writes", fail, short)
+	if errs > 0 {
+		err = fmt.Errorf("%d write errors", errs)
 	}
 
 	return n, err
@@ -107,18 +103,18 @@ func (this *MultiWriter) Count() (n int) {
 	return len(this.writers)
 }
 
-// Flush flushes the underlying writers in MultiWriter.
+// Flush flushes the underlying bufio writers in MultiWriter.
 func (this *MultiWriter) Flush() (err error) {
-	var fail int
+	var errs int
 
-	for _, w := range this.writers {
-		if err = w.Flush(); err != nil {
-			fail++
+	for _, f := range this.files {
+		if err = f.Flush(); err != nil {
+			errs++
 		}
 	}
 
-	if fail > 0 {
-		err = fmt.Errorf("%d flush errors", fail)
+	if errs > 0 {
+		err = fmt.Errorf("%d flush errors", errs)
 	}
 
 	return err
