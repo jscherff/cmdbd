@@ -20,22 +20,20 @@ import (
 	"fmt"
 )
 
-// FunctionInfo returns function filename, line number, and function name
-// for error reporting.
-func FunctionInfo() string {
+// ErrorDecorator prepends function filename, line number, and function name
+// to error messages.
+func ErrorDecorator(ue error) (de error) {
+
+	var msg string
 
 	pc, file, line, success := runtime.Caller(1)
 	function := runtime.FuncForPC(pc)
 
-	if !success {
-		return "Unknown goroutine"
+	if success {
+		msg = fmt.Sprintf("%s:%d: %s()", filepath.Base(file), line, function.Name())
+	} else {
+		msg = "unknown goroutine"
 	}
 
-	return fmt.Sprintf("%s:%d: %s()", filepath.Base(file), line, function.Name())
-}
-
-// ErrorDecorator prepends function filename, line number, and function name
-// to error messages.
-func ErrorDecorator(ue error) (de error) {
-	return fmt.Errorf("%s: %v", FunctionInfo(), ue)
+	return fmt.Errorf("%s: %v", msg, ue)
 }
