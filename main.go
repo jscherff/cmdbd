@@ -49,12 +49,14 @@ func init() {
 	errorLog = NewMultiWriter()
 
 	if config.EnableLogFiles || *fEnableLogFiles {
+
 		if alf, elf, err := config.LogFileInfo(); err == nil {
 			accessLog.AddFiles(alf)
 			errorLog.AddFiles(elf)
 		} else {
 			log.Printf("%v", err)
-		}}
+		}
+	}
 
 	if config.EnableSyslog || *fEnableSyslog {
 		proto, raddr, tag := config.SyslogInfo()
@@ -81,7 +83,11 @@ func init() {
 		errorLog.Add(ioutil.Discard)
 	}
 
-	db, err = NewDatabase(*fDbConfigFile)
+	if len(*fDbConfigFile) > 0 {
+		db, err = NewDatabase(config.Database.Driver, *fDbConfigFile)
+	} else {
+		db, err = NewDatabase(config.Database.Driver, config.Database.Config)
+	}
 
 	if err != nil {
 		systemLog.WriteString(fmt.Sprintf("%v", err))

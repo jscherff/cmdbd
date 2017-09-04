@@ -3,6 +3,10 @@
 		"ListenerAddress": "",
 		"ListenerPort": "8080"
 	},
+	"Database": {
+		"Driver": "mysql",
+		"Config": "mysql.json"
+	},
 	"Syslog": {
 		"Tag": "gohttpd",
 		"Port": "",
@@ -21,8 +25,8 @@
 			"ErrorLog": "error_log"
 		}
 	},
-	"UseSyslog": false,
-	"UseLogFiles": false,
+	"EnableSyslog": false,
+	"EnableLogFiles": false,
 	"EnableConsole": false,
 	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
 }

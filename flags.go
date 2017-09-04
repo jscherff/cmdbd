@@ -17,8 +17,8 @@ package main
 import "flag"
 
 var (
-	fWsConfigFile = flag.String("config-server", "config.json", "Web server configuration file")
-	fDbConfigFile = flag.String("config-database", "mysql.json", "Database configuration file")
+	fWsConfigFile = flag.String("config", "config.json", "Web server configuration file")
+	fDbConfigFile = flag.String("dbconfig", "", "Database configuration file")
 	fEnableConsole = flag.Bool("enable-console", false, "Enable console logging")
 	fEnableLogFiles = flag.Bool("enable-logfiles", false, "Enable logfile logging")
 	fEnableSyslog = flag.Bool("enable-syslog", false, "Enable syslog logging")

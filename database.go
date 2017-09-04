@@ -42,7 +42,7 @@ type Database struct {
 
 // NewDatbase initializes the database object, initializes the database handle,
 // and prepares the prepared statements.
-func NewDatabase(cf string) (this *Database, err error) {
+func NewDatabase(driver, cf string) (this *Database, err error) {
 
 	this = new(Database)
 	appDir := filepath.Dir(os.Args[0])
@@ -60,7 +60,7 @@ func NewDatabase(cf string) (this *Database, err error) {
 		return this, err
 	}
 
-	if this.Handle, err = sql.Open("mysql", this.Config.FormatDSN()); err != nil {
+	if this.Handle, err = sql.Open(driver, this.Config.FormatDSN()); err != nil {
 		return this, err
 	}
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=gohttpd Service
+After=network.target
+
+[Service]
+Type=simple
+User=gohttpd
+ExecStart=/opt/gohttpd/bin/gohttpd -config /opt/gohttpd/etc/config.json -enable-syslog
+Restart=on-abort
+
+
+[Install]
+WantedBy=multi-user.target

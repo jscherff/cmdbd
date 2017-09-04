@@ -31,6 +31,11 @@ type Config struct {
 		ListenerPort string
 	}
 
+	Database struct {
+		Driver string
+		Config string
+	}
+
 	Syslog struct {
 		Tag string
 		Port string
