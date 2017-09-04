@@ -58,7 +58,7 @@ const (
 
 	SerialInsertSQL string = `
 	
-		INSERT INTO Serials (
+		INSERT INTO serials (
 			host_name,
 			vendor_id,
 			product_id,
