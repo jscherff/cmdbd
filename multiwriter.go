@@ -16,7 +16,6 @@ package main
 
 import (
 	"path/filepath"
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -28,7 +27,6 @@ import (
 // MultiWriter is an io.Writer that sends output to multiple destinations.
 type MultiWriter struct {
 	writers	[]io.Writer
-	buffers	[]*bufio.Writer
 	files	[]*os.File
 }
 
@@ -54,9 +52,7 @@ func (this *MultiWriter) AddFiles(files ...string) {
 
 		if err = os.MkdirAll(filepath.Dir(f), LogDirMode); err == nil {
 			if h, err = os.OpenFile(f, LogFileFlags, LogFileMode); err == nil {
-				b := bufio.NewWriter(h)
-				this.Add(b)
-				this.buffers = append(this.buffers, b)
+				this.Add(h)
 				this.files = append(this.files, h)
 			}
 		}
@@ -105,24 +101,6 @@ func (this *MultiWriter) Count() (n int) {
 	return len(this.writers)
 }
 
-// Flush flushes underlying bufio writers in MultiWriter.
-func (this *MultiWriter) Flush() (err error) {
-
-	var errs int
-
-	for _, b := range this.buffers {
-		if err = b.Flush(); err != nil {
-			errs++
-		}
-	}
-
-	if errs > 0 {
-		err = fmt.Errorf("%d flush errors", errs)
-	}
-
-	return err
-}
-
 // Sync syncs underlying file writers in MultiWriter.
 func (this *MultiWriter) Sync() {
 
@@ -134,7 +112,6 @@ func (this *MultiWriter) Sync() {
 // Close syncs and closes underlying file writers in MultiWriter.
 func (this *MultiWriter) Close() (err error) {
 
-	err = this.Flush()
 	this.Sync()
 
 	for _, f := range this.files {
