@@ -50,7 +50,8 @@ func init() {
 
 	if config.EnableLogFiles || *fEnableLogFiles {
 
-		if alf, elf, err := config.LogFileInfo(); err == nil {
+		if slf, alf, elf, err := config.LogFileInfo(); err == nil {
+			systemLog.AddFiles(slf)
 			accessLog.AddFiles(alf)
 			errorLog.AddFiles(elf)
 		} else {
@@ -60,8 +61,8 @@ func init() {
 
 	if config.EnableSyslog || *fEnableSyslog {
 		proto, raddr, tag := config.SyslogInfo()
-		systemLog.AddSyslog(proto, raddr, tag, LogInfo)
-		accessLog.AddSyslog(proto, raddr, tag, LogInfo)
+		systemLog.AddSyslog(proto, raddr, tag, LogSystem)
+		accessLog.AddSyslog(proto, raddr, tag, LogAccess)
 		errorLog.AddSyslog(proto, raddr, tag, LogError)
 	}
 

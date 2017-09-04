@@ -16,17 +16,19 @@
 	"LogFiles":{
 		"Windows": {
 			"LogDir": "log",
+			"SystemLog": "system.log",
 			"AccessLog": "access.log",
 			"ErrorLog": "error.log"
 		},
 		"Linux": {
 			"LogDir": "/var/log/gohttpd",
+			"SystemLog": "system_log",
 			"AccessLog": "access_log",
 			"ErrorLog": "error_log"
 		}
 	},
-	"EnableSyslog": false,
-	"EnableLogFiles": false,
+	"EnableLogFiles": true,
 	"EnableConsole": false,
+	"EnableSyslog": false,
 	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
 }

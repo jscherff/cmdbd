@@ -46,19 +46,21 @@ type Config struct {
 	LogFiles struct {
 		Windows struct {
 			LogDir string
+			SystemLog string
 			AccessLog string
 			ErrorLog string
 		}
 		Linux struct {
 			LogDir string
+			SystemLog string
 			AccessLog string
 			ErrorLog string
 		}
 	}
 
-	EnableSyslog bool
 	EnableLogFiles bool
 	EnableConsole bool
+	EnableSyslog bool
 	UsbDbUrl string
 }
 
@@ -83,7 +85,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 // LogFileInfo builds and returns the full log file path based on the
 // operating system and configuration information.
-func (this *Config) LogFileInfo() (afn, efn string, err error) {
+func (this *Config) LogFileInfo() (sfn, afn, efn string, err error) {
 
 	appDir := filepath.Dir(os.Args[0])
 
@@ -91,11 +93,13 @@ func (this *Config) LogFileInfo() (afn, efn string, err error) {
 
 	case "windows":
 		dir := filepath.Join(appDir, this.LogFiles.Windows.LogDir)
+		sfn = filepath.Join(dir, this.LogFiles.Windows.SystemLog)
 		afn = filepath.Join(dir, this.LogFiles.Windows.AccessLog)
 		efn = filepath.Join(dir, this.LogFiles.Windows.ErrorLog)
 
 	case "linux":
 		dir := this.LogFiles.Linux.LogDir
+		sfn = filepath.Join(dir, this.LogFiles.Windows.SystemLog)
 		afn = filepath.Join(dir, this.LogFiles.Linux.AccessLog)
 		efn = filepath.Join(dir, this.LogFiles.Linux.ErrorLog)
 
@@ -103,7 +107,7 @@ func (this *Config) LogFileInfo() (afn, efn string, err error) {
 		err = fmt.Errorf("operating system '%v' not supported", runtime.GOOS)
 	}
 
-	return afn, efn, err
+	return sfn, afn, efn, err
 }
 
 // SyslogInfo builds and returns syslog parameters from the configuration

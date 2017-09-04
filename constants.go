@@ -20,8 +20,9 @@ import (
 )
 
 const (
-	LogInfo = srslog.LOG_DAEMON|srslog.LOG_INFO
-	LogError = srslog.LOG_DAEMON|srslog.LOG_ERR
+	LogSystem = srslog.LOG_LOCAL6|srslog.LOG_INFO
+	LogAccess = srslog.LOG_LOCAL7|srslog.LOG_INFO
+	LogError = srslog.LOG_LOCAL7|srslog.LOG_ERR
 
 	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
 	LogFileMode = 0644
