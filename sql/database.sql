@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               10.2.8-MariaDB - mariadb.org binary distribution
--- Server OS:                    Win64
+-- Host:                         sysadm-dev-01
+-- Server version:               10.2.8-MariaDB - MariaDB Server
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.4.0.5125
 -- --------------------------------------------------------
 
@@ -13,10 +13,12 @@
 
 
 -- Dumping database structure for gocmdb
+DROP DATABASE IF EXISTS `gocmdb`;
 CREATE DATABASE IF NOT EXISTS `gocmdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `gocmdb`;
 
 -- Dumping structure for table gocmdb.audits
+DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `serial_number` varchar(50) NOT NULL,
@@ -30,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `audits` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.checkins
+DROP TABLE IF EXISTS `checkins`;
 CREATE TABLE IF NOT EXISTS `checkins` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -46,10 +49,11 @@ CREATE TABLE IF NOT EXISTS `checkins` (
   KEY `host_name` (`host_name`),
   KEY `serial_number` (`serial_number`),
   CONSTRAINT `FK_checkins_devices` FOREIGN KEY (`serial_number`) REFERENCES `devices` (`serial_number`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.devices
+DROP TABLE IF EXISTS `devices`;
 CREATE TABLE IF NOT EXISTS `devices` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -67,10 +71,11 @@ CREATE TABLE IF NOT EXISTS `devices` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `serial_number` (`serial_number`),
   KEY `host_name` (`host_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.serials
+DROP TABLE IF EXISTS `serials`;
 CREATE TABLE IF NOT EXISTS `serials` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -90,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `serials` (
 
 -- Data exporting was unselected.
 -- Dumping structure for trigger gocmdb.before_checkins_insert
+DROP TRIGGER IF EXISTS `before_checkins_insert`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `before_checkins_insert` BEFORE INSERT ON `checkins` FOR EACH ROW INSERT INTO devices (
