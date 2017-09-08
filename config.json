@@ -8,7 +8,7 @@
 		"Config": "mysql.json"
 	},
 	"Syslog": {
-		"Tag": "gohttpd",
+		"Tag": "gocmdbd",
 		"Port": "",
 		"Protocol": "",
 		"Hostname": ""
@@ -21,7 +21,7 @@
 			"ErrorLog": "error.log"
 		},
 		"Linux": {
-			"LogDir": "/var/log/gohttpd",
+			"LogDir": "/var/log/gocmdbd",
 			"SystemLog": "system_log",
 			"AccessLog": "access_log",
 			"ErrorLog": "error_log"

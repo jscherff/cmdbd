@@ -1,9 +1,9 @@
 #!/bin/sh
 
-systemctl stop gohttpd
-systemctl disable gohttpd
+systemctl stop gocmdbd
+systemctl disable gocmdbd
 
-userdel gohttpd
+userdel gocmdbd
 
-rm -fr /var/log/gohttpd /opt/gohttpd
-rm /etc/systemd/system/gohttpd.service 
+rm -fr /var/log/gocmdbd /opt/gocmdbd
+rm /etc/systemd/system/gocmdbd.service 

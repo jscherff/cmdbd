@@ -117,3 +117,12 @@ func (this *Config) SyslogInfo() (proto, raddr, tag string) {
 	raddr = strings.Join([]string{this.Syslog.Hostname, this.Syslog.Port}, ":")
 	return this.Syslog.Protocol, raddr, this.Syslog.Tag
 }
+
+// ListenerInfo builds the listener string from the configuration address
+// and port information.
+func (this *Config) ListenerInfo() (string) {
+	return fmt.Sprintf("%s:%s",
+		config.Server.ListenerAddress,
+		config.Server.ListenerPort,
+	)
+}

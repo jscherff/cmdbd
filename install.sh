@@ -1,14 +1,14 @@
 #!/bin/sh
 
-useradd -M -r -d /opt/gohttpd -c 'gohttpd Service' gohttpd
+useradd -M -r -d /opt/gocmdbd -c 'gocmdbd Service' gocmdbd
 
-mkdir -p /var/log/gohttpd /opt/gohttpd/{bin,etc}
+mkdir -p /var/log/gocmdbd /opt/gocmdbd/{bin,etc}
 
-cp gohttpd /opt/gohttpd/bin
-cp config.json mysql.json /opt/gohttpd/etc
-cp gohttpd.service /etc/systemd/system
+cp gocmdbd /opt/gocmdbd/bin
+cp config.json mysql.json /opt/gocmdbd/etc
+cp gocmdbd.service /etc/systemd/system
 
-chown -R gohttpd:gohttpd /var/log/gohttpd /opt/gohttpd
+chown -R gocmdbd:gocmdbd /var/log/gocmdbd /opt/gocmdbd
 
-systemctl enable gohttpd
-systemctl start gohttpd
+systemctl enable gocmdbd
+systemctl start gocmdbd

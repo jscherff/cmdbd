@@ -33,13 +33,18 @@ const (
 	AuditInsertSQL string = `
 
 		INSERT INTO audits (
-			Serial_number,
+			serial_num,
 			field_name,
 			old_value,
 			new_value
 		)
 
-		VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))`
+		VALUES (
+			?,
+			?,
+			NULLIF(?, ''),
+			NULLIF(?, '')
+		)`
 
 	CheckinInsertSQL string = `
 
@@ -47,15 +52,47 @@ const (
 			host_name,
 			vendor_id,
 			product_id,
-			Serial_number,
+			serial_num,
 			vendor_name,
 			product_name,
 			product_ver,
 			software_id,
+			buffer_size,
+			usb_spec,
+			usb_class,
+			usb_subclass,
+			usb_protocol,
+			device_speed,
+			device_ver,
+			max_pkt_size,
+			device_sn,
+			factory_sn,
+			descriptor_sn,
 			object_type
 		)
 
-		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
+		VALUES (
+			?,
+			?,
+			?,
+			?,
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			?,
+			NULLIF(?, 0),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, 0),
+			?,
+			?,
+			?,
+			NULLIF(?, '')
+		)`
 
 	SerialInsertSQL string = `
 	
@@ -63,19 +100,51 @@ const (
 			host_name,
 			vendor_id,
 			product_id,
-			Serial_number,
+			serial_num,
 			vendor_name,
 			product_name,
 			product_ver,
 			software_id,
+			buffer_size,
+			usb_spec,
+			usb_class,
+			usb_subclass,
+			usb_protocol,
+			device_speed,
+			device_ver,
+			max_pkt_size,
+			device_sn,
+			factory_sn,
+			descriptor_sn,
 			object_type
 		)
 
-		VALUES (?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), ?)`
+		VALUES (
+			?,
+			?,
+			?,
+			?,
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			?,
+			NULLIF(?, 0),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, ''),
+			NULLIF(?, 0),
+			?,
+			?,
+			?,
+			NULLIF(?, '')
+		)`
 
 	SerialUpdateSQL string = `
 
 		UPDATE serials
-		SET Serial_number = ?
+		SET serial_num = ?
 		WHERE id = ?`
 )

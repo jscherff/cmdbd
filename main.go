@@ -100,8 +100,7 @@ func init() {
 func main() {
 
 	router := NewRouter()
-	listener := fmt.Sprintf("%s:%s", config.Server.ListenerAddress, config.Server.ListenerPort)
-	log.Fatal(http.ListenAndServe(listener, router))
+	log.Fatal(http.ListenAndServe(config.ListenerInfo(), router))
 
 	if err := systemLog.Close(); err != nil {
 		log.Printf("%v", err)

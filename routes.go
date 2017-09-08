@@ -30,21 +30,21 @@ var routes = Routes {
 	Route {
 		Name:		"Serial",
 		Method:		"POST",
-		Pattern:	"/serial/{objectType}",
+		Pattern:	"/serial",
 		HandlerFunc:	SerialHandler,
 	},
 
 	Route {
 		Name:		"Checkin",
 		Method:		"POST",
-		Pattern:	"/checkin/{objectType}",
+		Pattern:	"/checkin",
 		HandlerFunc:	CheckinHandler,
 	},
 
 	Route {
 		Name:		"Audit",
 		Method:		"POST",
-		Pattern:	"/audit/{serialNum}",
+		Pattern:	"/audit",
 		HandlerFunc:	AuditHandler,
 	},
 }

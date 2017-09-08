@@ -1,2 +1,0 @@
-::1 - - [04/Sep/2017:09:25:23 -0700] "POST /checkin/magtek.DeviceInfo HTTP/1.1" 202 0 "" "Go-http-client/1.1"
-::1 - - [04/Sep/2017:09:40:46 -0700] "POST /checkin/magtek.DeviceInfo HTTP/1.1" 422 14 "" "Go-http-client/1.1"

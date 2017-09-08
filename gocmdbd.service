@@ -1,0 +1,12 @@
+[Unit]
+Description=gocmdbd Service
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=gocmdbd
+ExecStart=/opt/gocmdbd/bin/gocmdbd -config /opt/gocmdbd/etc/config.json -dbconfig /opt/gocmdbd/etc/mysql.json
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

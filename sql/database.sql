@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         sysadm-dev-01
--- Server version:               10.2.8-MariaDB - MariaDB Server
--- Server OS:                    Linux
+-- Host:                         127.0.0.1
+-- Server version:               10.2.8-MariaDB - mariadb.org binary distribution
+-- Server OS:                    Win64
 -- HeidiSQL Version:             9.4.0.5125
 -- --------------------------------------------------------
 
@@ -21,14 +21,15 @@ USE `gocmdb`;
 DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `serial_number` varchar(50) NOT NULL,
+  `serial_num` varchar(126) NOT NULL,
   `field_name` varchar(50) NOT NULL,
   `old_value` varchar(255) DEFAULT NULL,
   `new_value` varchar(255) DEFAULT NULL,
   `audit_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `serial_number` (`serial_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  KEY `serial_num` (`serial_num`),
+  KEY `field_name` (`field_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.checkins
@@ -38,18 +39,35 @@ CREATE TABLE IF NOT EXISTS `checkins` (
   `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(126) NOT NULL,
+  `serial_num` varchar(126) NOT NULL,
   `vendor_name` varchar(126) DEFAULT NULL,
   `product_name` varchar(126) DEFAULT NULL,
   `product_ver` varchar(7) DEFAULT NULL,
-  `software_id` varchar(11) DEFAULT NULL,
-  `object_type` varchar(255) NOT NULL DEFAULT 'Generic',
+  `software_id` varchar(11) NOT NULL,
+  `buffer_size` int(10) unsigned DEFAULT NULL,
+  `usb_spec` varchar(5) DEFAULT NULL,
+  `usb_class` varchar(126) DEFAULT NULL,
+  `usb_subclass` varchar(126) DEFAULT NULL,
+  `usb_protocol` varchar(126) DEFAULT NULL,
+  `device_speed` varchar(126) DEFAULT NULL,
+  `device_ver` varchar(5) DEFAULT NULL,
+  `max_pkt_size` int(10) unsigned DEFAULT NULL,
+  `device_sn` varchar(126) NOT NULL,
+  `factory_sn` varchar(126) NOT NULL,
+  `descriptor_sn` varchar(126) NOT NULL,
+  `object_type` varchar(255) DEFAULT NULL,
   `checkin_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
-  KEY `serial_number` (`serial_number`),
-  CONSTRAINT `FK_checkins_devices` FOREIGN KEY (`serial_number`) REFERENCES `devices` (`serial_number`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+  KEY `serial_num` (`serial_num`),
+  KEY `vendor_id` (`vendor_id`),
+  KEY `product_id` (`product_id`),
+  KEY `software_id` (`software_id`),
+  KEY `device_sn` (`device_sn`),
+  KEY `factory_sn` (`factory_sn`),
+  KEY `descriptor_sn` (`descriptor_sn`),
+  CONSTRAINT `FK_checkins_devices` FOREIGN KEY (`serial_num`) REFERENCES `devices` (`serial_num`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.devices
@@ -59,19 +77,36 @@ CREATE TABLE IF NOT EXISTS `devices` (
   `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(126) NOT NULL,
+  `serial_num` varchar(126) NOT NULL,
   `vendor_name` varchar(126) DEFAULT NULL,
   `product_name` varchar(126) DEFAULT NULL,
   `product_ver` varchar(7) DEFAULT NULL,
-  `software_id` varchar(11) DEFAULT NULL,
-  `object_type` varchar(255) NOT NULL DEFAULT 'Generic',
+  `software_id` varchar(11) NOT NULL,
+  `buffer_size` int(10) unsigned DEFAULT NULL,
+  `usb_spec` varchar(5) DEFAULT NULL,
+  `usb_class` varchar(126) DEFAULT NULL,
+  `usb_subclass` varchar(126) DEFAULT NULL,
+  `usb_protocol` varchar(126) DEFAULT NULL,
+  `device_speed` varchar(126) DEFAULT NULL,
+  `device_ver` varchar(5) DEFAULT NULL,
+  `max_pkt_size` int(10) unsigned DEFAULT NULL,
+  `device_sn` varchar(126) NOT NULL,
+  `factory_sn` varchar(126) NOT NULL,
+  `descriptor_sn` varchar(126) NOT NULL,
+  `object_type` varchar(255) DEFAULT NULL,
   `first_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `serial_number` (`serial_number`),
-  KEY `host_name` (`host_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+  UNIQUE KEY `serial_num` (`serial_num`),
+  KEY `host_name` (`host_name`),
+  KEY `vendor_id` (`vendor_id`),
+  KEY `product_id` (`product_id`),
+  KEY `software_id` (`software_id`),
+  KEY `device_sn` (`device_sn`),
+  KEY `factory_sn` (`factory_sn`),
+  KEY `descriptor_sn` (`descriptor_sn`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.serials
@@ -81,17 +116,34 @@ CREATE TABLE IF NOT EXISTS `serials` (
   `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(126) NOT NULL,
+  `serial_num` varchar(126) NOT NULL,
   `vendor_name` varchar(126) DEFAULT NULL,
   `product_name` varchar(126) DEFAULT NULL,
   `product_ver` varchar(7) DEFAULT NULL,
-  `software_id` varchar(11) DEFAULT NULL,
-  `object_type` varchar(255) NOT NULL DEFAULT 'Generic',
+  `software_id` varchar(11) NOT NULL,
+  `buffer_size` int(10) unsigned DEFAULT NULL,
+  `usb_spec` varchar(5) DEFAULT NULL,
+  `usb_class` varchar(126) DEFAULT NULL,
+  `usb_subclass` varchar(126) DEFAULT NULL,
+  `usb_protocol` varchar(126) DEFAULT NULL,
+  `device_speed` varchar(126) DEFAULT NULL,
+  `device_ver` varchar(5) DEFAULT NULL,
+  `max_pkt_size` int(10) unsigned DEFAULT NULL,
+  `device_sn` varchar(126) NOT NULL,
+  `factory_sn` varchar(126) NOT NULL,
+  `descriptor_sn` varchar(126) NOT NULL,
+  `object_type` varchar(255) DEFAULT NULL,
   `issue_date` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `serial_number` (`serial_number`),
-  KEY `host_name` (`host_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  KEY `serial_num` (`serial_num`),
+  KEY `host_name` (`host_name`),
+  KEY `vendor_id` (`vendor_id`),
+  KEY `product_id` (`product_id`),
+  KEY `software_id` (`software_id`),
+  KEY `device_sn` (`device_sn`),
+  KEY `factory_sn` (`factory_sn`),
+  KEY `descriptor_sn` (`descriptor_sn`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for trigger gocmdb.before_checkins_insert
@@ -102,11 +154,22 @@ CREATE TRIGGER `before_checkins_insert` BEFORE INSERT ON `checkins` FOR EACH ROW
                 host_name,
                 vendor_id,
                 product_id,
-                serial_number,
+                serial_num,
                 vendor_name,
                 product_name,
                 product_ver,
                 software_id,
+                buffer_size,
+                usb_spec,
+                usb_class,
+                usb_subclass,
+                usb_protocol,
+                device_speed,
+                device_ver,
+                max_pkt_size,
+                device_sn,
+                factory_sn,
+                descriptor_sn,
                 object_type,
                 first_seen,
                 last_seen
@@ -115,12 +178,23 @@ CREATE TRIGGER `before_checkins_insert` BEFORE INSERT ON `checkins` FOR EACH ROW
                 NEW.host_name,
                 NEW.vendor_id,
                 NEW.product_id,
-                NEW.serial_number,
+                NEW.serial_num,
                 NULLIF(NEW.vendor_name, ''),
                 NULLIF(NEW.product_name, ''),
                 NULLIF(NEW.product_ver, ''),
-                NULLIF(NEW.software_id, ''),
-                NEW.object_type,
+                NEW.software_id,
+                NULLIF(NEW.buffer_size, 0),
+                NULLIF(NEW.usb_spec, ''),
+                NULLIF(NEW.usb_class, ''),
+                NULLIF(NEW.usb_subclass, ''),
+                NULLIF(NEW.usb_protocol, ''),
+                NULLIF(NEW.device_speed, ''),
+                NULLIF(NEW.device_ver, ''),
+                NULLIF(NEW.max_pkt_size, 0),
+                NEW.device_sn,
+                NEW.factory_sn,
+                NEW.descriptor_sn,
+                NULLIF(NEW.object_type, ''),
                 NEW.checkin_date,
                 NEW.checkin_date
         )
@@ -131,8 +205,19 @@ CREATE TRIGGER `before_checkins_insert` BEFORE INSERT ON `checkins` FOR EACH ROW
                 vendor_name = NULLIF(NEW.vendor_name, ''),
                 product_name = NULLIF(NEW.product_name, ''),
                 product_ver = NULLIF(NEW.product_ver, ''),
-                software_id = NULLIF(NEW.software_id, ''),
-                object_type = NEW.object_type,
+                software_id = NEW.software_id,
+                buffer_size = NULLIF(NEW.buffer_size, 0),
+                usb_spec = NULLIF(NEW.usb_spec, ''),
+                usb_class = NULLIF(NEW.usb_class, ''),
+                usb_subclass = NULLIF(NEW.usb_subclass, ''),
+                usb_protocol = NULLIF(NEW.usb_protocol, ''),
+                device_speed = NULLIF(NEW.device_speed, ''),
+                device_ver = NULLIF(NEW.device_ver, ''),
+                max_pkt_size = NULLIF(NEW.max_pkt_size, 0),
+                device_sn = NEW.device_sn,
+                factory_sn = NEW.factory_sn,
+                descriptor_sn = NEW.descriptor_sn,
+                object_type = NULLIF(NEW.object_type, ''),
                 last_seen = NEW.checkin_date,
                 checkins = checkins + 1//
 DELIMITER ;
