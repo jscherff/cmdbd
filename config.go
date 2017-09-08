@@ -31,10 +31,7 @@ type Config struct {
 		ListenerPort string
 	}
 
-	Database struct {
-		Driver string
-		Config string
-	}
+	Database *Database
 
 	Syslog struct {
 		Tag string
@@ -44,12 +41,14 @@ type Config struct {
 	}
 
 	LogFiles struct {
+
 		Windows struct {
 			LogDir string
 			SystemLog string
 			AccessLog string
 			ErrorLog string
 		}
+
 		Linux struct {
 			LogDir string
 			SystemLog string
@@ -122,7 +121,7 @@ func (this *Config) SyslogInfo() (proto, raddr, tag string) {
 // and port information.
 func (this *Config) ListenerInfo() (string) {
 	return fmt.Sprintf("%s:%s",
-		config.Server.ListenerAddress,
-		config.Server.ListenerPort,
+		conf.Server.ListenerAddress,
+		conf.Server.ListenerPort,
 	)
 }

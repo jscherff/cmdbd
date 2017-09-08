@@ -199,6 +199,9 @@ func storeDevice(stmt *sql.Stmt, dev *usbci.WSAPI) (res sql.Result, err error) {
 		dev.GetProductVer(),
 		dev.GetSoftwareID(),
 		dev.GetBufferSize(),
+		dev.GetBusNumber(),
+		dev.GetBusAddress(),
+		dev.GetPortNumber(),
 		dev.GetUSBSpec(),
 		dev.GetUSBClass(),
 		dev.GetUSBSubclass(),
@@ -222,14 +225,20 @@ func storeAudit(stmt *sql.Stmt, dev *usbci.WSAPI) (err error) {
 
 	var tx *sql.Tx
 
-	if tx, err = db.Handle.Begin(); err == nil {
+	if tx, err = db.Begin(); err == nil {
 
 		if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err == nil {
 
 			for _, ch := range dev.GetChanges() {
 
 				_, err = tx.Stmt(stmt).Exec(
+					dev.GetHostName(),
+					dev.GetVendorID(),
+					dev.GetProductID(),
 					dev.GetSerialNum(),
+					dev.GetBusNumber(),
+					dev.GetBusAddress(),
+					dev.GetPortNumber(),
 					ch[usbci.FieldNameIx],
 					ch[usbci.OldValueIx],
 					ch[usbci.NewValueIx],

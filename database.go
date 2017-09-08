@@ -16,9 +16,7 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -26,75 +24,75 @@ import (
 // Database contains the database configuration, handle, and prepared statements.
 type Database struct {
 
-	Handle *sql.DB
+	*sql.DB
+
+	Driver string
+	Version string
 	Config *mysql.Config
 
-	Info string
+	SQL struct {
+		AuditInsert string
+		CheckinInsert string
+		SerialInsert string
+		SerialUpdate string
+	}
 
 	Stmt struct {
-		AuditInsert	*sql.Stmt
-		CheckinInsert	*sql.Stmt
-		SerialInsert	*sql.Stmt
-		SerialUpdate	*sql.Stmt
+		AuditInsert *sql.Stmt
+		CheckinInsert *sql.Stmt
+		SerialInsert *sql.Stmt
+		SerialUpdate *sql.Stmt
 	}
 }
 
-// NewDatbase initializes the database object, initializes the database handle,
-// and prepares the prepared statements.
-func NewDatabase(driver, cf string) (this *Database, err error) {
+// Connect connects to the database and prepares the prepared statements.
+func (this *Database) Connect() (err error) {
 
-	this = new(Database)
-
-	fh, err := os.Open(cf)
-	defer fh.Close()
-
-	if err != nil {
-		return this, err
+	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
+		return err
 	}
 
-	jd := json.NewDecoder(fh)
-
-	if err = jd.Decode(&this.Config); err != nil {
-		return this, err
+	if err = this.Ping(); err != nil {
+		return err
 	}
 
-	if this.Handle, err = sql.Open(driver, this.Config.FormatDSN()); err != nil {
-		return this, err
+	if this.Stmt.AuditInsert, err = this.Prepare(this.SQL.AuditInsert); err != nil {
+		return err
 	}
 
-	if err = this.Handle.Ping(); err != nil {
-		return this, err
+	if this.Stmt.CheckinInsert, err = this.Prepare(this.SQL.CheckinInsert); err != nil {
+		return err
 	}
 
-	this.Handle.QueryRow("SELECT VERSION()").Scan(&this.Info)
-	this.Info = fmt.Sprintf("Connected to %s (%s@%s)", this.Info, this.Config.User, this.Config.Addr)
-
-	if this.Stmt.AuditInsert, err = this.Handle.Prepare(AuditInsertSQL); err != nil {
-		return this, err
+	if this.Stmt.SerialInsert, err = this.Prepare(this.SQL.SerialInsert); err != nil {
+		return err
 	}
 
-	if this.Stmt.CheckinInsert, err = this.Handle.Prepare(CheckinInsertSQL); err != nil {
-		return this, err
+	if this.Stmt.SerialUpdate, err = this.Prepare(this.SQL.SerialUpdate); err != nil {
+		return err
 	}
 
-	if this.Stmt.SerialInsert, err = this.Handle.Prepare(SerialInsertSQL); err != nil {
-		return this, err
-	}
+	this.QueryRow("SELECT VERSION()").Scan(&this.Version)
 
-	if this.Stmt.SerialUpdate, err = this.Handle.Prepare(SerialUpdateSQL); err != nil {
-		return this, err
-	}
+	return err
+}
 
-	return this, err
+// Info provides identifying information about the database and user.
+func (this *Database) Info() (string) {
+	return fmt.Sprintf("Connected to %q (%s@%s/%s) using %q driver",
+		this.Version,
+		this.Config.User,
+		this.Config.Addr,
+		this.Config.DBName,
+		this.Driver,
+	)
 }
 
 // Close closes the prepared statements and database handle.
 func (this *Database) Close() {
-
 	this.Stmt.AuditInsert.Close()
 	this.Stmt.CheckinInsert.Close()
 	this.Stmt.SerialInsert.Close()
 	this.Stmt.SerialUpdate.Close()
-
-	this.Handle.Close()
+	this.DB.Close()
 }

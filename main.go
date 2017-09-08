@@ -20,14 +20,13 @@ import (
 	"net/http"
 	"io/ioutil"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 )
 
 var (
 	db *Database
-	config *Config
+	conf *Config
 	systemLog *MultiWriter
 	accessLog *MultiWriter
 	errorLog *MultiWriter
@@ -38,7 +37,7 @@ func init() {
 	var err error
 	flag.Parse()
 
-	config, err = NewConfig(*fWsConfigFile)
+	conf, err = NewConfig(*fWsConfigFile)
 
 	if err != nil {
 		log.Fatalf("%v", err)
@@ -48,71 +47,58 @@ func init() {
 	accessLog = NewMultiWriter()
 	errorLog = NewMultiWriter()
 
-	if config.EnableLogFiles || *fEnableLogFiles {
+	if conf.EnableLogFiles || *fEnableLogFiles {
 
-		if slf, alf, elf, err := config.LogFileInfo(); err == nil {
-			systemLog.AddFiles(slf)
-			accessLog.AddFiles(alf)
-			errorLog.AddFiles(elf)
+		if slf, alf, elf, err := conf.LogFileInfo(); err == nil {
+			systemLog.AddFile(slf)
+			accessLog.AddFile(alf)
+			errorLog.AddFile(elf)
 		} else {
 			log.Printf("%v", err)
 		}
 	}
 
-	if config.EnableSyslog || *fEnableSyslog {
-		proto, raddr, tag := config.SyslogInfo()
+	if conf.EnableSyslog || *fEnableSyslog {
+		proto, raddr, tag := conf.SyslogInfo()
 		systemLog.AddSyslog(proto, raddr, tag, LogSystem)
 		accessLog.AddSyslog(proto, raddr, tag, LogAccess)
 		errorLog.AddSyslog(proto, raddr, tag, LogError)
 	}
 
-	if config.EnableConsole || *fEnableConsole {
-		systemLog.Add(os.Stdout)
-		accessLog.Add(os.Stdout)
-		errorLog.Add(os.Stderr)
+	if conf.EnableConsole || *fEnableConsole {
+		systemLog.AddConsole(os.Stdout)
+		accessLog.AddConsole(os.Stdout)
+		errorLog.AddConsole(os.Stderr)
 	}
 
 	if systemLog.Count() == 0 {
-		systemLog.Add(ioutil.Discard)
+		systemLog.AddWriter(ioutil.Discard)
 	}
 
 	if accessLog.Count() == 0 {
-		accessLog.Add(ioutil.Discard)
+		accessLog.AddWriter(ioutil.Discard)
 	}
 
 	if errorLog.Count() == 0 {
-		errorLog.Add(ioutil.Discard)
+		errorLog.AddWriter(ioutil.Discard)
 	}
 
-	if len(*fDbConfigFile) > 0 {
-		db, err = NewDatabase(config.Database.Driver, *fDbConfigFile)
-	} else {
-		db, err = NewDatabase(config.Database.Driver, config.Database.Config)
+	db = conf.Database
+
+	if err = db.Connect(); err != nil {
+		systemLog.WriteError(err)
 	}
 
-	if err != nil {
-		systemLog.WriteString(fmt.Sprintf("%v", err))
-	}
-
-	systemLog.WriteString(db.Info)
+	systemLog.WriteString(db.Info())
 }
 
 func main() {
 
 	router := NewRouter()
-	log.Fatal(http.ListenAndServe(config.ListenerInfo(), router))
+	log.Fatal(http.ListenAndServe(conf.ListenerInfo(), router))
 
-	if err := systemLog.Close(); err != nil {
-		log.Printf("%v", err)
-	}
-
-	if err := accessLog.Close(); err != nil {
-		log.Printf("%v", err)
-	}
-
-	if err := errorLog.Close(); err != nil {
-		log.Printf("%v", err)
-	}
-
+	systemLog.Close()
+	accessLog.Close()
+	errorLog.Close()
 	db.Close()
 }

@@ -1,0 +1,22 @@
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+[Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '??????????????????????)' at line 1]
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+[Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,??)' at line 1]
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to 10.2.8-MariaDB (gocmdbweb@localhost)
+Connected to %!s(func() string=0x60b1d0) (gocmdbweb@localhost) gocmdbweb:K2Cvg3NeyR@/gocmdb?allowNativePasswords=false
+Connected to "10.2.8-MariaDB" (gocmdbweb@localhost/gocmdb) using "mysql" driver

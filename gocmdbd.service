@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=gocmdbd
-ExecStart=/opt/gocmdbd/bin/gocmdbd -config /opt/gocmdbd/etc/config.json -dbconfig /opt/gocmdbd/etc/mysql.json
+ExecStart=/opt/gocmdbd/bin/gocmdbd -config /opt/gocmdbd/etc/config.json
 Restart=on-abort
 
 [Install]

@@ -3,23 +3,52 @@
 		"ListenerAddress": "",
 		"ListenerPort": "8080"
 	},
+
 	"Database": {
+
 		"Driver": "mysql",
-		"Config": "mysql.json"
+		"Version": "",
+
+		"Config": {
+			"User": "gocmdbd",
+			"Passwd": "K2Cvg3NeyR",
+			"Net": "",
+			"Addr": "localhost",
+			"DBName": "gocmdb",
+			"Params": null
+		},
+
+		"SQL": {
+			"AuditInsert": "CALL insert_device_change(?,?,?,?,?,?,?,?,?,?)",
+			"CheckinInsert": "CALL insert_device_checkin(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			"SerialInsert": "CALL insert_serial_request(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			"SerialUpdate": "CALL update_serial_request(?,?)"
+		},
+
+		"Stmt": {
+			"AuditInsert": null,
+			"CheckinInsert": null,
+			"SerialInsert": null,
+			"SerialUpdate": null
+		}
 	},
+
 	"Syslog": {
 		"Tag": "gocmdbd",
 		"Port": "",
 		"Protocol": "",
 		"Hostname": ""
 	},
+
 	"LogFiles":{
+
 		"Windows": {
 			"LogDir": "log",
 			"SystemLog": "system.log",
 			"AccessLog": "access.log",
 			"ErrorLog": "error.log"
 		},
+
 		"Linux": {
 			"LogDir": "/var/log/gocmdbd",
 			"SystemLog": "system_log",
@@ -27,8 +56,10 @@
 			"ErrorLog": "error_log"
 		}
 	},
+
 	"EnableLogFiles": true,
 	"EnableConsole": false,
 	"EnableSyslog": false,
+
 	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
 }

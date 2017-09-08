@@ -15,19 +15,21 @@
 package main
 
 import (
-	"path/filepath"
+	"bytes"
 	"fmt"
-	"log"
-	"os"
 	"io"
+	"log"
+	"path/filepath"
+	"os"
 
 	"github.com/RackSec/srslog"
 )
 
 // MultiWriter is an io.Writer that sends output to multiple destinations.
 type MultiWriter struct {
-	writers	[]io.Writer
-	files	[]*os.File
+	writers  []io.Writer
+	consoles []*os.File
+	files    []*os.File
 }
 
 // NewMultiWriter returns an initialized MultiWriter object.
@@ -35,57 +37,67 @@ func NewMultiWriter() (this *MultiWriter) {
 	return new(MultiWriter)
 }
 
-// Add adds one or more writers to MultiWriter.
-func (this *MultiWriter) Add(writers ...io.Writer) {
-	for _, w := range writers {
-		this.writers = append(this.writers, w)
+// AddWriter appends a writer to a MultiWriter writer.
+func (this *MultiWriter) AddWriter(w io.Writer) {
+	this.writers = append(this.writers, w)
+}
+
+// AddFile appends a file to a MultiWriter writer.
+func (this *MultiWriter) AddFile(f string) {
+
+	var err error
+	var h *os.File
+
+	if err = os.MkdirAll(filepath.Dir(f), LogDirMode); err == nil {
+
+		if h, err = os.OpenFile(f, LogFileFlags, LogFileMode); err == nil {
+			this.files = append(this.files, h)
+		}
+	}
+
+	if err != nil {
+		log.Printf("%v", ErrorDecorator(err))
 	}
 }
 
-// AddFiles adds one or more file writers to MultiWriter.
-func (this *MultiWriter) AddFiles(files ...string) {
-
-	for _, f := range files {
-
-		var err error
-		var h *os.File
-
-		if err = os.MkdirAll(filepath.Dir(f), LogDirMode); err == nil {
-			if h, err = os.OpenFile(f, LogFileFlags, LogFileMode); err == nil {
-				this.Add(h)
-				this.files = append(this.files, h)
-			}
-		}
-
-		if err != nil {
-			log.Printf("%v", err)
-		}
-	}
+// AddConsole appends a console to a MultiWriter writer. Consoles are
+// treated separately as they shouldn't be closed on termination.
+func (this *MultiWriter) AddConsole(h *os.File) {
+	this.consoles = append(this.consoles, h)
 }
 
-// AddSyslog appends a syslog writer to MultiWriter.
+// AddSyslog appends a syslog to a MultiWriter writer.
 func (this *MultiWriter) AddSyslog(proto, raddr, tag string, pri srslog.Priority) {
-
 	if s, err := srslog.Dial(proto, raddr, pri, tag); err == nil {
-		this.Add(s)
+		this.AddWriter(s)
 	} else {
-		log.Printf("%v", err)
+		log.Printf("%v", ErrorDecorator(err))
 	}
 }
 
 // Write writes output to each writer in MultiWriter.
-func (this *MultiWriter) Write(p []byte) (n int, err error) {
+func (this *MultiWriter) Write(b []byte) (n int, err error) {
 
 	var errs int
 
+	b = bytes.TrimSuffix(b, []byte("\n"))
+	b = bytes.TrimSuffix(b, []byte("\r"))
+
 	for _, w := range this.writers {
-		if n, err = w.Write(p); err != nil {
-			errs++
-		}
+		if n, err = w.Write(b); err != nil { errs++ }
 	}
 
+	b = append(b, byte('\n'))
+
+	for _, c := range this.consoles {
+		if n, err = c.Write(b); err != nil { errs++ }
+	}
+
+	for _, f := range this.files {
+		if n, err = f.Write(b); err != nil { errs++ }
+	}
 	if errs > 0 {
-		err = fmt.Errorf("%d write errors", errs)
+		err = ErrorDecorator(fmt.Errorf("%d write errors", errs))
 	}
 
 	return n, err
@@ -96,32 +108,54 @@ func (this *MultiWriter) WriteString(s string) (n int, err error) {
 	return this.Write([]byte(s))
 }
 
-//WriteString converts an error to []byte and then calls Write.
+//WriteError converts an error to []byte and then calls Write.
 func (this *MultiWriter) WriteError(e error) (n int, err error) {
-	return this.Write([]byte(fmt.Sprintf("%v", e)))
+	return this.Println(e)
+}
+
+// Println writes to each writer in default format with trailing newline.
+func (this *MultiWriter) Println(t ...interface{}) (n int, err error) {
+
+	var errs int
+
+	for _, w := range this.writers {
+		if n, err = fmt.Fprintln(w, t); err != nil { errs++ }
+	}
+
+	for _, c := range this.consoles {
+		if n, err = fmt.Fprintln(c, t); err != nil { errs++ }
+	}
+
+	for _, f := range this.files {
+		if n, err = fmt.Fprintln(f, t); err != nil { errs++ }
+	}
+
+	if errs > 0 {
+		err = ErrorDecorator(fmt.Errorf("%d write errors", errs))
+	}
+
+	return n, err
 }
 
 // Count returns the number of writers in MultiWriter.
 func (this *MultiWriter) Count() (n int) {
-	return len(this.writers)
+	return len(this.writers) + len(this.consoles) + len(this.files)
 }
 
-// Sync syncs underlying file writers in MultiWriter.
+// Sync syncs underlying file and console writers in MultiWriter.
 func (this *MultiWriter) Sync() {
-
+	for _, c := range this.consoles{
+		c.Sync()
+	}
 	for _, f := range this.files {
 		f.Sync()
 	}
 }
 
 // Close syncs and closes underlying file writers in MultiWriter.
-func (this *MultiWriter) Close() (err error) {
-
+func (this *MultiWriter) Close() {
 	this.Sync()
-
 	for _, f := range this.files {
 		f.Close()
 	}
-
-	return err
 }
