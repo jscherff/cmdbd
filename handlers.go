@@ -73,13 +73,10 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		insertId, err = result.LastInsertId()
 	}
-
 	if err == nil {
 		serialNum = fmt.Sprintf("24F%04x", insertId)
-		_, err = db.Stmt.SerialUpdate.Exec(serialNum, insertId)
+		_, err = updateSerial(db.Stmt.SerialUpdate, serialNum, insertId)
 	}
-
-	_, err = updateSerial(db.Stmt.SerialUpdate, insertId, serialNum)
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
@@ -214,9 +211,6 @@ func storeDevice(stmt *sql.Stmt, dev *usbci.WSAPI) (res sql.Result, err error) {
 		dev.GetDescriptorSN(),
 		dev.GetObjectType(),
 	)
-	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
-	}
 
 	return res, err
 }
@@ -264,7 +258,7 @@ func storeAudit(stmt *sql.Stmt, dev *usbci.WSAPI) (err error) {
 	return err
 }
 
-func updateSerial(stmt *sql.Stmt, id int64, sn string) (res sql.Result, err error) {
+func updateSerial(stmt *sql.Stmt, sn string, id int64) (res sql.Result, err error) {
 
 	res, err = stmt.Exec(sn, id)
 
