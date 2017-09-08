@@ -11,8 +11,6 @@ cp config.json /opt/gocmdbd/etc
 cp sql/{database,users}.sql /opt/gocmdbd/etc
 cp gocmdbd.service /etc/systemd/system
 
-cat /opt/gocmdbd/etc/*.sql | mysql -p
-
 chown -R gocmdbd:gocmdbd /var/log/gocmdbd /opt/gocmdbd
 
 systemctl enable gocmdbd
