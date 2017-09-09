@@ -32,7 +32,11 @@ func NewRouter() *mux.Router {
 		var handler http.Handler
 
 		handler = route.HandlerFunc
-		handler = handlers.CombinedLoggingHandler(accessLog, handler)
+
+		handler = handlers.CombinedLoggingHandler(
+			accessLog,
+			handler,
+		)
 
 		router.
 			Methods(route.Method).
