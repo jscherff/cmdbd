@@ -15,10 +15,7 @@
 package main
 
 import (
-	"path/filepath"
 	"encoding/json"
-	"runtime"
-	"strings"
 	"fmt"
 	"os"
 )
@@ -26,41 +23,13 @@ import (
 // Config contains infomation about the server process and log writers.
 type Config struct {
 
-	Server struct {
-		ListenerAddress string
-		ListenerPort string
+	Listener struct {
+		Address string
+		Port string
 	}
 
 	Database *Database
-
-	Syslog struct {
-		Tag string
-		Port string
-		Protocol string
-		Hostname string
-	}
-
-	LogFiles struct {
-
-		Windows struct {
-			LogDir string
-			SystemLog string
-			AccessLog string
-			ErrorLog string
-		}
-
-		Linux struct {
-			LogDir string
-			SystemLog string
-			AccessLog string
-			ErrorLog string
-		}
-	}
-
-	EnableLogFiles bool
-	EnableConsole bool
-	EnableSyslog bool
-	UsbDbUrl string
+	Log *Logger
 }
 
 // NewConfig creates a new Config object and reads its configuration from
@@ -82,46 +51,11 @@ func NewConfig(cf string) (this *Config, err error) {
 	return this, err
 }
 
-// LogFileInfo builds and returns the full log file path based on the
-// operating system and configuration information.
-func (this *Config) LogFileInfo() (sfn, afn, efn string, err error) {
-
-	appDir := filepath.Dir(os.Args[0])
-
-	switch runtime.GOOS {
-
-	case "windows":
-		dir := filepath.Join(appDir, this.LogFiles.Windows.LogDir)
-		sfn = filepath.Join(dir, this.LogFiles.Windows.SystemLog)
-		afn = filepath.Join(dir, this.LogFiles.Windows.AccessLog)
-		efn = filepath.Join(dir, this.LogFiles.Windows.ErrorLog)
-
-	case "linux":
-		dir := this.LogFiles.Linux.LogDir
-		sfn = filepath.Join(dir, this.LogFiles.Linux.SystemLog)
-		afn = filepath.Join(dir, this.LogFiles.Linux.AccessLog)
-		efn = filepath.Join(dir, this.LogFiles.Linux.ErrorLog)
-
-	default:
-		err = fmt.Errorf("operating system '%v' not supported", runtime.GOOS)
-	}
-
-	return sfn, afn, efn, err
-}
-
-// SyslogInfo builds and returns syslog parameters from the configuration
-// information.
-func (this *Config) SyslogInfo() (proto, raddr, tag string) {
-
-	raddr = strings.Join([]string{this.Syslog.Hostname, this.Syslog.Port}, ":")
-	return this.Syslog.Protocol, raddr, this.Syslog.Tag
-}
-
 // ListenerInfo builds the listener string from the configuration address
 // and port information.
 func (this *Config) ListenerInfo() (string) {
 	return fmt.Sprintf("%s:%s",
-		conf.Server.ListenerAddress,
-		conf.Server.ListenerPort,
+		this.Listener.Address,
+		this.Listener.Port,
 	)
 }

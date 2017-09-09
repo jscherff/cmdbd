@@ -21,8 +21,6 @@ import (
 	"log"
 	"path/filepath"
 	"os"
-
-	"github.com/RackSec/srslog"
 )
 
 // MultiWriter is an io.Writer that sends output to multiple destinations.
@@ -66,15 +64,6 @@ func (this *MultiWriter) AddConsole(h *os.File) {
 	this.consoles = append(this.consoles, h)
 }
 
-// AddSyslog appends a syslog to a MultiWriter writer.
-func (this *MultiWriter) AddSyslog(proto, raddr, tag string, pri srslog.Priority) {
-	if s, err := srslog.Dial(proto, raddr, pri, tag); err == nil {
-		this.AddWriter(s)
-	} else {
-		log.Printf("%v", ErrorDecorator(err))
-	}
-}
-
 // Write writes output to each writer in MultiWriter.
 func (this *MultiWriter) Write(b []byte) (n int, err error) {
 
@@ -109,32 +98,27 @@ func (this *MultiWriter) WriteString(s string) (n int, err error) {
 }
 
 //WriteError converts an error to []byte and then calls Write.
-func (this *MultiWriter) WriteError(e error) (n int, err error) {
-	return this.Println(e)
+func (this *MultiWriter) WriteError(e error) {
+	this.Println(e)
 }
 
 // Println writes to each writer in default format with trailing newline.
-func (this *MultiWriter) Println(t ...interface{}) (n int, err error) {
-
-	var errs int
+func (this *MultiWriter) Println(t ...interface{}) {
 
 	for _, w := range this.writers {
-		if n, err = fmt.Fprintln(w, t); err != nil { errs++ }
+		_, err := fmt.Fprintln(w, t)
+		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
 	}
 
 	for _, c := range this.consoles {
-		if n, err = fmt.Fprintln(c, t); err != nil { errs++ }
+		_, err := fmt.Fprintln(c, t)
+		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
 	}
 
 	for _, f := range this.files {
-		if n, err = fmt.Fprintln(f, t); err != nil { errs++ }
+		_, err := fmt.Fprintln(f, t)
+		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
 	}
-
-	if errs > 0 {
-		err = ErrorDecorator(fmt.Errorf("%d write errors", errs))
-	}
-
-	return n, err
 }
 
 // Count returns the number of writers in MultiWriter.

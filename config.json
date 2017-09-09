@@ -1,7 +1,7 @@
 {
-	"Server": {
-		"ListenerAddress": "",
-		"ListenerPort": "8080"
+	"Listener": {
+		"Address": "",
+		"Port": "8080"
 	},
 
 	"Database": {
@@ -25,41 +25,66 @@
 			"SerialUpdate": "CALL update_serial_request(?,?)"
 		},
 
-		"Stmt": {
-			"AuditInsert": null,
-			"CheckinInsert": null,
-			"SerialInsert": null,
-			"SerialUpdate": null
-		}
+		"Stmt": {}
 	},
 
-	"Syslog": {
-		"Tag": "gocmdbd",
-		"Port": "",
-		"Protocol": "",
-		"Hostname": ""
-	},
+	"Log": {
 
-	"LogFiles": {
-
-		"Windows": {
-			"LogDir": "log",
-			"SystemLog": "system.log",
-			"AccessLog": "access.log",
-			"ErrorLog": "error.log"
+		"Writer": {
+			"access": {},
+			"error": {},
+			"system": {}
 		},
 
-		"Linux": {
-			"LogDir": "/var/log/gocmdbd",
-			"SystemLog": "system_log",
-			"AccessLog": "access_log",
-			"ErrorLog": "error_log"
+		"LogFile": {
+			"access": "access.log",
+			"error": "error.log",
+			"system": "system.log"
+		},
+
+		"Console": {
+			"access": true,
+			"error": true,
+			"system": true
+		},
+
+		"Syslog": {
+
+			"access": {
+				"Tag": "gocmdbd_access",
+				"Port": "",
+				"Protocol": "",
+				"Hostname": "",
+				"Priority": 190
+			},
+
+			"error": {
+				"Tag": "gocmdbd_error",
+				"Port": "",
+				"Protocol": "",
+				"Hostname": "",
+				"Priority": 187
+			},
+
+			"system": {
+				"Tag": "gocmdbd_system",
+				"Port": "",
+				"Protocol": "",
+				"Hostname": "",
+				"Priority": 182
+			}
+		},
+
+		"LogDir": {
+			"Windows": "log",
+			"Linux": "/var/log/gohttpd"
+		},
+
+		"Options": {
+			"EnableLogFiles": false,
+			"EnableConsole": false,
+			"EnableSyslog": false,
+			"RecoveryStack": false
 		}
-	},
-
-	"EnableLogFiles": true,
-	"EnableConsole": false,
-	"EnableSyslog": false,
-
-	"UsbDbUrl": "http://www.linux-usb.org/usb.ids"
+	}
 }

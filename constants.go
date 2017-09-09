@@ -16,18 +16,21 @@ package main
 
 import (
 	"os"
-
 	"github.com/RackSec/srslog"
 )
 
 const (
-	LogSystem = srslog.LOG_LOCAL6|srslog.LOG_INFO
-	LogAccess = srslog.LOG_LOCAL7|srslog.LOG_INFO
-	LogError = srslog.LOG_LOCAL7|srslog.LOG_ERR
+	PrioritySystem = srslog.LOG_LOCAL6|srslog.LOG_INFO
+	PriorityAccess = srslog.LOG_LOCAL7|srslog.LOG_INFO
+	PriorityError = srslog.LOG_LOCAL7|srslog.LOG_ERR
 
 	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
 	LogFileMode = 0644
 	LogDirMode = 0755
+
+	System = "system"
+	Access = "access"
+	Error = "error"
 
 	HttpBodySizeLimit int64 = 1048576
 )

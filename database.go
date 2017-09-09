@@ -22,6 +22,7 @@ import (
 )
 
 // Database contains the database configuration, handle, and prepared statements.
+// It is part of the systemwide configuration under Config.Database.
 type Database struct {
 
 	*sql.DB
@@ -30,6 +31,9 @@ type Database struct {
 	Version string
 	Config *mysql.Config
 
+	SQL map[string]string
+	Stmt map[string]*sql.Stmt
+/*
 	SQL struct {
 		AuditInsert string
 		CheckinInsert string
@@ -43,10 +47,11 @@ type Database struct {
 		SerialInsert *sql.Stmt
 		SerialUpdate *sql.Stmt
 	}
+*/
 }
 
-// Connect connects to the database and prepares the prepared statements.
-func (this *Database) Connect() (err error) {
+// Init connects to the database and prepares the prepared statements.
+func (this *Database) Init() (err error) {
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
 		return err
@@ -55,7 +60,7 @@ func (this *Database) Connect() (err error) {
 	if err = this.Ping(); err != nil {
 		return err
 	}
-
+/*
 	if this.Stmt.AuditInsert, err = this.Prepare(this.SQL.AuditInsert); err != nil {
 		return err
 	}
@@ -70,6 +75,12 @@ func (this *Database) Connect() (err error) {
 
 	if this.Stmt.SerialUpdate, err = this.Prepare(this.SQL.SerialUpdate); err != nil {
 		return err
+	}
+*/
+	for k, v := range this.SQL {
+		if this.Stmt[k], err = this.Prepare(v); err != nil {
+			return err
+		}
 	}
 
 	this.QueryRow("SELECT VERSION()").Scan(&this.Version)
@@ -90,9 +101,6 @@ func (this *Database) Info() (string) {
 
 // Close closes the prepared statements and database handle.
 func (this *Database) Close() {
-	this.Stmt.AuditInsert.Close()
-	this.Stmt.CheckinInsert.Close()
-	this.Stmt.SerialInsert.Close()
-	this.Stmt.SerialUpdate.Close()
+	for _, stmt := range this.Stmt { stmt.Close() }
 	this.DB.Close()
 }

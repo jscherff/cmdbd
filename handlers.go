@@ -33,12 +33,12 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -48,11 +48,11 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &dev); err != nil {
 
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(ErrorDecorator(err))
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 		return
@@ -68,21 +68,21 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 	var id int64
 	var sn string
 
-	if id, err = storeDevice(db.Stmt.SerialInsert, dev); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+	if id, err = storeDevice(conf.Database.Stmt["SerialInsert"], dev); err != nil {
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 	} else {
 		sn = fmt.Sprintf("24F%04x", id)
-		_, err = updateSerial(db.Stmt.SerialUpdate, sn, id)
+		_, err = updateSerial(conf.Database.Stmt["SerialUpdate"], sn, id)
 	}
 
 	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(sn); err != nil {
-			errorLog.WriteError(ErrorDecorator(err))
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 	}
@@ -98,12 +98,12 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -113,11 +113,11 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(ErrorDecorator(err))
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 
@@ -126,8 +126,8 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+	if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
@@ -142,12 +142,12 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
 	if err := r.Body.Close(); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		panic(err)
 	}
 
@@ -157,11 +157,11 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &dev); err != nil {
 
-		errorLog.WriteError(ErrorDecorator(err))
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			errorLog.WriteError(ErrorDecorator(err))
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 			panic(err)
 		}
 
@@ -170,12 +170,12 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+	if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 	}
 
-	if err = storeAudit(db.Stmt.AuditInsert, dev); err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
+	if err = storeAudit(conf.Database.Stmt["AuditInsert"], dev); err != nil {
+		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
