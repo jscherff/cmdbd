@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `device_changes` (
   KEY `host_name` (`host_name`),
   KEY `vendor_id` (`vendor_id`),
   KEY `product_id` (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.device_checkins
@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `device_checkins` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for procedure gocmdb.insert_device_change
@@ -356,6 +356,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_device_change`(
 	IN `field_name_in` varchar(64),
 	IN `old_value_in` varchar(255),
 	IN `new_value_in` varchar(255)
+
+
 
 
 
@@ -395,33 +397,33 @@ BEGIN
 END//
 DELIMITER ;
 
--- Dumping structure for procedure gocmdb.insert_device_checkin
-DROP PROCEDURE IF EXISTS `insert_device_checkin`;
+-- Dumping structure for function gocmdb.insert_device_checkin
+DROP FUNCTION IF EXISTS `insert_device_checkin`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_device_checkin`(
-	IN `host_name_in` varchar(255),
-	IN `vendor_id_in` varchar(4),
-	IN `product_id_in` varchar(4),
-	IN `serial_num_in` varchar(126),
-	IN `vendor_name_in` varchar(126),
-	IN `product_name_in` varchar(126),
-	IN `product_ver_in` varchar(7),
-	IN `software_id_in` varchar(11),
-	IN `buffer_size_in` int(10),
-	IN `bus_number_in` int(10),
-	IN `bus_address_in` int(10),
-	IN `port_number_in` int(10),
-	IN `usb_spec_in` varchar(5),
-	IN `usb_class_in` varchar(126),
-	IN `usb_subclass_in` varchar(126),
-	IN `usb_protocol_in` varchar(126),
-	IN `device_speed_in` varchar(126),
-	IN `device_ver_in` varchar(5),
-	IN `max_pkt_size_in` int(10),
-	IN `device_sn_in` varchar(126),
-	IN `factory_sn_in` varchar(126),
-	IN `descriptor_sn_in` varchar(126),
-	IN `object_type_in` varchar(255)
+CREATE DEFINER=`root`@`localhost` FUNCTION `insert_device_checkin`(
+	`host_name_in` varchar(255),
+	`vendor_id_in` varchar(4),
+	`product_id_in` varchar(4),
+	`serial_num_in` varchar(126),
+	`vendor_name_in` varchar(126),
+	`product_name_in` varchar(126),
+	`product_ver_in` varchar(7),
+	`software_id_in` varchar(11),
+	`buffer_size_in` int(10),
+	`bus_number_in` int(10),
+	`bus_address_in` int(10),
+	`port_number_in` int(10),
+	`usb_spec_in` varchar(5),
+	`usb_class_in` varchar(126),
+	`usb_subclass_in` varchar(126),
+	`usb_protocol_in` varchar(126),
+	`device_speed_in` varchar(126),
+	`device_ver_in` varchar(5),
+	`max_pkt_size_in` int(10),
+	`device_sn_in` varchar(126),
+	`factory_sn_in` varchar(126),
+	`descriptor_sn_in` varchar(126),
+	`object_type_in` varchar(255)
 
 
 
@@ -431,7 +433,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_device_checkin`(
 
 
 
-)
+
+) RETURNS int(11)
     DETERMINISTIC
     SQL SECURITY INVOKER
 BEGIN
@@ -485,36 +488,38 @@ BEGIN
                 descriptor_sn_in,
                 NULLIF(object_type_in, '')
         );
+        
+        RETURN LAST_INSERT_ID();
 END//
 DELIMITER ;
 
--- Dumping structure for procedure gocmdb.insert_serial_request
-DROP PROCEDURE IF EXISTS `insert_serial_request`;
+-- Dumping structure for function gocmdb.insert_serial_request
+DROP FUNCTION IF EXISTS `insert_serial_request`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_serial_request`(
-	IN `host_name_in` varchar(255),
-	IN `vendor_id_in` varchar(4),
-	IN `product_id_in` varchar(4),
-	IN `serial_num_in` varchar(126),
-	IN `vendor_name_in` varchar(126),
-	IN `product_name_in` varchar(126),
-	IN `product_ver_in` varchar(7),
-	IN `software_id_in` varchar(11),
-	IN `buffer_size_in` int(10),
-	IN `bus_number_in` int(10),
-	IN `bus_address_in` int(10),
-	IN `port_number_in` int(10),
-	IN `usb_spec_in` varchar(5),
-	IN `usb_class_in` varchar(126),
-	IN `usb_subclass_in` varchar(126),
-	IN `usb_protocol_in` varchar(126),
-	IN `device_speed_in` varchar(126),
-	IN `device_ver_in` varchar(5),
-	IN `max_pkt_size_in` int(10),
-	IN `device_sn_in` varchar(126),
-	IN `factory_sn_in` varchar(126),
-	IN `descriptor_sn_in` varchar(126),
-	IN `object_type_in` varchar(255)
+CREATE DEFINER=`root`@`localhost` FUNCTION `insert_serial_request`(
+	`host_name_in` varchar(255),
+	`vendor_id_in` varchar(4),
+	`product_id_in` varchar(4),
+	`serial_num_in` varchar(126),
+	`vendor_name_in` varchar(126),
+	`product_name_in` varchar(126),
+	`product_ver_in` varchar(7),
+	`software_id_in` varchar(11),
+	`buffer_size_in` int(10),
+	`bus_number_in` int(10),
+	`bus_address_in` int(10),
+	`port_number_in` int(10),
+	`usb_spec_in` varchar(5),
+	`usb_class_in` varchar(126),
+	`usb_subclass_in` varchar(126),
+	`usb_protocol_in` varchar(126),
+	`device_speed_in` varchar(126),
+	`device_ver_in` varchar(5),
+	`max_pkt_size_in` int(10),
+	`device_sn_in` varchar(126),
+	`factory_sn_in` varchar(126),
+	`descriptor_sn_in` varchar(126),
+	`object_type_in` varchar(255)
 
 
 
@@ -524,7 +529,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_serial_request`(
 
 
 
-)
+
+
+
+) RETURNS int(10)
     DETERMINISTIC
     SQL SECURITY INVOKER
 BEGIN
@@ -578,6 +586,8 @@ BEGIN
                 descriptor_sn_in,
                 NULLIF(object_type_in, '')
         );
+        
+        RETURN LAST_INSERT_ID();
 END//
 DELIMITER ;
 
@@ -619,7 +629,7 @@ CREATE TABLE IF NOT EXISTS `serialized_devices` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.serial_requests
@@ -660,7 +670,7 @@ CREATE TABLE IF NOT EXISTS `serial_requests` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `serial_num` (`serial_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.unserialized_devices
@@ -700,7 +710,7 @@ CREATE TABLE IF NOT EXISTS `unserialized_devices` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for procedure gocmdb.update_serial_request
@@ -709,6 +719,8 @@ DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_serial_request`(
 	IN `serial_num_in` VARCHAR(126),
 	IN `id_in` INT(10)
+
+
 
 
 

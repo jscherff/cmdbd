@@ -16,7 +16,6 @@ package main
 
 import (
 	"encoding/json"
-	"database/sql"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -43,13 +42,13 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	dev := usbci.NewWSAPI()
 
 	if err := json.Unmarshal(body, &dev); err != nil {
 
 		errorLog.WriteError(ErrorDecorator(err))
-
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -59,33 +58,30 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	if len(dev.GetSerialNum()) != 0 {
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
-	var insertId int64
-	var serialNum string
+	var id int64
+	var sn string
 
-	result, err := storeDevice(db.Stmt.SerialInsert, dev)
-
-	if err == nil {
-		insertId, err = result.LastInsertId()
+	if id, err = storeDevice(db.Stmt.SerialInsert, dev); err != nil {
+		errorLog.WriteError(ErrorDecorator(err))
+	} else {
+		sn = fmt.Sprintf("24F%04x", id)
+		_, err = updateSerial(db.Stmt.SerialUpdate, sn, id)
 	}
-	if err == nil {
-		serialNum = fmt.Sprintf("24F%04x", insertId)
-		_, err = updateSerial(db.Stmt.SerialUpdate, serialNum, insertId)
-	}
-
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
 	if err != nil {
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 
-		if err := json.NewEncoder(w).Encode(serialNum); err != nil {
+		if err := json.NewEncoder(w).Encode(sn); err != nil {
 			errorLog.WriteError(ErrorDecorator(err))
 			panic(err)
 		}
@@ -111,13 +107,13 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	dev := usbci.NewWSAPI()
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
 		errorLog.WriteError(ErrorDecorator(err))
-
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -128,11 +124,10 @@ func CheckinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = storeDevice(db.Stmt.CheckinInsert, dev)
-
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	if err != nil {
+	if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err != nil {
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
@@ -156,13 +151,13 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	dev := usbci.NewWSAPI()
 
 	if err := json.Unmarshal(body, &dev); err != nil {
 
 		errorLog.WriteError(ErrorDecorator(err))
-
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -173,98 +168,16 @@ func AuditHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storeAudit(db.Stmt.AuditInsert, dev)
-
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	if err != nil {
+	if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err != nil {
+		errorLog.WriteError(ErrorDecorator(err))
+	}
+
+	if err = storeAudit(db.Stmt.AuditInsert, dev); err != nil {
+		errorLog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusAccepted)
 	}
-}
-
-func storeDevice(stmt *sql.Stmt, dev *usbci.WSAPI) (res sql.Result, err error) {
-
-	res, err = stmt.Exec(
-		dev.GetHostName(),
-		dev.GetVendorID(),
-		dev.GetProductID(),
-		dev.GetSerialNum(),
-		dev.GetVendorName(),
-		dev.GetProductName(),
-		dev.GetProductVer(),
-		dev.GetSoftwareID(),
-		dev.GetBufferSize(),
-		dev.GetBusNumber(),
-		dev.GetBusAddress(),
-		dev.GetPortNumber(),
-		dev.GetUSBSpec(),
-		dev.GetUSBClass(),
-		dev.GetUSBSubclass(),
-		dev.GetUSBProtocol(),
-		dev.GetDeviceSpeed(),
-		dev.GetDeviceVer(),
-		dev.GetMaxPktSize(),
-		dev.GetDeviceSN(),
-		dev.GetFactorySN(),
-		dev.GetDescriptorSN(),
-		dev.GetObjectType(),
-	)
-
-	return res, err
-}
-
-func storeAudit(stmt *sql.Stmt, dev *usbci.WSAPI) (err error) {
-
-	var tx *sql.Tx
-
-	if tx, err = db.Begin(); err == nil {
-
-		if _, err = storeDevice(db.Stmt.CheckinInsert, dev); err == nil {
-
-			for _, ch := range dev.GetChanges() {
-
-				_, err = tx.Stmt(stmt).Exec(
-					dev.GetHostName(),
-					dev.GetVendorID(),
-					dev.GetProductID(),
-					dev.GetSerialNum(),
-					dev.GetBusNumber(),
-					dev.GetBusAddress(),
-					dev.GetPortNumber(),
-					ch[usbci.FieldNameIx],
-					ch[usbci.OldValueIx],
-					ch[usbci.NewValueIx],
-				)
-				if err != nil {
-					break
-				}
-			}
-		}
-	}
-
-	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
-		err = tx.Rollback()
-	} else {
-		err = tx.Commit()
-	}
-
-	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
-	}
-
-	return err
-}
-
-func updateSerial(stmt *sql.Stmt, sn string, id int64) (res sql.Result, err error) {
-
-	res, err = stmt.Exec(sn, id)
-
-	if err != nil {
-		errorLog.WriteError(ErrorDecorator(err))
-	}
-
-	return res, err
 }
