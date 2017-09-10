@@ -23,7 +23,7 @@ import (
 
 // NewRouter creates a new Gorilla Mux router and adds routes contained
 // in the routes struct.
-func NewRouter() *mux.Router {
+func NewRouter(routes Routes) *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
 

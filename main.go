@@ -15,19 +15,21 @@
 package main
 
 import (
-	"net/http"
 	"flag"
+	"net/http"
 	"log"
 )
 
+// Systemwide configuration.
 var conf *Config
 
+// Systemwide initializataion.
 func init() {
 
 	var err error
 	flag.Parse()
 
-	if conf, err = NewConfig(*fWsConfigFile); err != nil {
+	if conf, err = NewConfig(*FConfig); err != nil {
 		log.Fatalf("%v", err)
 	}
 
@@ -44,7 +46,31 @@ func init() {
 
 func main() {
 
-	router := NewRouter()
+	var routes = Routes {
+
+		Route {
+			Name:		"Serial",
+			Method:		"POST",
+			Pattern:	"/serial",
+			HandlerFunc:	SerialHandler,
+		},
+
+		Route {
+			Name:		"Checkin",
+			Method:		"POST",
+			Pattern:	"/checkin",
+			HandlerFunc:	CheckinHandler,
+		},
+
+		Route {
+			Name:		"Audit",
+			Method:		"POST",
+			Pattern:	"/audit",
+			HandlerFunc:	AuditHandler,
+		},
+	}
+
+	router := NewRouter(routes)
 	log.Fatal(http.ListenAndServe(conf.ListenerInfo(), router))
 
 	conf.Database.Close()

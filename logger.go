@@ -55,7 +55,7 @@ func (this *Logger) Close() {
 
 func (this *Logger) Init() (err error) {
 
-	if this.Options.EnableLogFile || *fEnableLogFiles {
+	if this.Options.EnableLogFile || *FLogFiles {
 
 		var logDir string
 
@@ -78,7 +78,7 @@ func (this *Logger) Init() (err error) {
 		}
 	}
 
-	if this.Options.EnableSyslog || *fEnableSyslog {
+	if this.Options.EnableSyslog || *FSyslog {
 
 		for k, v := range this.Syslog {
 
@@ -95,7 +95,7 @@ func (this *Logger) Init() (err error) {
 		}
 	}
 
-	if this.Options.EnableConsole || *fEnableConsole {
+	if this.Options.EnableConsole || *FConsole {
 
 		for k, v := range this.Console {
 

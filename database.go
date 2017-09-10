@@ -33,21 +33,6 @@ type Database struct {
 
 	SQL map[string]string
 	Stmt map[string]*sql.Stmt
-/*
-	SQL struct {
-		AuditInsert string
-		CheckinInsert string
-		SerialInsert string
-		SerialUpdate string
-	}
-
-	Stmt struct {
-		AuditInsert *sql.Stmt
-		CheckinInsert *sql.Stmt
-		SerialInsert *sql.Stmt
-		SerialUpdate *sql.Stmt
-	}
-*/
 }
 
 // Init connects to the database and prepares the prepared statements.
@@ -60,23 +45,7 @@ func (this *Database) Init() (err error) {
 	if err = this.Ping(); err != nil {
 		return err
 	}
-/*
-	if this.Stmt.AuditInsert, err = this.Prepare(this.SQL.AuditInsert); err != nil {
-		return err
-	}
 
-	if this.Stmt.CheckinInsert, err = this.Prepare(this.SQL.CheckinInsert); err != nil {
-		return err
-	}
-
-	if this.Stmt.SerialInsert, err = this.Prepare(this.SQL.SerialInsert); err != nil {
-		return err
-	}
-
-	if this.Stmt.SerialUpdate, err = this.Prepare(this.SQL.SerialUpdate); err != nil {
-		return err
-	}
-*/
 	for k, v := range this.SQL {
 		if this.Stmt[k], err = this.Prepare(v); err != nil {
 			return err

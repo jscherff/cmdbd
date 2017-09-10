@@ -77,7 +77,7 @@
 
 		"LogDir": {
 			"Windows": "log",
-			"Linux": "/var/log/gohttpd"
+			"Linux": "/var/log/gocmdbd"
 		},
 
 		"Options": {

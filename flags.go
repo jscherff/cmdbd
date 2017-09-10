@@ -17,8 +17,8 @@ package main
 import "flag"
 
 var (
-	fWsConfigFile = flag.String("config", "config.json", "Web server configuration file")
-	fEnableConsole = flag.Bool("console", false, "Enable console logging")
-	fEnableLogFiles = flag.Bool("logfiles", false, "Enable logfile logging")
-	fEnableSyslog = flag.Bool("syslog", false, "Enable syslog logging")
+	FConfig = flag.String("config", "config.json", "Web server configuration file")
+	FConsole = flag.Bool("console", false, "Enable console logging")
+	FLogFiles = flag.Bool("logfiles", false, "Enable logfile logging")
+	FSyslog = flag.Bool("syslog", false, "Enable syslog logging")
 )
