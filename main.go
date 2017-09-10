@@ -23,8 +23,7 @@ import (
 // Systemwide configuration.
 var conf *Config
 
-// Systemwide initializataion.
-func init() {
+func main() {
 
 	var err error
 	flag.Parse()
@@ -42,35 +41,8 @@ func init() {
 	}
 
 	conf.Log.Writer[System].WriteString(conf.Database.Info())
-}
 
-func main() {
-
-	var routes = Routes {
-
-		Route {
-			Name:		"Serial",
-			Method:		"POST",
-			Pattern:	"/serial",
-			HandlerFunc:	SerialHandler,
-		},
-
-		Route {
-			Name:		"Checkin",
-			Method:		"POST",
-			Pattern:	"/checkin",
-			HandlerFunc:	CheckinHandler,
-		},
-
-		Route {
-			Name:		"Audit",
-			Method:		"POST",
-			Pattern:	"/audit",
-			HandlerFunc:	AuditHandler,
-		},
-	}
-
-	router := NewRouter(routes)
+	router := NewRouter()
 	log.Fatal(http.ListenAndServe(conf.ListenerInfo(), router))
 
 	conf.Database.Close()
