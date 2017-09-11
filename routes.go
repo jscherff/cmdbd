@@ -30,7 +30,7 @@ var routes = Routes {
 	Route {
 		Name:		"DeviceHandler",
 		Method:		"POST",
-		Pattern:	"/device/{action}",
+		Pattern:	"/device/usb/{action}",
 		HandlerFunc:	DeviceHandler,
 	},
 }
