@@ -24,7 +24,7 @@ import (
 	"github.com/jscherff/gocmdb/usbci"
 )
 
-// DeviceHandler handles various 'actions' for device gocmdb agents.
+// USBDeviceHandler handles various 'actions' for device gocmdb agents.
 func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -109,4 +109,26 @@ func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+
+// AllowedMethodHandler restricts requests to methods listed in the AllowedMethods
+// slice in the systemwide configuration.
+func AllowedMethodHandler(h http.Handler, methods ...string) http.Handler {
+
+	return http.HandlerFunc(
+
+		func(w http.ResponseWriter, r *http.Request) {
+
+			for _, m := range methods {
+				if r.Method == m {
+					h.ServeHTTP(w, r)
+					return
+				}
+			}
+
+			http.Error(w, fmt.Sprintf("Unsupported method %q", r.Method),
+				http.StatusMethodNotAllowed)
+		},
+	)
 }
