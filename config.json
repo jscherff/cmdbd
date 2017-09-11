@@ -4,7 +4,7 @@
 		"ReadTimeout": 10,
 		"WriteTimeout": 10,
 		"MaxHeaderBytes": 1048576,
-		"AllowedContentTypes": ["applicaiton/json; charset=UTF8"],
+		"AllowedContentTypes": ["application/json"],
 		"AllowedMethods": ["POST"]
 	},
 
