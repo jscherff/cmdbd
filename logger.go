@@ -16,7 +16,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -87,7 +86,6 @@ func (this *Logger) Init() (err error) {
 			}
 
 			if err = v.Init(); err != nil {
-				log.Printf("%v\n", err)
 				continue
 			}
 

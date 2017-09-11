@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `device_changes` (
   KEY `host_name` (`host_name`),
   KEY `vendor_id` (`vendor_id`),
   KEY `product_id` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.device_checkins
@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `device_checkins` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for procedure gocmdb.insert_device_change
@@ -629,7 +629,7 @@ CREATE TABLE IF NOT EXISTS `serialized_devices` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.serial_requests
@@ -670,7 +670,7 @@ CREATE TABLE IF NOT EXISTS `serial_requests` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `serial_num` (`serial_num`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.unserialized_devices

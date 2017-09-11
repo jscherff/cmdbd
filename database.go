@@ -17,7 +17,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -39,16 +38,16 @@ type Database struct {
 func (this *Database) Init() (err error) {
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
-		return err
+		return ErrorDecorator(err)
 	}
 
 	if err = this.Ping(); err != nil {
-		return err
+		return ErrorDecorator(err)
 	}
 
 	for k, v := range this.SQL {
 		if this.Stmt[k], err = this.Prepare(v); err != nil {
-			return err
+			return ErrorDecorator(err)
 		}
 	}
 
@@ -59,7 +58,7 @@ func (this *Database) Init() (err error) {
 
 // Info provides identifying information about the database and user.
 func (this *Database) Info() (string) {
-	return fmt.Sprintf("Connected to %q (%s@%s/%s) using %q driver",
+	return fmt.Sprintf("Connected to database %q (%s@%s/%s) using %q driver",
 		this.Version,
 		this.Config.User,
 		this.Config.Addr,

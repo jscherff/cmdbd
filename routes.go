@@ -28,23 +28,9 @@ type Routes []Route
 var routes = Routes {
 
 	Route {
-		Name:		"Serial",
+		Name:		"DeviceHandler",
 		Method:		"POST",
-		Pattern:	"/serial",
-		HandlerFunc:	SerialHandler,
-	},
-
-	Route {
-		Name:		"Checkin",
-		Method:		"POST",
-		Pattern:	"/checkin",
-		HandlerFunc:	CheckinHandler,
-	},
-
-	Route {
-		Name:		"Audit",
-		Method:		"POST",
-		Pattern:	"/audit",
-		HandlerFunc:	AuditHandler,
+		Pattern:	"/device/{action}",
+		HandlerFunc:	DeviceHandler,
 	},
 }

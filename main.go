@@ -16,16 +16,17 @@ package main
 
 import (
 	"flag"
-	"net/http"
 	"log"
 )
 
 // Systemwide configuration.
 var conf *Config
 
-func main() {
+// Systemwide initialization.
+func init() {
 
 	var err error
+
 	flag.Parse()
 
 	if conf, err = NewConfig(*FConfig); err != nil {
@@ -33,18 +34,21 @@ func main() {
 	}
 
 	if err = conf.Log.Init(); err != nil {
-		log.Printf("%v", err)
+		log.Fatalf("%v", err)
 	}
 
 	if err = conf.Database.Init(); err != nil {
 		conf.Log.Writer[System].WriteError(err)
 	}
 
+	conf.Server.Init()
+
 	conf.Log.Writer[System].WriteString(conf.Database.Info())
+	conf.Log.Writer[System].WriteString(conf.Server.Info())
+}
 
-	router := NewRouter()
-	log.Fatal(http.ListenAndServe(conf.ListenerInfo(), router))
-
+func main() {
+	log.Fatal(conf.Server.ListenAndServe())
 	conf.Database.Close()
 	conf.Log.Close()
 }

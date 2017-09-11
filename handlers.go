@@ -20,26 +20,24 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-
+	"github.com/gorilla/mux"
 	"github.com/jscherff/gocmdb/usbci"
 )
 
-// SerialHandler creates a new record in the 'serials' table when a device
-// requests a serial number. It generates a new device serial number based
-// on the INT primary key of the table, offers it to the device, then updates
-// the 'serial_number' column of the table with the new serial number.
-func SerialHandler(w http.ResponseWriter, r *http.Request) {
+// DeviceHandler handles various 'actions' for device gocmdb agents.
+func DeviceHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	action := vars["action"]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
 
 	if err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
+		panic(ErrorDecorator(err))
 	}
 
 	if err := r.Body.Close(); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
+		panic(ErrorDecorator(err))
 	}
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
@@ -52,132 +50,63 @@ func SerialHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-			panic(err)
+			panic(ErrorDecorator(err))
 		}
+
 		return
 	}
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	if len(dev.GetSerialNum()) != 0 {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
+	switch action {
 
-	var id int64
-	var sn string
+	case "serial":
 
-	if id, err = storeDevice(conf.Database.Stmt["SerialInsert"], dev); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-	} else {
-		sn = fmt.Sprintf("24F%04x", id)
-		_, err = updateSerial(conf.Database.Stmt["SerialUpdate"], sn, id)
+		var sn = dev.GetSerialNum()
+
+		if len(sn) != 0 {
+			err = fmt.Errorf("device already has serial number %q", sn)
+			conf.Log.Writer[Error].WriteError(err)
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		var id int64
+
+		if id, err = storeDevice(conf.Database.Stmt["SerialInsert"], dev); err != nil {
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		} else {
+			sn = fmt.Sprintf("24F%04x", id)
+			_, err = updateSerial(conf.Database.Stmt["SerialUpdate"], sn, id)
+		}
+
+		if err == nil {
+			w.WriteHeader(http.StatusCreated)
+
+			if err = json.NewEncoder(w).Encode(sn); err != nil {
+				panic(ErrorDecorator(err))
+			}
+		}
+
+	case "checkin":
+
+		if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err == nil {
+			w.WriteHeader(http.StatusAccepted)
+		}
+
+	case "audit":
+
+		if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		}
+
+		if err = storeAudit(conf.Database.Stmt["AuditInsert"], dev); err == nil {
+			w.WriteHeader(http.StatusAccepted)
+		}
 	}
 
 	if err != nil {
 		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		w.WriteHeader(http.StatusCreated)
-
-		if err := json.NewEncoder(w).Encode(sn); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-			panic(err)
-		}
-	}
-}
-
-// CheckinHandler creates a new record in the 'checkin' table when a device
-// checks in. A DB trigger then creates a new record in the 'devices' table
-// if one does not exist or updates the existing record with data from every
-// column except the serial number. The trigger also updates the 'last_seen'
-// column of the 'devices' table with the checkin date.
-func CheckinHandler(w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
-
-	if err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
-	}
-
-	if err := r.Body.Close(); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
-	}
-
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-
-	dev := usbci.NewWSAPI()
-
-	if err = json.Unmarshal(body, &dev); err != nil {
-
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusUnprocessableEntity)
-
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-			panic(err)
-		}
-
-		return
-	}
-
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-
-	if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		w.WriteHeader(http.StatusAccepted)
-	}
-}
-
-// AuditHandler records property changes reported by the device in the 'audits'
-// table. Each report is associated with a single serial number but may contain
-// multiple changes.
-func AuditHandler(w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
-
-	if err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
-	}
-
-	if err := r.Body.Close(); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		panic(err)
-	}
-
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-
-	dev := usbci.NewWSAPI()
-
-	if err := json.Unmarshal(body, &dev); err != nil {
-
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusUnprocessableEntity)
-
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-			panic(err)
-		}
-
-		return
-	}
-
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-
-	if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-	}
-
-	if err = storeAudit(conf.Database.Stmt["AuditInsert"], dev); err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		w.WriteHeader(http.StatusAccepted)
 	}
 }

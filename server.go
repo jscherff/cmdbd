@@ -15,33 +15,28 @@
 package main
 
 import (
-	"encoding/json"
-	"os"
+	"fmt"
+	"net/http"
+	"time"
 )
 
 // Config contains infomation about the server process and log writers.
-type Config struct {
-
-	Server *Server
-	Database *Database
-	Log *Logger
+type Server struct {
+	*http.Server
+	AllowedContentTypes []string
+	AllowedMethods []string
 }
 
 // NewConfig creates a new Config object and reads its configuration from
 // the provided JSON configuration file.
-func NewConfig(cf string) (this *Config, err error) {
+func (this *Server) Init() {
 
-	this = new(Config)
+	this.ReadTimeout *= time.Second
+	this.WriteTimeout *= time.Second
+	this.Handler = NewRouter()
+}
 
-	fh, err := os.Open(cf)
-	defer fh.Close()
-
-	if err != nil {
-		return this, err
-	}
-
-	jd := json.NewDecoder(fh)
-	err = jd.Decode(&this)
-
-	return this, err
+// Info provides identifying information about the server.
+func (this *Server) Info() (string) {
+	return fmt.Sprintf("Server started and listening on %q", this.Addr)
 }
