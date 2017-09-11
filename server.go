@@ -25,6 +25,7 @@ type Server struct {
 	*http.Server
 	AllowedContentTypes []string
 	AllowedMethods []string
+	HttpBodySizeLimit int64
 }
 
 // NewConfig creates a new Config object and reads its configuration from

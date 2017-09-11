@@ -27,10 +27,4 @@ const (
 	LogFileFlags = os.O_APPEND|os.O_CREATE|os.O_WRONLY
 	LogFileMode = 0644
 	LogDirMode = 0755
-
-	System = "system"
-	Access = "access"
-	Error = "error"
-
-	HttpBodySizeLimit int64 = 1048576
 )

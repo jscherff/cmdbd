@@ -24,7 +24,7 @@ func storeAudit(stmt *sql.Stmt, dev *usbci.WSAPI) (err error) {
 
 	var tx *sql.Tx
 
-	if tx, err = conf.Database.Begin(); err == nil {
+	if tx, err = Conf.Database.Begin(); err == nil {
 
 		for _, ch := range dev.GetChanges() {
 
@@ -48,7 +48,7 @@ func storeAudit(stmt *sql.Stmt, dev *usbci.WSAPI) (err error) {
 
 	if err != nil {
 		// Decorate error here because rollback result overwrites it.
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 		err = tx.Rollback()
 	} else {
 		err = tx.Commit()

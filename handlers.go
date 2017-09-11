@@ -30,7 +30,8 @@ func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	action := vars["action"]
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
+	body, err := ioutil.ReadAll(io.LimitReader(
+		r.Body, Conf.Server.HttpBodySizeLimit))
 
 	if err != nil {
 		panic(ErrorDecorator(err))
@@ -46,7 +47,7 @@ func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &dev); err != nil {
 
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -66,18 +67,18 @@ func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 		if len(sn) != 0 {
 			err = fmt.Errorf("device already has serial number %q", sn)
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+			Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 
 		var id int64
 
-		if id, err = storeDevice(conf.Database.Stmt["SerialInsert"], dev); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		if id, err = storeDevice(Conf.Database.Stmt["SerialInsert"], dev); err != nil {
+			Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 		} else {
 			sn = fmt.Sprintf("24F%04x", id)
-			_, err = updateSerial(conf.Database.Stmt["SerialUpdate"], sn, id)
+			_, err = updateSerial(Conf.Database.Stmt["SerialUpdate"], sn, id)
 		}
 
 		if err == nil {
@@ -90,23 +91,23 @@ func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "checkin":
 
-		if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err == nil {
+		if _, err = storeDevice(Conf.Database.Stmt["CheckinInsert"], dev); err == nil {
 			w.WriteHeader(http.StatusAccepted)
 		}
 
 	case "audit":
 
-		if _, err = storeDevice(conf.Database.Stmt["CheckinInsert"], dev); err != nil {
-			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		if _, err = storeDevice(Conf.Database.Stmt["CheckinInsert"], dev); err != nil {
+			Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 		}
 
-		if err = storeAudit(conf.Database.Stmt["AuditInsert"], dev); err == nil {
+		if err = storeAudit(Conf.Database.Stmt["AuditInsert"], dev); err == nil {
 			w.WriteHeader(http.StatusAccepted)
 		}
 	}
 
 	if err != nil {
-		conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
+		Conf.Log.Writer["error"].WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

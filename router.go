@@ -33,17 +33,17 @@ func NewRouter() *mux.Router {
 		handler = route.HandlerFunc
 
 		handler = AllowedMethodHandler(handler,
-			conf.Server.AllowedMethods...)
+			Conf.Server.AllowedMethods...)
 
 		handler = handlers.ContentTypeHandler(handler,
-			conf.Server.AllowedContentTypes...)
+			Conf.Server.AllowedContentTypes...)
 
 		handler = handlers.CombinedLoggingHandler(
-			conf.Log.Writer[Access], handler)
+			Conf.Log.Writer["access"], handler)
 
 		handler = handlers.RecoveryHandler(
-			handlers.PrintRecoveryStack(conf.Log.Options.RecoveryStack),
-			handlers.RecoveryLogger(conf.Log.Writer[Error]))(handler)
+			handlers.PrintRecoveryStack(Conf.Log.Options.RecoveryStack),
+			handlers.RecoveryLogger(Conf.Log.Writer["error"]))(handler)
 
 		router.
 			Methods(route.Method).

@@ -4,6 +4,7 @@
 		"ReadTimeout": 10,
 		"WriteTimeout": 10,
 		"MaxHeaderBytes": 1048576,
+		"HttpBodySizeLimit": 1048576,
 		"AllowedContentTypes": ["application/json"],
 		"AllowedMethods": ["POST"]
 	},

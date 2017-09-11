@@ -20,7 +20,7 @@ import (
 )
 
 // Systemwide configuration.
-var conf *Config
+var Conf *Config
 
 // Systemwide initialization.
 func init() {
@@ -29,26 +29,26 @@ func init() {
 
 	flag.Parse()
 
-	if conf, err = NewConfig(*FConfig); err != nil {
+	if Conf, err = NewConfig(*FConfig); err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	if err = conf.Log.Init(); err != nil {
+	if err = Conf.Log.Init(); err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	if err = conf.Database.Init(); err != nil {
-		conf.Log.Writer[System].WriteError(err)
+	if err = Conf.Database.Init(); err != nil {
+		Conf.Log.Writer["system"].WriteError(err)
 	}
 
-	conf.Server.Init()
+	Conf.Server.Init()
 
-	conf.Log.Writer[System].WriteString(conf.Database.Info())
-	conf.Log.Writer[System].WriteString(conf.Server.Info())
+	Conf.Log.Writer["system"].WriteString(Conf.Database.Info())
+	Conf.Log.Writer["system"].WriteString(Conf.Server.Info())
 }
 
 func main() {
-	log.Fatal(conf.Server.ListenAndServe())
-	conf.Database.Close()
-	conf.Log.Close()
+	log.Fatal(Conf.Server.ListenAndServe())
+	Conf.Database.Close()
+	Conf.Log.Close()
 }
