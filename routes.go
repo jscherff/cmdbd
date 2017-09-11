@@ -28,9 +28,9 @@ type Routes []Route
 var routes = Routes {
 
 	Route {
-		Name:		"DeviceHandler",
+		Name:		"USBDeviceHandler",
 		Method:		"POST",
 		Pattern:	"/device/usb/{action}",
-		HandlerFunc:	DeviceHandler,
+		HandlerFunc:	USBDeviceHandler,
 	},
 }

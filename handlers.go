@@ -25,7 +25,7 @@ import (
 )
 
 // DeviceHandler handles various 'actions' for device gocmdb agents.
-func DeviceHandler(w http.ResponseWriter, r *http.Request) {
+func USBDeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	action := vars["action"]
@@ -66,7 +66,7 @@ func DeviceHandler(w http.ResponseWriter, r *http.Request) {
 
 		if len(sn) != 0 {
 			err = fmt.Errorf("device already has serial number %q", sn)
-			conf.Log.Writer[Error].WriteError(err)
+			conf.Log.Writer[Error].WriteError(ErrorDecorator(err))
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
