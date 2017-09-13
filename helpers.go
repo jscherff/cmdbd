@@ -41,12 +41,13 @@ func ErrorDecorator(ue error) (de error) {
 	return fmt.Errorf("%s: %v", msg, ue)
 }
 
-// usbChangeInserts stores the results of a device self-audit in the audit table.
-func usbChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
+// usbciChangeInserts stores the results of a device self-audit in the audit table.
+func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 
 	var tx *sql.Tx
 
 	if tx, err = db.Begin(); err != nil {
+		elog.WriteError(ErrorDecorator(err))
 		return err
 	}
 
@@ -65,6 +66,7 @@ func usbChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 			ch[cmapi.NewValueIx],
 		)
 		if err != nil {
+			elog.WriteError(ErrorDecorator(err))
 			break
 		}
 	}
@@ -72,44 +74,66 @@ func usbChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 	if err == nil {
 		err = tx.Commit()
 	} else {
-		elog.WriteError(ErrorDecorator(err))
 		err = tx.Rollback()
+	}
+
+	if err != nil {
+		elog.WriteError(ErrorDecorator(err))
 	}
 
 	return err
 }
 
-// StoreDevice stores the the device in the table referred to by the statement
-// and returns the LAST_INSERT_ID().
-func usbciInsertDevice(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error) {
+// StoreDevice stores the the device in the table referred to by the statement.
+func usbciDeviceInsert(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error) {
 
-	vals, err := dbutils.ObjectDbVals(dev, "db") //TODO: change to ...ValsByCol
+	vals, err := dbutils.ObjectDbValsByCol(dev, "db", db.Columns[stmt])
 
-	if err != nil {
-		fmt.Println(err) //TODO
+	if err == nil {
+		res, err = db.Statements[stmt].Exec(vals...)
 	}
 
-	res, err = db.Statements[stmt].Exec(vals...)
+	if err != nil {
+		elog.WriteError(ErrorDecorator(err))
+	}
 
 	return res, err
 }
 
-func usbciSelectDevice(stmt string, dev *cmapi.UsbCi) (rows *sql.Rows, err error) {
-	return db.Statements[stmt].Query(dev.VID(), dev.PID(), dev.ID())
+// usbciDeviceSelect retrieves the device from the table referred to by the statement.
+func usbciDeviceSelect(stmt string, dev *cmapi.UsbCi) (rows *sql.Rows, err error) {
+
+	if rows, err = db.Statements[stmt].Query(dev.VID(), dev.PID(), dev.ID()); err != nil {
+		elog.WriteError(ErrorDecorator(err))
+	}
+
+	return rows, err
 }
 
-// usbSnRequestUpdate updates the serial number request record with the serial number
-// issued.
-func usbSnRequestUpdate(stmt string, sn string, id int64) (res sql.Result, err error) {
-	res, err = db.Statements[stmt].Exec(sn, id)
+// usbciSnRequestUpdate updates the serial number request with the serial number issued.
+func usbciSnRequestUpdate(stmt string, sn string, id int64) (res sql.Result, err error) {
+
+	if res, err = db.Statements[stmt].Exec(sn, id); err != nil {
+		elog.WriteError(ErrorDecorator(err))
+	}
+
 	return res, err
 }
 
-func RowToMap(rows *sql.Rows) (mss map[string]string, err error) {
+func RowToMap(stmt string, dev *cmapi.UsbCi) (mss map[string]string, err error) {
+
+	rows, err := usbciDeviceSelect(stmt, dev)
+	defer rows.Close()
+
+	if err != nil {
+		elog.WriteError(ErrorDecorator(err))
+		return nil, err
+	}
 
 	var cols []string
 
 	if cols, err = rows.Columns(); err != nil {
+		elog.WriteError(ErrorDecorator(err))
 		return nil, err
 	}
 
@@ -123,6 +147,7 @@ func RowToMap(rows *sql.Rows) (mss map[string]string, err error) {
 		}
 
 		if err = rows.Scan(pvals...); err != nil {
+			elog.WriteError(ErrorDecorator(err))
 			return nil, err
 		}
 
@@ -139,6 +164,7 @@ func RowToMap(rows *sql.Rows) (mss map[string]string, err error) {
 
 	if rows.Err() != nil {
 		err = rows.Err()
+		elog.WriteError(ErrorDecorator(err))
 	}
 
 	return mss, err

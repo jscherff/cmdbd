@@ -28,31 +28,29 @@ import (
 // usbciActionHandler handles various 'actions' for device gocmdb agents.
 func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+
 	vars := mux.Vars(r)
 	action := vars["action"]
 
-	body, err := ioutil.ReadAll(io.LimitReader(
-		r.Body, conf.Server.HttpBodySizeLimit))
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
 		panic(ErrorDecorator(err))
 	}
 
-	if err := r.Body.Close(); err != nil {
+	if err = r.Body.Close(); err != nil {
 		panic(ErrorDecorator(err))
 	}
 
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
-
 	dev := cmapi.NewUsbCi()
 
-	if err := json.Unmarshal(body, &dev); err != nil {
-		w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+	if err = json.Unmarshal(body, &dev); err != nil {
 
 		elog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
-		if err := json.NewEncoder(w).Encode(err); err != nil {
+		if err = json.NewEncoder(w).Encode(err); err != nil {
 			panic(ErrorDecorator(err))
 		}
 
@@ -73,17 +71,18 @@ func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
 		var id int64
 		var res sql.Result
 
-		if res, err = usbciInsertDevice("usbSnRequestInsert", dev); err != nil {
+		if res, err = usbciDeviceInsert("usbciSnRequestInsert", dev); err != nil {
 			break
 		}
 
 		if id, err = res.LastInsertId(); err != nil {
+			elog.WriteError(ErrorDecorator(err))
 			break
 		}
 
 		sn = fmt.Sprintf("24F%04X", id)
 
-		if _, err = usbSnRequestUpdate("usbSnRequestUpdate", sn, id); err != nil {
+		if _, err = usbciSnRequestUpdate("usbciSnRequestUpdate", sn, id); err != nil {
 			break
 		}
 
@@ -95,111 +94,75 @@ func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "checkin":
 
-		if _, err = usbciInsertDevice("usbCheckinInsert", dev); err == nil {
+		if _, err = usbciDeviceInsert("usbciCheckinInsert", dev); err == nil {
 			w.WriteHeader(http.StatusAccepted)
 		}
 
 	case "changes":
 
-		if _, errC := usbciInsertDevice("usbCheckinInsert", dev); errC != nil {
-			elog.WriteError(ErrorDecorator(errC))
-		}
+		usbciDeviceInsert("usbciCheckinInsert", dev)
 
 		if len(dev.Changes) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			break
 		}
 
-		if err = usbChangeInserts("usbChangeInsert", dev); err == nil {
+		if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
 			w.WriteHeader(http.StatusAccepted)
 		}
 	}
 
 	if err != nil {
-		elog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-}
-
-// AllowedMethodHandler restricts requests to methods listed in the AllowedMethods
-// slice in the systemwide configuration.
-func AllowedMethodHandler(h http.Handler, methods ...string) http.Handler {
-
-	return http.HandlerFunc(
-
-		func(w http.ResponseWriter, r *http.Request) {
-
-			for _, m := range methods {
-				if r.Method == m {
-					h.ServeHTTP(w, r)
-					return
-				}
-			}
-
-			http.Error(w, fmt.Sprintf("Unsupported method %q", r.Method),
-				http.StatusMethodNotAllowed)
-		},
-	)
 }
 
 // usbciAuditHandler performs a device audit against the previous state in
 // the database.
 func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
-	var vid, pid, sn = vars["vid"], vars["pid"], vars["sn"]
-
-	body, err := ioutil.ReadAll(io.LimitReader(
-		r.Body, conf.Server.HttpBodySizeLimit))
-
-	if err != nil {
-		panic(ErrorDecorator(err))
-	}
-
-	if err := r.Body.Close(); err != nil {
-		panic(ErrorDecorator(err))
-	}
-
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
-	dev := cmapi.NewUsbCi()
-
-	if err := json.Unmarshal(body, &dev); err != nil {
-
-		elog.WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusUnprocessableEntity)
-
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(ErrorDecorator(err))
-		}
-
-		return
-	}
+	vars := mux.Vars(r)
+	var vid, pid, sn = vars["vid"], vars["pid"], vars["sn"]
 
 	if len(vid) == 0 || len(pid) == 0 || len(sn) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
+
+	if err != nil {
+		panic(ErrorDecorator(err))
+	}
+
+	if err = r.Body.Close(); err != nil {
+		panic(ErrorDecorator(err))
+	}
+
+	dev := cmapi.NewUsbCi()
+
+	if err = json.Unmarshal(body, &dev); err != nil {
+
+		elog.WriteError(ErrorDecorator(err))
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		if err = json.NewEncoder(w).Encode(err); err != nil {
+			panic(ErrorDecorator(err))
+		}
+
+		return
+	}
+
 	// Retrieve map of device properties from previous checkin, if any.
 
-	var map1 map[string]string
-
-	rows, err := usbciSelectDevice("usbAuditSelect", dev)
-
-	if err == nil {
-		defer rows.Close()
-		map1, err = RowToMap(rows)
-	}
-	if err != nil {
-		elog.WriteError(ErrorDecorator(err))
-	}
+	map1, err := RowToMap("usbciAuditSelect", dev)
 
 	// Perform a new device checkin to save current device properties. Abort
 	// with error if unable to save properties.
 
-	if _, errC := usbciInsertDevice("usbCheckinInsert", dev); errC != nil {
-		elog.WriteError(ErrorDecorator(errC))
+	if _, err = usbciDeviceInsert("usbciCheckinInsert", dev); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -216,16 +179,9 @@ func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
 	// Retrieve map of device properties from current checkin. Abort with error
 	// if unable to retrieve properties or unable to convert to map.
 
-	var map2 map[string]string
+	map2, err := RowToMap("usbciAuditSelect", dev)
 
-	rows, err = usbciSelectDevice("usbAuditSelect", dev)
-
-	if err == nil {
-		defer rows.Close()
-		map2, err = RowToMap(rows)
-	}
 	if err != nil {
-		elog.WriteError(ErrorDecorator(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -249,10 +205,9 @@ func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
 	// Record changes, if any, to changes table. Return status of 'Accepted' if
 	// successful, or record error and return 'Internal Server Error' on failure.
 
-	if err = usbChangeInserts("usbChangeInsert", dev); err == nil {
+	if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
 		w.WriteHeader(http.StatusAccepted)
 	} else {
 		elog.WriteError(ErrorDecorator(err))
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

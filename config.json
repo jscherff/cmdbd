@@ -24,11 +24,11 @@
 		},
 
 		"Tables": {
-			"usbChangeInsert": "usbci_changes_object_view|INSERT",
-			"usbCheckinInsert": "usbci_checkins_object_view|INSERT",
-			"usbSnRequestInsert": "usbci_snrequests_object_view|INSERT",
-			"usbSnRequestUpdate": "usbci_snrequests|UPDATE|serial_num|id",
-			"usbAuditSelect": "usbci_serialized_audit_view|SELECT|vendor_id,product_id,serial_num"
+			"usbciChangeInsert": "usbci_changes_object_view|INSERT",
+			"usbciCheckinInsert": "usbci_checkins_object_view|INSERT",
+			"usbciSnRequestInsert": "usbci_snrequests_object_view|INSERT",
+			"usbciSnRequestUpdate": "usbci_snrequests|UPDATE|serial_num|id",
+			"usbciAuditSelect": "usbci_serialized_audit_view|SELECT|vendor_id,product_id,serial_num"
 		},
 		"Columns": {},
 
