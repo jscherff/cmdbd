@@ -20,6 +20,12 @@ import (
 	"github.com/jscherff/goutils"
 )
 
+const (
+	PrioritySystem = srslog.LOG_LOCAL6|srslog.LOG_INFO
+	PriorityAccess = srslog.LOG_LOCAL7|srslog.LOG_INFO
+	PriorityError = srslog.LOG_LOCAL7|srslog.LOG_ERR
+)
+
 // Syslog extends RackSec srs log with embedded configuration information
 // about the syslog daemon. It is part of the systemwide configuration under
 // Config.Syslogs.

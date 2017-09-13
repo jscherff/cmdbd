@@ -17,8 +17,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"path/filepath"
-	"runtime"
 	"github.com/jscherff/gocmdb/cmapi"
 	"github.com/jscherff/goutils"
 )
