@@ -28,9 +28,16 @@ type Routes []Route
 var routes = Routes {
 
 	Route {
-		Name:		"USBDeviceHandler",
+		Name:		"USBCI Audit Handler",
 		Method:		"POST",
-		Pattern:	"/device/usb/{action}",
-		HandlerFunc:	USBDeviceHandler,
+		Pattern:	"/usbci/audit/{vid}/{pid}/{sn}",
+		HandlerFunc:	usbciAuditHandler,
+	},
+
+	Route {
+		Name:		"USBCI Action Handler",
+		Method:		"POST",
+		Pattern:	"/usbci/{action}",
+		HandlerFunc:	usbciActionHandler,
 	},
 }

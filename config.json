@@ -23,14 +23,18 @@
 			"Params": null
 		},
 
-		"SQL": {
-			"AuditInsert": "CALL insert_device_change(?,?,?,?,?,?,?,?,?,?)",
-			"CheckinInsert": "SELECT insert_device_checkin(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			"SerialInsert": "SELECT insert_serial_request(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			"SerialUpdate": "CALL update_serial_request(?,?)"
+		"Tables": {
+			"usbChangeInsert": "usbci_changes_object_view|INSERT",
+			"usbCheckinInsert": "usbci_checkins_object_view|INSERT",
+			"usbSnRequestInsert": "usbci_snrequests_object_view|INSERT",
+			"usbSnRequestUpdate": "usbci_snrequests|UPDATE|serial_num|id",
+			"usbAuditSelect": "usbci_serialized_audit_view|SELECT|vendor_id,product_id,serial_num"
 		},
+		"Columns": {},
 
-		"Stmt": {}
+		"Queries": {},
+
+		"Statements": {}
 	},
 
 	"Log": {
@@ -89,7 +93,7 @@
 			"EnableLogFiles": false,
 			"EnableConsole": false,
 			"EnableSyslog": false,
-			"RecoveryStack": false
+			"RecoveryStack": true
 		}
 	}
 }

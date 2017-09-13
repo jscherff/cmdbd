@@ -17,7 +17,17 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"github.com/go-sql-driver/mysql"
+)
+
+const (
+	selectColumnsSQL = `
+		SELECT column_name
+		FROM information_schema.columns
+		WHERE table_name = ?
+		AND table_schema = 'gocmdb'
+	`
 )
 
 // Database contains the database configuration, handle, and prepared statements.
@@ -29,9 +39,10 @@ type Database struct {
 	Driver string
 	Version string
 	Config *mysql.Config
-
-	SQL map[string]string
-	Stmt map[string]*sql.Stmt
+	Tables map[string]string
+	Columns map[string][]string
+	Queries map[string]string
+	Statements map[string]*sql.Stmt
 }
 
 // Init connects to the database and prepares the prepared statements.
@@ -45,10 +56,8 @@ func (this *Database) Init() (err error) {
 		return ErrorDecorator(err)
 	}
 
-	for k, v := range this.SQL {
-		if this.Stmt[k], err = this.Prepare(v); err != nil {
-			return ErrorDecorator(err)
-		}
+	if err = this.BuildSQL(); err != nil {
+		return err //already decorated
 	}
 
 	this.QueryRow("SELECT VERSION()").Scan(&this.Version)
@@ -69,6 +78,97 @@ func (this *Database) Info() (string) {
 
 // Close closes the prepared statements and database handle.
 func (this *Database) Close() {
-	for _, stmt := range this.Stmt { stmt.Close() }
+	for _, stmt := range this.Statements { stmt.Close() }
 	this.DB.Close()
+}
+
+func (this *Database) BuildSQL() (err error) {
+
+	var wheres = func(fields string) (string) {
+
+		var conds []string
+
+		for _, field := range strings.Split(fields, `,`) {
+			conds = append(conds, field + ` = ?`)
+		}
+
+		return ` WHERE ` + strings.Join(conds, ` AND `)
+	}
+
+	var sets = func(fields string) (string) {
+
+		var sets []string
+
+		for _, field := range strings.Split(fields, `,`) {
+			sets = append(sets, field + ` = ?`)
+		}
+
+		return ` SET ` + strings.Join(sets, `, `)
+	}
+
+	for k, v := range this.Tables {
+
+		parts := strings.Split(v, "|")
+
+		rows, err := this.Query(selectColumnsSQL, parts[0])
+
+		if err != nil {
+			return ErrorDecorator(err)
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+
+			var col string
+
+			if err = rows.Scan(&col); err != nil {
+				return ErrorDecorator(err)
+			}
+
+			this.Columns[k] = append(this.Columns[k], col)
+		}
+
+		if err = rows.Err(); err != nil {
+			return err
+		}
+
+		clist := strings.Join(this.Columns[k], `, `)
+
+		switch parts[1] {
+
+		case "INSERT":
+
+			this.Queries[k] = fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s?)`,
+				parts[0], clist, strings.Repeat(`?, `, len(this.Columns[k]) - 1))
+
+			if len(parts) > 2 {
+				this.Queries[k] += wheres(parts[2])
+			}
+
+		case "UPDATE":
+
+			this.Queries[k] = fmt.Sprintf("UPDATE %s", parts[0])
+			this.Queries[k] += sets(parts[2])
+
+			if len(parts) > 3 {
+				this.Queries[k] += wheres(parts[3])
+			}
+
+		case "SELECT":
+
+			this.Queries[k] = fmt.Sprintf("SELECT %s FROM %s",
+				clist, parts[0])
+
+			if len(parts) > 2 {
+				this.Queries[k] += wheres(parts[2])
+			}
+		}
+
+		if this.Statements[k], err = this.Prepare(this.Queries[k]); err != nil {
+			return ErrorDecorator(err)
+		}
+	}
+
+	return err
 }

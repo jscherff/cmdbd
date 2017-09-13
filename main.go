@@ -20,7 +20,12 @@ import (
 )
 
 // Systemwide configuration.
-var Conf *Config
+var (
+	conf *Config
+	slog, elog, alog *MultiWriter
+	db *Database
+	ws *Server
+)
 
 // Systemwide initialization.
 func init() {
@@ -29,26 +34,34 @@ func init() {
 
 	flag.Parse()
 
-	if Conf, err = NewConfig(*FConfig); err != nil {
+	if conf, err = NewConfig(*FConfig); err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	if err = Conf.Log.Init(); err != nil {
+	if err = conf.Log.Init(); err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	if err = Conf.Database.Init(); err != nil {
-		Conf.Log.Writer["system"].WriteError(err)
+	slog = conf.Log.Writer["system"]
+	alog = conf.Log.Writer["access"]
+	elog = conf.Log.Writer["error"]
+
+	if err = conf.Database.Init(); err != nil {
+		slog.WriteError(err)
+		log.Fatalf("%v", err)
 	}
 
-	Conf.Server.Init()
+	conf.Server.Init()
 
-	Conf.Log.Writer["system"].WriteString(Conf.Database.Info())
-	Conf.Log.Writer["system"].WriteString(Conf.Server.Info())
+	db = conf.Database
+	ws = conf.Server
+
+	slog.WriteString(db.Info())
+	slog.WriteString(ws.Info())
 }
 
 func main() {
-	log.Fatal(Conf.Server.ListenAndServe())
-	Conf.Database.Close()
-	Conf.Log.Close()
+	log.Fatal(conf.Server.ListenAndServe())
+	conf.Database.Close()
+	conf.Log.Close()
 }
