@@ -17,6 +17,7 @@ package main
 import (
 	"strings"
 	"github.com/RackSec/srslog"
+	"github.com/jscherff/goutils"
 )
 
 // Syslog extends RackSec srs log with embedded configuration information
@@ -38,7 +39,7 @@ func NewSyslog(tag, port, proto, host string, pri srslog.Priority) (this *Syslog
 	raddr := strings.Join([]string{host, port}, ":")
 
 	if this.Writer, err = srslog.Dial(proto, raddr, pri, tag); err != nil {
-		elog.WriteError(ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
 	}
 
 	return this, err
@@ -50,7 +51,7 @@ func (this *Syslog) Init() (err error) {
 	raddr := strings.Join([]string{this.Hostname, this.Port}, ":")
 
 	if this.Writer, err = srslog.Dial(this.Protocol, raddr, this.Priority, this.Tag); err != nil {
-		elog.WriteError(ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
 	}
 
 	return err

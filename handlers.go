@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/jscherff/gocmdb/cmapi"
+	"github.com/jscherff/goutils"
 )
 
 var HandlerFuncs = map[string]http.HandlerFunc {
@@ -41,22 +42,22 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		panic(ErrorDecorator(err))
+		panic(goutils.ErrorDecorator(err))
 	}
 
 	if err = r.Body.Close(); err != nil {
-		panic(ErrorDecorator(err))
+		panic(goutils.ErrorDecorator(err))
 	}
 
 	dev := cmapi.NewUsbCi()
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		elog.WriteError(ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			panic(ErrorDecorator(err))
+			panic(goutils.ErrorDecorator(err))
 		}
 
 		return
@@ -81,7 +82,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if id, err = res.LastInsertId(); err != nil {
-			elog.WriteError(ErrorDecorator(err))
+			elog.WriteError(goutils.ErrorDecorator(err))
 			break
 		}
 
@@ -94,7 +95,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 
 		if err = json.NewEncoder(w).Encode(sn); err != nil {
-			panic(ErrorDecorator(err))
+			panic(goutils.ErrorDecorator(err))
 		}
 
 	case "checkin":
@@ -138,22 +139,22 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		panic(ErrorDecorator(err))
+		panic(goutils.ErrorDecorator(err))
 	}
 
 	if err = r.Body.Close(); err != nil {
-		panic(ErrorDecorator(err))
+		panic(goutils.ErrorDecorator(err))
 	}
 
 	dev := cmapi.NewUsbCi()
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		elog.WriteError(ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			panic(ErrorDecorator(err))
+			panic(goutils.ErrorDecorator(err))
 		}
 
 		return
@@ -212,6 +213,6 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
 		w.WriteHeader(http.StatusAccepted)
 	} else {
-		elog.WriteError(ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
 	}
 }
