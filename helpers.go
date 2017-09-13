@@ -101,9 +101,9 @@ func usbciDeviceInsert(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error
 }
 
 // usbciDeviceSelect retrieves the device from the table referred to by the statement.
-func usbciDeviceSelect(stmt string, dev *cmapi.UsbCi) (rows *sql.Rows, err error) {
+func usbciDeviceSelect(stmt string, args ...interface{}) (rows *sql.Rows, err error) {
 
-	if rows, err = db.Statements[stmt].Query(dev.VID(), dev.PID(), dev.ID()); err != nil {
+	if rows, err = db.Statements[stmt].Query(args...); err != nil {
 		elog.WriteError(ErrorDecorator(err))
 	}
 
@@ -120,9 +120,9 @@ func usbciSnRequestUpdate(stmt string, sn string, id int64) (res sql.Result, err
 	return res, err
 }
 
-func RowToMap(stmt string, dev *cmapi.UsbCi) (mss map[string]string, err error) {
+func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 
-	rows, err := usbciDeviceSelect(stmt, dev)
+	rows, err := usbciDeviceSelect(stmt, vid, pid, id)
 	defer rows.Close()
 
 	if err != nil {

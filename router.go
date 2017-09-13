@@ -26,15 +26,11 @@ func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	for _, route := range routes {
+	for _, route := range conf.Routes {
 
 		var handler http.Handler
 
-		handler = route.HandlerFunc
-
-		handler = handlers.RecoveryHandler(
-			handlers.PrintRecoveryStack(conf.Log.Options.RecoveryStack),
-			handlers.RecoveryLogger(elog))(handler)
+		handler = HandlerFuncs[route.HandlerFunc]
 
 		handler = handlers.ContentTypeHandler(handler,
 			conf.Server.AllowedContentTypes...)
@@ -42,8 +38,11 @@ func NewRouter() *mux.Router {
 		handler = handlers.CombinedLoggingHandler(
 			alog, handler)
 
-		router.
-			Methods(route.Method).
+		handler = handlers.RecoveryHandler(
+			handlers.PrintRecoveryStack(conf.Log.Options.RecoveryStack),
+			handlers.RecoveryLogger(elog))(handler)
+
+		router. Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)

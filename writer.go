@@ -86,7 +86,8 @@ func (this *MultiWriter) Write(b []byte) (n int, err error) {
 		if n, err = f.Write(b); err != nil { errs++ }
 	}
 	if errs > 0 {
-		err = ErrorDecorator(fmt.Errorf("%d write errors", errs))
+		err = fmt.Errorf("%d write errors", errs)
+		log.Printf("%v", ErrorDecorator(err))
 	}
 
 	return n, err
@@ -106,18 +107,21 @@ func (this *MultiWriter) WriteError(e error) {
 func (this *MultiWriter) Println(t ...interface{}) {
 
 	for _, w := range this.writers {
-		_, err := fmt.Fprintln(w, t)
-		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
+		if _, err := fmt.Fprintln(w, t); err != nil {
+			log.Printf("%v", ErrorDecorator(err))
+		}
 	}
 
 	for _, c := range this.consoles {
-		_, err := fmt.Fprintln(c, t)
-		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
+		if _, err := fmt.Fprintln(c, t); err != nil {
+			log.Printf("%v", ErrorDecorator(err))
+		}
 	}
 
 	for _, f := range this.files {
-		_, err := fmt.Fprintln(f, t)
-		if err != nil { log.Printf("%v", ErrorDecorator(err)) }
+		if _, err := fmt.Fprintln(f, t); err != nil {
+			log.Printf("%v", ErrorDecorator(err))
+		}
 	}
 }
 

@@ -9,6 +9,23 @@
 		"AllowedMethods": ["POST"]
 	},
 
+	"Routes": [
+
+		{
+			"Name": "USBCI Audit Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/audit/{host}/{vid}/{pid}/{sn}",
+			"HandlerFunc": "usbciAudit"
+		},
+
+		{
+			"Name": "USBCI Action Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/{action}/{host}/{vid}/{pid}",
+			"HandlerFunc": "usbciAction"
+		}
+	],
+
 	"Database": {
 
 		"Driver": "mysql",

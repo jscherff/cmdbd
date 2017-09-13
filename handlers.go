@@ -25,13 +25,18 @@ import (
 	"github.com/jscherff/gocmdb/cmapi"
 )
 
-// usbciActionHandler handles various 'actions' for device gocmdb agents.
-func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
+var HandlerFuncs = map[string]http.HandlerFunc {
+	"usbciAction": usbciAction,
+	"usbciAudit": usbciAudit,
+}
+
+// usbciAction handles various 'actions' for device gocmdb agents.
+func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
 	vars := mux.Vars(r)
-	action := vars["action"]
+	var action = vars["action"]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
@@ -110,6 +115,10 @@ func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
 		if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
 			w.WriteHeader(http.StatusAccepted)
 		}
+
+	default:
+
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	if err != nil {
@@ -117,19 +126,14 @@ func usbciActionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// usbciAuditHandler performs a device audit against the previous state in
+// usbciAudit performs a device audit against the previous state in
 // the database.
-func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
+func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
 
 	vars := mux.Vars(r)
-	var vid, pid, sn = vars["vid"], vars["pid"], vars["sn"]
-
-	if len(vid) == 0 || len(pid) == 0 || len(sn) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	var vid, pid, id = vars["vid"], vars["pid"], vars["id"]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
@@ -157,7 +161,7 @@ func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve map of device properties from previous checkin, if any.
 
-	map1, err := RowToMap("usbciAuditSelect", dev)
+	map1, err := RowToMap("usbciAuditSelect", vid, pid, id)
 
 	// Perform a new device checkin to save current device properties. Abort
 	// with error if unable to save properties.
@@ -179,7 +183,7 @@ func usbciAuditHandler(w http.ResponseWriter, r *http.Request) {
 	// Retrieve map of device properties from current checkin. Abort with error
 	// if unable to retrieve properties or unable to convert to map.
 
-	map2, err := RowToMap("usbciAuditSelect", dev)
+	map2, err := RowToMap("usbciAuditSelect", vid, pid, id)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -10,16 +10,3 @@ Error Handling: improve with gorilla recovery handler or other custom approaches
 	https://stackoverflow.com/questions/33904503/go-gorilla-panic-handler-to-respond-with-custom-status
 	https://elithrar.github.io/article/http-handler-error-handling-revisited/ 
 	https://dave.cheney.net/2014/12/24/inspecting-errors
-
-	Tried this in 'routers.go' (doesn't work):
-
-		var handler http.Handler
-
-		handler = handlers.RecoveryHandler(
-			handlers.PrintRecoveryStack(true),
-			handlers.RecoveryLogger(errorLog),
-		)
-
-		handler = handler(route.HandlerFunc)
-		handler = handlers.CombinedLoggingHandler(accessLog, handler)
-

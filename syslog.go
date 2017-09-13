@@ -37,13 +37,11 @@ func NewSyslog(tag, port, proto, host string, pri srslog.Priority) (this *Syslog
 	this = &Syslog{Tag: tag, Port: port, Protocol: proto, Hostname: host, Priority: pri}
 	raddr := strings.Join([]string{host, port}, ":")
 
-	this.Writer, err = srslog.Dial(proto, raddr, pri, tag)
-
-	if err != nil {
-		return nil, ErrorDecorator(err)
+	if this.Writer, err = srslog.Dial(proto, raddr, pri, tag); err != nil {
+		elog.WriteError(ErrorDecorator(err))
 	}
 
-	return this, nil
+	return this, err
 }
 
 // Init initializes syslogs in the systemwide configuration under Config.Syslogs.
@@ -51,10 +49,8 @@ func (this *Syslog) Init() (err error) {
 
 	raddr := strings.Join([]string{this.Hostname, this.Port}, ":")
 
-	this.Writer, err = srslog.Dial(this.Protocol, raddr, this.Priority, this.Tag)
-
-	if err != nil {
-		err = ErrorDecorator(err)
+	if this.Writer, err = srslog.Dial(this.Protocol, raddr, this.Priority, this.Tag); err != nil {
+		elog.WriteError(ErrorDecorator(err))
 	}
 
 	return err

@@ -14,30 +14,11 @@
 
 package main
 
-import "net/http"
-
 type Route struct {
 	Name		string
 	Method		string
 	Pattern		string
-	HandlerFunc	http.HandlerFunc
+	HandlerFunc	string
 }
 
 type Routes []Route
-
-var routes = Routes {
-
-	Route {
-		Name:		"USBCI Audit Handler",
-		Method:		"POST",
-		Pattern:	"/usbci/audit/{vid}/{pid}/{sn}",
-		HandlerFunc:	usbciAuditHandler,
-	},
-
-	Route {
-		Name:		"USBCI Action Handler",
-		Method:		"POST",
-		Pattern:	"/usbci/{action}",
-		HandlerFunc:	usbciActionHandler,
-	},
-}
