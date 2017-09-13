@@ -19,13 +19,14 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"github.com/jscherff/goutils"
 )
 
 // Logger contains logger infomration and logging options. It is part of
 // the systemwide configuration under Config.Logger.
 type Logger struct {
 
-	Writer map[string]*MultiWriter
+	Writer map[string]*goutils.MultiWriter
 
 	LogFile map[string]string
 

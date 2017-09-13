@@ -17,12 +17,13 @@ package main
 import (
 	"flag"
 	"log"
+	"github.com/jscherff/goutils"
 )
 
 // Systemwide configuration.
 var (
 	conf *Config
-	slog, elog, alog *MultiWriter
+	slog, elog, alog *goutils.MultiWriter
 	db *Database
 	ws *Server
 )

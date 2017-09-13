@@ -23,24 +23,6 @@ import (
 	"github.com/jscherff/goutils"
 )
 
-// goutils.ErrorDecorator prepends function filename, line number, and function name
-// to error messages.
-func goutils.ErrorDecorator(ue error) (de error) {
-
-	var msg string
-
-	pc, file, line, success := runtime.Caller(1)
-	function := runtime.FuncForPC(pc)
-
-	if success {
-		msg = fmt.Sprintf("%s:%d: %s()", filepath.Base(file), line, function.Name())
-	} else {
-		msg = "unknown goroutine"
-	}
-
-	return fmt.Errorf("%s: %v", msg, ue)
-}
-
 // usbciChangeInserts stores the results of a device self-audit in the audit table.
 func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 
@@ -120,6 +102,7 @@ func usbciSnRequestUpdate(stmt string, sn string, id int64) (res sql.Result, err
 	return res, err
 }
 
+// RowToMap converts a database row into a map of string values indexed by column name.
 func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 
 	rows, err := usbciDeviceSelect(stmt, vid, pid, id)
