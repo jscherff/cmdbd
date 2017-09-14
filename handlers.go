@@ -76,7 +76,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 		if len(sn) != 0 {
 			w.WriteHeader(http.StatusNoContent)
-			err = fmt.Errorf(`device already has serial number %q`, sn)
+			err = fmt.Errorf(`serial number already set to %q`, sn)
 			elog.WriteError(goutils.ErrorDecorator(err))
 			http.Error(w, err.Error(), http.StatusNotAcceptable)
 			break
