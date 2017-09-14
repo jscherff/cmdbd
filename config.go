@@ -32,15 +32,15 @@ type Config struct {
 // the provided JSON configuration file.
 func NewConfig(cf string) (this *Config, err error) {
 
-	this = new(Config)
-
 	fh, err := os.Open(cf)
-	defer fh.Close()
 
 	if err != nil {
 		return this, err
 	}
 
+	defer fh.Close()
+
+	this = &Config{}
 	jd := json.NewDecoder(fh)
 	err = jd.Decode(&this)
 
