@@ -137,7 +137,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	vars := mux.Vars(r)
-	var vid, pid, id = vars[`vid`], vars[`pid`], vars[`id`]
+	var vid, pid, sn = vars[`vid`], vars[`pid`], vars[`sn`]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
@@ -167,24 +167,24 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slog.WriteString(fmt.Sprintf(`auditing VID %q PID %q SN %q`, vid, pid, id))
+	slog.WriteString(fmt.Sprintf(`auditing VID %q PID %q SN %q`, vid, pid, sn))
 
 	// Retrieve map of device properties from previous checkin, if any.
 
-	slog.WriteString(fmt.Sprintf(`retrieving previous VID %q PID %q SN %q`, vid, pid, id))
+	slog.WriteString(fmt.Sprintf(`retrieving previous VID %q PID %q SN %q`, vid, pid, sn))
 
-	map1, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
+	map1, err := RowToMap(`usbciAuditSelect`, vid, pid, sn)
 
 	if map1 != nil {
-		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q found`, vid, pid, id))
+		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q found`, vid, pid, sn))
 	} else {
-		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q not found`, vid, pid, id))
+		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q not found`, vid, pid, sn))
 	}
 
 	// Perform a new device checkin to save current device properties. Abort
 	// with error if unable to save properties.
 
-	slog.WriteString(fmt.Sprintf(`storing current VID %q PID %q SN %q`, vid, pid, id))
+	slog.WriteString(fmt.Sprintf(`storing current VID %q PID %q SN %q`, vid, pid, sn))
 
 	if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
 		// Error already decorated and logged.
@@ -205,7 +205,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// Retrieve map of device properties from current checkin. Abort with error
 	// if unable to retrieve properties or unable to convert to map.
 
-	map2, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
+	map2, err := RowToMap(`usbciAuditSelect`, vid, pid, sn)
 
 	if err != nil {
 		// Error already decorated and logged.
@@ -225,7 +225,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// If there are no differences, return status of 'Not Modified' to caller.
 
 	if len(dev.Changes) == 0 {
-		slog.WriteString(fmt.Sprintf(`device VID %q PID %q SN %q not modified`, vid, pid, id))
+		slog.WriteString(fmt.Sprintf(`device VID %q PID %q SN %q not modified`, vid, pid, sn))
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
@@ -246,7 +246,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 	for i, change := range(dev.Changes) {
 		changes[i] = append(changes[i], time.Now().Local().String())
-		changes[i] = append(changes[i], vid, pid, id)
+		changes[i] = append(changes[i], vid, pid, sn)
 		changes[i] = append(changes[i], change...)
 	}
 
