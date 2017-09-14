@@ -70,7 +70,7 @@ func (this *Database) Init() (err error) {
 
 // Info provides identifying information about the database and user.
 func (this *Database) Info() (string) {
-	return fmt.Sprintf(`Connected to database %q (%s@%s/%s) using %q driver`,
+	return fmt.Sprintf(`Database %q (%s@%s/%s) using %q driver`,
 		this.Version,
 		this.Config.User,
 		this.Config.Addr,

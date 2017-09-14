@@ -166,7 +166,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(body, &dev); err != nil {
 
 		elog.WriteError(goutils.ErrorDecorator(err))
-		w.WriteHeader(http.StatusUnprocessableEntity)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
 			elog.WriteError(goutils.ErrorDecorator(err))
