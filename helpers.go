@@ -15,10 +15,10 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"github.com/jscherff/gocmdb/cmapi"
-	"github.com/jscherff/goutils"
+	`database/sql`
+	`fmt`
+	`github.com/jscherff/gocmdb/cmapi`
+	`github.com/jscherff/goutils`
 )
 
 // usbciChangeInserts stores the results of a device self-audit in the audit table.
@@ -67,7 +67,7 @@ func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 // StoreDevice stores the the device in the table referred to by the statement.
 func usbciDeviceInsert(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error) {
 
-	vals, err := goutils.ObjectDbValsByCol(dev, "db", db.Columns[stmt])
+	vals, err := goutils.ObjectDbValsByCol(dev, `db`, db.Columns[stmt])
 
 	if err == nil {
 		res, err = db.Statements[stmt].Exec(vals...)
@@ -138,7 +138,7 @@ func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 			if b, ok := vals[i].([]byte); ok {
 				mss[cn] = string(b)
 			} else {
-				mss[cn] = fmt.Sprintf("%v", vals[i])
+				mss[cn] = fmt.Sprintf(`%v`, vals[i])
 			}
 		}
 	}

@@ -15,9 +15,9 @@
 package main
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/handlers"
+	`net/http`
+	`github.com/gorilla/mux`
+	`github.com/gorilla/handlers`
 )
 
 // NewRouter creates a new Gorilla Mux router and adds routes contained

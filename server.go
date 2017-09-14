@@ -15,9 +15,9 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"time"
+	`fmt`
+	`net/http`
+	`time`
 )
 
 // Config contains infomation about the server process and log writers.
@@ -39,5 +39,5 @@ func (this *Server) Init() {
 
 // Info provides identifying information about the server.
 func (this *Server) Info() (string) {
-	return fmt.Sprintf("Server started and listening on %q", this.Addr)
+	return fmt.Sprintf(`Server started and listening on %q`, this.Addr)
 }

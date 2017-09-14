@@ -15,38 +15,43 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"github.com/gorilla/mux"
-	"github.com/jscherff/gocmdb/cmapi"
-	"github.com/jscherff/goutils"
+	`database/sql`
+	`encoding/json`
+	`fmt`
+	`io`
+	`io/ioutil`
+	`net/http`
+	`time`
+	`github.com/gorilla/mux`
+	`github.com/jscherff/gocmdb/cmapi`
+	`github.com/jscherff/goutils`
 )
 
 var HandlerFuncs = map[string]http.HandlerFunc {
-	"usbciAction": usbciAction,
-	"usbciAudit": usbciAudit,
+	`usbciAction`: usbciAction,
+	`usbciAudit`: usbciAudit,
 }
 
 // usbciAction handles various 'actions' for device gocmdb agents.
 func usbciAction(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	vars := mux.Vars(r)
-	var action = vars["action"]
+	var action = vars[`action`]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		panic(goutils.ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	if err = r.Body.Close(); err != nil {
-		panic(goutils.ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	dev := cmapi.NewUsbCi()
@@ -54,10 +59,10 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(body, &dev); err != nil {
 
 		elog.WriteError(goutils.ErrorDecorator(err))
-		w.WriteHeader(http.StatusUnprocessableEntity)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			panic(goutils.ErrorDecorator(err))
+			elog.WriteError(goutils.ErrorDecorator(err))
 		}
 
 		return
@@ -65,7 +70,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 
-	case "fetchsn":
+	case `fetchsn`:
 
 		var sn = dev.ID()
 
@@ -77,8 +82,8 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		var id int64
 		var res sql.Result
 
-		if res, err = usbciDeviceInsert("usbciSnRequestInsert", dev); err != nil {
-			break
+		if res, err = usbciDeviceInsert(`usbciSnRequestInsert`, dev); err != nil {
+			break // err already decorated
 		}
 
 		if id, err = res.LastInsertId(); err != nil {
@@ -86,44 +91,50 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		sn = fmt.Sprintf("24F%04X", id)
+		sn = fmt.Sprintf(`24F%04X`, id)
 
-		if _, err = usbciSnRequestUpdate("usbciSnRequestUpdate", sn, id); err != nil {
+		if _, err = usbciSnRequestUpdate(`usbciSnRequestUpdate`, sn, id); err != nil {
+			break // err already decorated
+		}
+
+		if err = json.NewEncoder(w).Encode(sn); err != nil {
+			elog.WriteError(goutils.ErrorDecorator(err))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			break
 		}
 
 		w.WriteHeader(http.StatusCreated)
 
-		if err = json.NewEncoder(w).Encode(sn); err != nil {
-			panic(goutils.ErrorDecorator(err))
+	case `checkin`:
+
+		if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
+			break // err already decorated
 		}
 
-	case "checkin":
+		w.WriteHeader(http.StatusAccepted)
 
-		if _, err = usbciDeviceInsert("usbciCheckinInsert", dev); err == nil {
-			w.WriteHeader(http.StatusAccepted)
-		}
+	case `changes`:
 
-	case "changes":
-
-		usbciDeviceInsert("usbciCheckinInsert", dev)
+		usbciDeviceInsert(`usbciCheckinInsert`, dev)
 
 		if len(dev.Changes) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			break
 		}
 
-		if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
-			w.WriteHeader(http.StatusAccepted)
+		if err = usbciChangeInserts(`usbciChangeInsert`, dev); err != nil {
+			break // err already decorated
 		}
+
+		w.WriteHeader(http.StatusAccepted)
 
 	default:
 
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -131,19 +142,23 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 // the database.
 func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "applicaiton/json; charset=UTF8")
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	vars := mux.Vars(r)
-	var vid, pid, id = vars["vid"], vars["pid"], vars["id"]
+	var vid, pid, id = vars[`vid`], vars[`pid`], vars[`id`]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		panic(goutils.ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	if err = r.Body.Close(); err != nil {
-		panic(goutils.ErrorDecorator(err))
+		elog.WriteError(goutils.ErrorDecorator(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	dev := cmapi.NewUsbCi()
@@ -154,7 +169,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			panic(goutils.ErrorDecorator(err))
+			elog.WriteError(goutils.ErrorDecorator(err))
 		}
 
 		return
@@ -162,13 +177,13 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve map of device properties from previous checkin, if any.
 
-	map1, err := RowToMap("usbciAuditSelect", vid, pid, id)
+	map1, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
 
 	// Perform a new device checkin to save current device properties. Abort
 	// with error if unable to save properties.
 
-	if _, err = usbciDeviceInsert("usbciCheckinInsert", dev); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -184,10 +199,10 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// Retrieve map of device properties from current checkin. Abort with error
 	// if unable to retrieve properties or unable to convert to map.
 
-	map2, err := RowToMap("usbciAuditSelect", vid, pid, id)
+	map2, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -210,9 +225,29 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// Record changes, if any, to changes table. Return status of 'Accepted' if
 	// successful, or record error and return 'Internal Server Error' on failure.
 
-	if err = usbciChangeInserts("usbciChangeInsert", dev); err == nil {
-		w.WriteHeader(http.StatusAccepted)
-	} else {
-		elog.WriteError(goutils.ErrorDecorator(err))
+	if err = usbciChangeInserts(`usbciChangeInsert`, dev); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	// Prepare client response by generating a change log suitable for writing
+	// to a flat file or CSV file.
+
+	changes := make([][]string, len(dev.Changes))
+
+	for i, change := range(dev.Changes) {
+		changes[i] = append(changes[i], time.Now().Local().String())
+		changes[i] = append(changes[i], vid, pid, id)
+		changes[i] = append(changes[i], change...)
+	}
+
+	// Send the results in a JSON object.
+
+	if err = json.NewEncoder(w).Encode(changes); err != nil {
+		elog.WriteError(goutils.ErrorDecorator(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 }

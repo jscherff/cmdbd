@@ -15,11 +15,11 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"strings"
-	"github.com/go-sql-driver/mysql"
-	"github.com/jscherff/goutils"
+	`database/sql`
+	`fmt`
+	`strings`
+	`github.com/go-sql-driver/mysql`
+	`github.com/jscherff/goutils`
 )
 
 const (
@@ -63,14 +63,14 @@ func (this *Database) Init() (err error) {
 		return err //already logged
 	}
 
-	this.QueryRow("SELECT VERSION()").Scan(&this.Version)
+	this.QueryRow(`SELECT VERSION()`).Scan(&this.Version)
 
 	return err
 }
 
 // Info provides identifying information about the database and user.
 func (this *Database) Info() (string) {
-	return fmt.Sprintf("Connected to database %q (%s@%s/%s) using %q driver",
+	return fmt.Sprintf(`Connected to database %q (%s@%s/%s) using %q driver`,
 		this.Version,
 		this.Config.User,
 		this.Config.Addr,
@@ -111,7 +111,7 @@ func (this *Database) BuildSQL() (err error) {
 
 	for k, v := range this.Tables {
 
-		parts := strings.Split(v, "|")
+		parts := strings.Split(v, `|`)
 
 		rows, err := this.Query(selectColumnsSQL, parts[0])
 
@@ -143,7 +143,7 @@ func (this *Database) BuildSQL() (err error) {
 
 		switch parts[1] {
 
-		case "INSERT":
+		case `INSERT`:
 
 			this.Queries[k] = fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s?)`,
 				parts[0], clist, strings.Repeat(`?, `, len(this.Columns[k]) - 1))
@@ -152,18 +152,18 @@ func (this *Database) BuildSQL() (err error) {
 				this.Queries[k] += wheres(parts[2])
 			}
 
-		case "UPDATE":
+		case `UPDATE`:
 
-			this.Queries[k] = fmt.Sprintf("UPDATE %s", parts[0])
+			this.Queries[k] = fmt.Sprintf(`UPDATE %s`, parts[0])
 			this.Queries[k] += sets(parts[2])
 
 			if len(parts) > 3 {
 				this.Queries[k] += wheres(parts[3])
 			}
 
-		case "SELECT":
+		case `SELECT`:
 
-			this.Queries[k] = fmt.Sprintf("SELECT %s FROM %s",
+			this.Queries[k] = fmt.Sprintf(`SELECT %s FROM %s`,
 				clist, parts[0])
 
 			if len(parts) > 2 {

@@ -15,17 +15,17 @@
 package main
 
 import (
-	"flag"
-	"log"
-	"github.com/jscherff/goutils"
+	`flag`
+	`log`
+	`github.com/jscherff/goutils`
 )
 
 // Systemwide configuration.
 var (
 	conf *Config
-	slog, elog, alog *goutils.MultiWriter
 	db *Database
 	ws *Server
+	slog, alog, elog *goutils.MultiWriter
 )
 
 // Systemwide initialization.
@@ -36,20 +36,20 @@ func init() {
 	flag.Parse()
 
 	if conf, err = NewConfig(*FConfig); err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf(`%v`, err)
 	}
 
 	if err = conf.Log.Init(); err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf(`%v`, err)
 	}
 
-	slog = conf.Log.Writer["system"]
-	alog = conf.Log.Writer["access"]
-	elog = conf.Log.Writer["error"]
+	slog = conf.Log.Writer[`system`]
+	alog = conf.Log.Writer[`access`]
+	elog = conf.Log.Writer[`error`]
 
 	if err = conf.Database.Init(); err != nil {
 		slog.WriteError(err)
-		log.Fatalf("%v", err)
+		log.Fatalf(`%v`, err)
 	}
 
 	conf.Server.Init()

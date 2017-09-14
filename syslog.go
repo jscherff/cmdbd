@@ -15,9 +15,9 @@
 package main
 
 import (
-	"strings"
-	"github.com/RackSec/srslog"
-	"github.com/jscherff/goutils"
+	`strings`
+	`github.com/RackSec/srslog`
+	`github.com/jscherff/goutils`
 )
 
 const (
@@ -42,7 +42,7 @@ type Syslog struct {
 func NewSyslog(tag, port, proto, host string, pri srslog.Priority) (this *Syslog, err error) {
 
 	this = &Syslog{Tag: tag, Port: port, Protocol: proto, Hostname: host, Priority: pri}
-	raddr := strings.Join([]string{host, port}, ":")
+	raddr := strings.Join([]string{host, port}, `:`)
 
 	if this.Writer, err = srslog.Dial(proto, raddr, pri, tag); err != nil {
 		elog.WriteError(goutils.ErrorDecorator(err))
@@ -54,7 +54,7 @@ func NewSyslog(tag, port, proto, host string, pri srslog.Priority) (this *Syslog
 // Init initializes syslogs in the systemwide configuration under Config.Syslogs.
 func (this *Syslog) Init() (err error) {
 
-	raddr := strings.Join([]string{this.Hostname, this.Port}, ":")
+	raddr := strings.Join([]string{this.Hostname, this.Port}, `:`)
 
 	if this.Writer, err = srslog.Dial(this.Protocol, raddr, this.Priority, this.Tag); err != nil {
 		elog.WriteError(goutils.ErrorDecorator(err))

@@ -15,11 +15,11 @@
 package main
 
 import (
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"runtime"
-	"github.com/jscherff/goutils"
+	`io/ioutil`
+	`os`
+	`path/filepath`
+	`runtime`
+	`github.com/jscherff/goutils`
 )
 
 // Logger contains logger infomration and logging options. It is part of
@@ -29,9 +29,7 @@ type Logger struct {
 	Writer map[string]*goutils.MultiWriter
 
 	LogFile map[string]string
-
 	Console map[string]bool
-
 	Syslog map[string]*Syslog
 
 	Options struct {
@@ -61,10 +59,10 @@ func (this *Logger) Init() (err error) {
 
 		switch runtime.GOOS {
 
-		case "windows":
+		case `windows`:
 			logDir = filepath.Dir(os.Args[0])
 			logDir = filepath.Join(logDir, this.LogDir.Windows)
-		case "linux":
+		case `linux`:
 			logDir = this.LogDir.Linux
 		}
 
@@ -106,7 +104,7 @@ func (this *Logger) Init() (err error) {
 				continue
 			}
 
-			if k == "error" {
+			if k == `error` {
 				this.Writer[k].AddConsole(os.Stderr)
 			} else {
 				this.Writer[k].AddConsole(os.Stdout)
@@ -122,5 +120,3 @@ func (this *Logger) Init() (err error) {
 
 	return err
 }
-
-
