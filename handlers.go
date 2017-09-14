@@ -76,6 +76,9 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 		if len(sn) != 0 {
 			w.WriteHeader(http.StatusNoContent)
+			err = fmt.Errorf(`device already has serial number %q`, sn)
+			elog.WriteError(goutils.ErrorDecorator(err))
+			http.Error(w, err.Error(), http.StatusNotAcceptable)
 			break
 		}
 
@@ -83,18 +86,23 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		var res sql.Result
 
 		if res, err = usbciDeviceInsert(`usbciSnRequestInsert`, dev); err != nil {
-			break // err already decorated
+			// Error already decorated and logged.
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			break
 		}
 
 		if id, err = res.LastInsertId(); err != nil {
 			elog.WriteError(goutils.ErrorDecorator(err))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			break
 		}
 
 		sn = fmt.Sprintf(`24F%04X`, id)
 
 		if _, err = usbciSnRequestUpdate(`usbciSnRequestUpdate`, sn, id); err != nil {
-			break // err already decorated
+			// Error already decorated and logged.
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			break
 		}
 
 		if err = json.NewEncoder(w).Encode(sn); err != nil {
@@ -108,33 +116,17 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 	case `checkin`:
 
 		if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
-			break // err already decorated
-		}
-
-		w.WriteHeader(http.StatusAccepted)
-
-	case `changes`:
-
-		usbciDeviceInsert(`usbciCheckinInsert`, dev)
-
-		if len(dev.Changes) == 0 {
-			w.WriteHeader(http.StatusNoContent)
+			// Error already decorated and logged.
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			break
 		}
 
-		if err = usbciChangeInserts(`usbciChangeInsert`, dev); err != nil {
-			break // err already decorated
-		}
-
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusCreated)
 
 	default:
-
+		err = fmt.Errorf(`unsupported action %q`, action)
+		elog.WriteError(goutils.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -175,14 +167,27 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.WriteString(fmt.Sprintf(`auditing VID %q PID %q SN %q`, vid, pid, id))
+
 	// Retrieve map of device properties from previous checkin, if any.
 
+	slog.WriteString(fmt.Sprintf(`retrieving previous VID %q PID %q SN %q`, vid, pid, id))
+
 	map1, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
+
+	if map1 != nil {
+		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q found`, vid, pid, id))
+	} else {
+		slog.WriteString(fmt.Sprintf(`previous VID %q PID %q SN %q not found`, vid, pid, id))
+	}
 
 	// Perform a new device checkin to save current device properties. Abort
 	// with error if unable to save properties.
 
+	slog.WriteString(fmt.Sprintf(`storing current VID %q PID %q SN %q`, vid, pid, id))
+
 	if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
+		// Error already decorated and logged.
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -192,7 +197,8 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// with no previous checkin.)
 
 	if map1 == nil {
-		w.WriteHeader(http.StatusNoContent)
+		// Not found status already logged
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -202,6 +208,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	map2, err := RowToMap(`usbciAuditSelect`, vid, pid, id)
 
 	if err != nil {
+		// Error already decorated and logged.
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -215,10 +222,11 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// If there are no differences, return status of 'No Content' to caller.
+	// If there are no differences, return status of 'Not Modified' to caller.
 
 	if len(dev.Changes) == 0 {
-		w.WriteHeader(http.StatusNoContent)
+		slog.WriteString(fmt.Sprintf(`device VID %q PID %q SN %q not modified`, vid, pid, id))
+		w.WriteHeader(http.StatusNotModified)
 		return
 	}
 
@@ -226,6 +234,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// successful, or record error and return 'Internal Server Error' on failure.
 
 	if err = usbciChangeInserts(`usbciChangeInsert`, dev); err != nil {
+		// Error already decorated and logged.
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

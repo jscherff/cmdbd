@@ -63,6 +63,7 @@ func init() {
 
 func main() {
 	log.Fatal(conf.Server.ListenAndServe())
+	slog.WriteString("shutting down")
 	conf.Database.Close()
 	conf.Log.Close()
 }

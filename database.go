@@ -60,7 +60,8 @@ func (this *Database) Init() (err error) {
 	}
 
 	if err = this.BuildSQL(); err != nil {
-		return err //already logged
+		// Error already decorated and logged.
+		return err
 	}
 
 	this.QueryRow(`SELECT VERSION()`).Scan(&this.Version)
