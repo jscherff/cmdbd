@@ -1,0 +1,129 @@
+{
+	"Server": {
+		"Addr": ":8080",
+		"ReadTimeout": 10,
+		"WriteTimeout": 10,
+		"MaxHeaderBytes": 1048576,
+		"HttpBodySizeLimit": 1048576,
+		"AllowedContentTypes": ["application/json"],
+		"AllowedMethods": ["POST"]
+	},
+
+	"Routes": [
+
+		{
+			"Name": "USBCI Audit Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/audit/{host}/{vid}/{pid}/{sn}",
+			"HandlerFunc": "usbciAudit"
+		},
+
+		{
+			"Name": "USBCI Action Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/{action}/{host}/{vid}/{pid}",
+			"HandlerFunc": "usbciAction"
+		}
+	],
+
+	"Database": {
+
+		"Driver": "mysql",
+		"Version": "",
+
+		"Config": {
+			"User": "gocmdbd",
+			"Passwd": "K2Cvg3NeyR",
+			"Net": "",
+			"Addr": "localhost",
+			"DBName": "gocmdb",
+			"Params": null
+		},
+
+		"Tables": {
+			"usbciChangeInsert": "usbci_changes_object_view|INSERT",
+			"usbciCheckinInsert": "usbci_checkins_object_view|INSERT",
+			"usbciSnRequestInsert": "usbci_snrequests_object_view|INSERT",
+			"usbciSnRequestUpdate": "usbci_snrequests|UPDATE|serial_num|id",
+			"usbciAuditSelect": "usbci_serialized_audit_view|SELECT|vendor_id,product_id,serial_num"
+		},
+		"Columns": {},
+
+		"Queries": {},
+
+		"Statements": {}
+	},
+	"Logger": {
+
+		"Options": {
+
+			"LogFiles": {
+				"System": true,
+				"Access": false,
+				"Error": true
+			},
+
+			"Console": {
+				"System": false,
+				"Access": false,
+				"Error": false
+			},
+
+			"Syslog": {
+				"System": false,
+				"Access": false,
+				"Error": false
+			},
+
+			"LogFlags": {
+				"UTC": false,
+				"Date": false,
+				"Time": false,
+				"LongFile": false,
+				"ShortFile": true,
+				"Standard": true
+			},
+
+			"UseFlags": {
+				"System": true,
+				"Access": false,
+				"Error": true
+			},
+
+			"RecoveryStack": false
+		},
+
+		"Config": {
+
+			"AppName": "gocmdbd",
+			"AppDir": "",
+
+			"LogDir": "log",
+
+			"LogFiles": {
+				"System": "system.log",
+				"Access": "access.log",
+				"Error": "error.log"
+			},
+
+			"LogFlags": {
+				"System": 3,
+				"Access": 0,
+				"Error": 3
+			},
+
+			"LogTags": {
+				"System": "system",
+				"Access": "access",
+				"Error": "error"
+			},
+
+			"Syslog": {
+				"Prot": "",
+				"Host": "",
+				"Port": "",
+				"Tag": "gocmdbd"
+			}
+		}
+	}
+}
