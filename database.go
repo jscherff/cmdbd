@@ -19,7 +19,7 @@ import (
 	`fmt`
 	`strings`
 	`github.com/go-sql-driver/mysql`
-	`github.com/jscherff/goutils`
+	`github.com/jscherff/goutil`
 )
 
 const (
@@ -50,12 +50,12 @@ type Database struct {
 func (this *Database) Init() (err error) {
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		return err
 	}
 
 	if err = this.Ping(); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		return err
 	}
 
@@ -117,7 +117,7 @@ func (this *Database) BuildSQL() (err error) {
 		rows, err := this.Query(selectColumnsSQL, parts[0])
 
 		if err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			return err
 		}
 
@@ -128,7 +128,7 @@ func (this *Database) BuildSQL() (err error) {
 			var col string
 
 			if err = rows.Scan(&col); err != nil {
-				elog.WriteError(goutils.ErrorDecorator(err))
+				elog.WriteError(goutil.ErrorDecorator(err))
 				return err
 			}
 
@@ -136,7 +136,7 @@ func (this *Database) BuildSQL() (err error) {
 		}
 
 		if err = rows.Err(); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			return err
 		}
 
@@ -173,7 +173,7 @@ func (this *Database) BuildSQL() (err error) {
 		}
 
 		if this.Statements[k], err = this.Prepare(this.Queries[k]); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			return err
 		}
 	}

@@ -17,7 +17,7 @@ package main
 import (
 	`strings`
 	`github.com/RackSec/srslog`
-	`github.com/jscherff/goutils`
+	`github.com/jscherff/goutil`
 )
 
 const (
@@ -45,7 +45,7 @@ func NewSyslog(tag, port, proto, host string, pri srslog.Priority) (this *Syslog
 	raddr := strings.Join([]string{host, port}, `:`)
 
 	if this.Writer, err = srslog.Dial(proto, raddr, pri, tag); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return this, err
@@ -57,7 +57,7 @@ func (this *Syslog) Init() (err error) {
 	raddr := strings.Join([]string{this.Hostname, this.Port}, `:`)
 
 	if this.Writer, err = srslog.Dial(this.Protocol, raddr, this.Priority, this.Tag); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return err

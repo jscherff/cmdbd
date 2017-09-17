@@ -24,7 +24,7 @@ import (
 	`time`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/gocmdb/cmapi`
-	`github.com/jscherff/goutils`
+	`github.com/jscherff/goutil`
 )
 
 var HandlerFuncs = map[string]http.HandlerFunc {
@@ -43,13 +43,13 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -58,11 +58,11 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 		}
 
 		return
@@ -77,7 +77,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		if len(sn) != 0 {
 			w.WriteHeader(http.StatusNoContent)
 			err = fmt.Errorf(`serial number already set to %q`, sn)
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			http.Error(w, err.Error(), http.StatusNotAcceptable)
 			break
 		}
@@ -92,7 +92,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if id, err = res.LastInsertId(); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			break
 		}
@@ -106,7 +106,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err = json.NewEncoder(w).Encode(sn); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			break
 		}
@@ -125,7 +125,7 @@ func usbciAction(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		err = fmt.Errorf(`unsupported action %q`, action)
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
@@ -142,13 +142,13 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -157,11 +157,11 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 		}
 
 		return
@@ -253,7 +253,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	// Send the results in a JSON object.
 
 	if err = json.NewEncoder(w).Encode(changes); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

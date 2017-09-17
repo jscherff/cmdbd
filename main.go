@@ -17,7 +17,7 @@ package main
 import (
 	`flag`
 	`log`
-	`github.com/jscherff/goutils`
+	`github.com/jscherff/goutil`
 )
 
 // Systemwide configuration.
@@ -25,7 +25,7 @@ var (
 	conf *Config
 	db *Database
 	ws *Server
-	slog, alog, elog *goutils.MultiWriter
+	slog, alog, elog *goutil.MultiWriter
 )
 
 // Systemwide initialization.

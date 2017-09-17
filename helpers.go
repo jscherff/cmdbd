@@ -18,7 +18,7 @@ import (
 	`database/sql`
 	`fmt`
 	`github.com/jscherff/gocmdb/cmapi`
-	`github.com/jscherff/goutils`
+	`github.com/jscherff/goutil`
 )
 
 // usbciChangeInserts stores the results of a device self-audit in the audit table.
@@ -27,7 +27,7 @@ func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 	var tx *sql.Tx
 
 	if tx, err = db.Begin(); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		return err
 	}
 
@@ -46,7 +46,7 @@ func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 			ch[cmapi.NewValueIx],
 		)
 		if err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			break
 		}
 	}
@@ -58,7 +58,7 @@ func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 	}
 
 	if err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return err
@@ -67,14 +67,14 @@ func usbciChangeInserts(stmt string, dev *cmapi.UsbCi) (err error) {
 // StoreDevice stores the the device in the table referred to by the statement.
 func usbciDeviceInsert(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error) {
 
-	vals, err := goutils.ObjectDbValsByCol(dev, `db`, db.Columns[stmt])
+	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[stmt])
 
 	if err == nil {
 		res, err = db.Statements[stmt].Exec(vals...)
 	}
 
 	if err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return res, err
@@ -84,7 +84,7 @@ func usbciDeviceInsert(stmt string, dev *cmapi.UsbCi) (res sql.Result, err error
 func usbciDeviceSelect(stmt string, args ...interface{}) (rows *sql.Rows, err error) {
 
 	if rows, err = db.Statements[stmt].Query(args...); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return rows, err
@@ -94,7 +94,7 @@ func usbciDeviceSelect(stmt string, args ...interface{}) (rows *sql.Rows, err er
 func usbciSnRequestUpdate(stmt string, sn string, id int64) (res sql.Result, err error) {
 
 	if res, err = db.Statements[stmt].Exec(sn, id); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return res, err
@@ -107,14 +107,14 @@ func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 	defer rows.Close()
 
 	if err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		return nil, err
 	}
 
 	var cols []string
 
 	if cols, err = rows.Columns(); err != nil {
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 		return nil, err
 	}
 
@@ -128,7 +128,7 @@ func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 		}
 
 		if err = rows.Scan(pvals...); err != nil {
-			elog.WriteError(goutils.ErrorDecorator(err))
+			elog.WriteError(goutil.ErrorDecorator(err))
 			return nil, err
 		}
 
@@ -145,7 +145,7 @@ func RowToMap(stmt, vid, pid, id string) (mss map[string]string, err error) {
 
 	if rows.Err() != nil {
 		err = rows.Err()
-		elog.WriteError(goutils.ErrorDecorator(err))
+		elog.WriteError(goutil.ErrorDecorator(err))
 	}
 
 	return mss, err
