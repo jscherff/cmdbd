@@ -54,63 +54,52 @@
 		"Statements": {}
 	},
 
-	"Log": {
+	"Loggers": {
 
-		"Writer": {
-			"access": {},
-			"error": {},
-			"system": {}
+		"system": {
+			"MLogger": {},
+			"LogFile": "system.log",
+			"LogFlags": ["date","time","shortfile"],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false
 		},
 
-		"LogFile": {
-			"access": "access.log",
-			"error": "error.log",
-			"system": "system.log"
+		"access": {
+			"MLogger": {},
+			"LogFile": "system.log",
+			"LogFlags": [],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false
 		},
 
-		"Console": {
-			"access": true,
-			"error": true,
-			"system": true
-		},
-
-		"Syslog": {
-
-			"access": {
-				"Tag": "gocmdbd_access",
-				"Port": "",
-				"Protocol": "",
-				"Hostname": "",
-				"Priority": 190
-			},
-
-			"error": {
-				"Tag": "gocmdbd_error",
-				"Port": "",
-				"Protocol": "",
-				"Hostname": "",
-				"Priority": 187
-			},
-
-			"system": {
-				"Tag": "gocmdbd_system",
-				"Port": "",
-				"Protocol": "",
-				"Hostname": "",
-				"Priority": 182
-			}
-		},
-
-		"LogDir": {
-			"Windows": "log",
-			"Linux": "/var/log/gocmdbd"
-		},
-
-		"Options": {
-			"EnableLogFiles": false,
-			"EnableConsole": false,
-			"EnableSyslog": false,
-			"RecoveryStack": true
+		"error": {
+			"MLogger": {},
+			"LogFile": "error.log",
+			"LogFlags": ["date","time","shortfile"],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false
 		}
+	},
+
+	"LogDir": {
+		"Windows": "log",
+		"Linux": "/var/log/gocmdbd"
+	},
+
+	"Syslog": {
+		"Proto": "",
+		"Port": "",
+		"Host": "",
+		"Tag": ""
+	},
+
+	"Options": {
+		"Stdout": false,
+		"Stderr": false,
+		"Syslog": false,
+		"RecoveryStack": true
 	}
 }

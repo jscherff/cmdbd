@@ -25,7 +25,23 @@ type Config struct {
 	Server *Server
 	Routes Routes
 	Database *Database
-	Log *Logger
+	Loggers Loggers
+	LogDir struct {
+		Windows string
+		Linux string
+	}
+	Options struct {
+		Stdout bool
+		Stderr bool
+		Syslog bool
+		RecoveryStack bool
+	}
+	Syslog struct {
+		Proto string
+		Port string
+		Host string
+		Tag string
+	}
 }
 
 // NewConfig creates a new Config object and reads its configuration from

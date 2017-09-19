@@ -1,0 +1,2 @@
+system 2017/09/18 18:19:05 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 18:19:05 main.go:57: Server started and listening on ":8080"

@@ -17,7 +17,6 @@ package main
 import (
 	`flag`
 	`log`
-	`github.com/jscherff/goutil`
 )
 
 // Systemwide configuration.
@@ -25,7 +24,7 @@ var (
 	conf *Config
 	db *Database
 	ws *Server
-	slog, alog, elog *goutil.MultiWriter
+	slog, alog, elog *Logger
 )
 
 // Systemwide initialization.
@@ -36,20 +35,17 @@ func init() {
 	flag.Parse()
 
 	if conf, err = NewConfig(*FConfig); err != nil {
-		log.Fatalf(`%v`, err)
+		log.Fatalln(err.Error())
 	}
 
-	if err = conf.Log.Init(); err != nil {
-		log.Fatalf(`%v`, err)
-	}
+	conf.Loggers.Init()
 
-	slog = conf.Log.Writer[`system`]
-	alog = conf.Log.Writer[`access`]
-	elog = conf.Log.Writer[`error`]
+	slog = conf.Loggers[`system`]
+	alog = conf.Loggers[`access`]
+	elog = conf.Loggers[`error`]
 
 	if err = conf.Database.Init(); err != nil {
-		slog.WriteError(err)
-		log.Fatalf(`%v`, err)
+		elog.Println(err.Error())
 	}
 
 	conf.Server.Init()
@@ -57,13 +53,13 @@ func init() {
 	db = conf.Database
 	ws = conf.Server
 
-	slog.WriteString(db.Info())
-	slog.WriteString(ws.Info())
+	slog.Println(db.Info())
+	slog.Println(ws.Info())
 }
 
 func main() {
 	log.Fatal(conf.Server.ListenAndServe())
-	slog.WriteString("shutting down")
+	slog.Println("shutting down")
 	conf.Database.Close()
-	conf.Log.Close()
+	conf.Loggers.Close()
 }
