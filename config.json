@@ -12,6 +12,20 @@
 	"Routes": [
 
 		{
+			"Name": "USBCI Checkin Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/checkin/{host}/{vid}/{pid}",
+			"HandlerFunc": "usbciCheckin"
+		},
+
+		{
+			"Name": "USBCI NewSN Handler",
+			"Method": "POST",
+			"Pattern": "/usbci/newsn/{host}/{vid}/{pid}",
+			"HandlerFunc": "usbciNewSN"
+		},
+
+		{
 			"Name": "USBCI Audit Handler",
 			"Method": "POST",
 			"Pattern": "/usbci/audit/{host}/{vid}/{pid}/{sn}",
@@ -19,10 +33,10 @@
 		},
 
 		{
-			"Name": "USBCI Action Handler",
-			"Method": "POST",
-			"Pattern": "/usbci/{action}/{host}/{vid}/{pid}",
-			"HandlerFunc": "usbciAction"
+			"Name": "USBCI Fetch Handler",
+			"Method": "GET",
+			"Pattern": "/usbci/audit/{host}/{vid}/{pid}/{sn}",
+			"HandlerFunc": "usbciFetch"
 		}
 	],
 
@@ -45,8 +59,10 @@
 			"usbciCheckinInsert": "usbci_checkins_object_view|INSERT",
 			"usbciSnRequestInsert": "usbci_snrequests_object_view|INSERT",
 			"usbciSnRequestUpdate": "usbci_snrequests|UPDATE|serial_num|id",
-			"usbciAuditSelect": "usbci_serialized_audit_view|SELECT|vendor_id,product_id,serial_num"
+			"usbciObjectSelect": "usbci_serialized_object_view|SELECT||vendor_id,product_id,serial_num",
+			"usbciJSONObjectSelect": "usbci_serialized_json_view|SELECT|json_object|vendor_id,product_id,serial_num"
 		},
+
 		"Columns": {},
 
 		"Queries": {},
@@ -67,7 +83,7 @@
 
 		"access": {
 			"MLogger": {},
-			"LogFile": "system.log",
+			"LogFile": "access.log",
 			"LogFlags": [],
 			"Stdout": false,
 			"Stderr": false,
@@ -100,6 +116,6 @@
 		"Stdout": false,
 		"Stderr": false,
 		"Syslog": false,
-		"RecoveryStack": true
+		"RecoveryStack": false
 	}
 }

@@ -49,12 +49,12 @@ type Database struct {
 func (this *Database) Init() (err error) {
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
-		elog.Println(err.Error())
+		elog.Print(err)
 		return err
 	}
 
 	if err = this.Ping(); err != nil {
-		elog.Println(err.Error())
+		elog.Print(err)
 		return err
 	}
 
@@ -116,7 +116,7 @@ func (this *Database) BuildSQL() (err error) {
 		rows, err := this.Query(selectColumnsSQL, parts[0])
 
 		if err != nil {
-			elog.Println(err.Error())
+			elog.Print(err)
 			return err
 		}
 
@@ -127,7 +127,7 @@ func (this *Database) BuildSQL() (err error) {
 			var col string
 
 			if err = rows.Scan(&col); err != nil {
-				elog.Println(err.Error())
+				elog.Print(err)
 				return err
 			}
 
@@ -135,7 +135,7 @@ func (this *Database) BuildSQL() (err error) {
 		}
 
 		if err = rows.Err(); err != nil {
-			elog.Println(err.Error())
+			elog.Print(err)
 			return err
 		}
 
@@ -163,16 +163,20 @@ func (this *Database) BuildSQL() (err error) {
 
 		case `SELECT`:
 
+			if parts[2] == `` {
+				parts[2] = clist
+			}
+
 			this.Queries[k] = fmt.Sprintf(`SELECT %s FROM %s`,
-				clist, parts[0])
+				parts[2], parts[0])
 
 			if len(parts) > 2 {
-				this.Queries[k] += wheres(parts[2])
+				this.Queries[k] += wheres(parts[3])
 			}
 		}
 
 		if this.Statements[k], err = this.Prepare(this.Queries[k]); err != nil {
-			elog.Println(err.Error())
+			elog.Print(err)
 			return err
 		}
 	}

@@ -45,7 +45,7 @@ func init() {
 	elog = conf.Loggers[`error`]
 
 	if err = conf.Database.Init(); err != nil {
-		elog.Println(err.Error())
+		elog.Print(err)
 	}
 
 	conf.Server.Init()
@@ -53,13 +53,13 @@ func init() {
 	db = conf.Database
 	ws = conf.Server
 
-	slog.Println(db.Info())
-	slog.Println(ws.Info())
+	slog.Print(db.Info())
+	slog.Print(ws.Info())
 }
 
 func main() {
-	log.Fatal(conf.Server.ListenAndServe())
-	slog.Println("shutting down")
+	elog.Fatal(conf.Server.ListenAndServe())
+	slog.Print("shutting down")
 	conf.Database.Close()
 	conf.Loggers.Close()
 }

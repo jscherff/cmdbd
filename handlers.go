@@ -15,247 +15,158 @@
 package main
 
 import (
-	`database/sql`
 	`encoding/json`
-	`fmt`
 	`io`
 	`io/ioutil`
 	`net/http`
-	`time`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/gocmdb/cmapi`
 )
 
 var HandlerFuncs = map[string]http.HandlerFunc {
-	`usbciAction`: usbciAction,
+	`usbciCheckin`: usbciCheckin,
+	`usbciNewSN`: usbciNewSN,
 	`usbciAudit`: usbciAudit,
+	`usbciFetch`: usbciFetch,
 }
 
-// usbciAction handles various 'actions' for device gocmdb agents.
-func usbciAction(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+// usbciCheckin records a device checkin.
+func usbciCheckin(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	var action = vars[`action`]
+	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		elog.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		elog.Panic(err)
 	}
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	dev := cmapi.NewUsbCi()
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		elog.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		elog.Print(err)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.Println(err.Error())
+			elog.Panic(err)
 		}
 
 		return
 	}
 
-	switch action {
-
-	case `fetchsn`:
-
-		var sn = dev.ID()
-
-		if len(sn) != 0 {
-			w.WriteHeader(http.StatusNoContent)
-			err = fmt.Errorf(`serial number already set to %q`, sn)
-			elog.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusNotAcceptable)
-			break
-		}
-
-		var id int64
-		var res sql.Result
-
-		if res, err = usbciDeviceInsert(`usbciSnRequestInsert`, dev); err != nil {
-			// Error already decorated and logged.
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			break
-		}
-
-		if id, err = res.LastInsertId(); err != nil {
-			elog.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			break
-		}
-
-		sn = fmt.Sprintf(`24F%04X`, id)
-
-		if _, err = usbciSnRequestUpdate(`usbciSnRequestUpdate`, sn, id); err != nil {
-			// Error already decorated and logged.
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			break
-		}
-
-		if err = json.NewEncoder(w).Encode(sn); err != nil {
-			elog.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			break
-		}
-
+	if err = SaveDeviceCheckin(dev); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		slog.Printf(`saved checkin for %q device VID %q PID %q`, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
-
-	case `checkin`:
-
-		if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
-			// Error already decorated and logged.
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			break
-		}
-
-		w.WriteHeader(http.StatusCreated)
-
-	default:
-		err = fmt.Errorf(`unsupported action %q`, action)
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
-// usbciAudit performs a device audit against the previous state in
-// the database.
+// usbciNewSN generates a new serial number for an unserialized device.
+func usbciNewSN(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
+
+	if err != nil {
+		elog.Panic(err)
+	}
+
+	if err = r.Body.Close(); err != nil {
+		elog.Panic(err)
+	}
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	dev := cmapi.NewUsbCi()
+
+	if err = json.Unmarshal(body, &dev); err != nil {
+
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		elog.Print(err)
+
+		if err = json.NewEncoder(w).Encode(err); err != nil {
+			elog.Panic(err)
+		}
+
+		return
+	}
+
+	var sn = dev.ID()
+
+	if len(sn) > 0 {
+		slog.Printf(`serial number already set to %q`, sn)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+
+	if sn, err = GetNewSerialNumber(`24F%04X`, dev); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		slog.Printf(`generated SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
+		w.WriteHeader(http.StatusCreated)
+	}
+
+	if err = json.NewEncoder(w).Encode(sn); err != nil {
+		elog.Panic(err)
+	}
+}
+
+// usbciAudit accepts the results of a device self-audit and stores the results.
 func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
 	vars := mux.Vars(r)
-	var vid, pid, sn = vars[`vid`], vars[`pid`], vars[`sn`]
+	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		elog.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.Println(err.Error())
+		elog.Panic(err)
+	}
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+
+	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	dev := cmapi.NewUsbCi()
-
-	if err = json.Unmarshal(body, &dev); err != nil {
-
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-
-		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.Println(err.Error())
-		}
-
-		return
-	}
-
-	slog.Printf(`auditing VID %q PID %q SN %q`, vid, pid, sn)
-
-	// Retrieve map of device properties from previous checkin, if any.
-
-	slog.Printf(`retrieving previous VID %q PID %q SN %q`, vid, pid, sn)
-
-	map1, err := RowToMap(`usbciAuditSelect`, vid, pid, sn)
-
-	if map1 != nil {
-		slog.Printf(`previous VID %q PID %q SN %q found`, vid, pid, sn)
 	} else {
-		slog.Printf(`previous VID %q PID %q SN %q not found`, vid, pid, sn)
+		slog.Printf(`recorded audit for %q device VID %q PID %q SN %q`, host, vid, pid, sn)
+		w.WriteHeader(http.StatusCreated)
 	}
+}
 
-	// Perform a new device checkin to save current device properties. Abort
-	// with error if unable to save properties.
+func usbciFetch(w http.ResponseWriter, r *http.Request) {
 
-	slog.Printf(`storing current VID %q PID %q SN %q`, vid, pid, sn)
+	vars := mux.Vars(r)
+	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
 
-	if _, err = usbciDeviceInsert(`usbciCheckinInsert`, dev); err != nil {
-		// Error already decorated and logged.
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	// If attempt to retrieve device properties from previous checkin failed
-	// or produced empty results, abort without error. (Could be a new device
-	// with no previous checkin.)
-
-	if map1 == nil {
-		// Not found status already logged
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// Retrieve map of device properties from current checkin. Abort with error
-	// if unable to retrieve properties or unable to convert to map.
-
-	map2, err := RowToMap(`usbciAuditSelect`, vid, pid, sn)
+	j, err := GetDeviceJSONObject(vid, pid, sn)
 
 	if err != nil {
-		// Error already decorated and logged.
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	} else {
+		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
+		w.WriteHeader(http.StatusOK)
 	}
 
-	// Compare maps of previous and current properties and record differences in
-	// current devices 'Changes' field.
-
-	for cn, _ := range map2 {
-		if map1[cn] != map2[cn] {
-			dev.Changes = append(dev.Changes, []string{cn, map1[cn], map2[cn]})
-		}
+	if err = json.NewEncoder(w).Encode(j); err != nil {
+		elog.Panic(err)
 	}
-
-	// If there are no differences, return status of 'Not Modified' to caller.
-
-	if len(dev.Changes) == 0 {
-		slog.Printf(`device VID %q PID %q SN %q not modified`, vid, pid, sn)
-		w.WriteHeader(http.StatusNotModified)
-		return
-	}
-
-	// Record changes, if any, to changes table. Return status of 'Accepted' if
-	// successful, or record error and return 'Internal Server Error' on failure.
-
-	if err = usbciChangeInserts(`usbciChangeInsert`, dev); err != nil {
-		// Error already decorated and logged.
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Prepare client response by generating a change log suitable for writing
-	// to a flat file or CSV file.
-
-	changes := make([][]string, len(dev.Changes))
-
-	for i, change := range(dev.Changes) {
-		changes[i] = append(changes[i], time.Now().Local().String())
-		changes[i] = append(changes[i], vid, pid, sn)
-		changes[i] = append(changes[i], change...)
-	}
-
-	// Send the results in a JSON object.
-
-	if err = json.NewEncoder(w).Encode(changes); err != nil {
-		elog.Println(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusAccepted)
 }
