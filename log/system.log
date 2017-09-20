@@ -1,2 +1,137 @@
 system 2017/09/18 18:19:05 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
 system 2017/09/18 18:19:05 main.go:57: Server started and listening on ":8080"
+system 2017/09/18 18:21:35 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 18:21:35 main.go:57: Server started and listening on ":8080"
+::1 - - [18/Sep/2017:18:21:59 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:19:32:27 -0700] "POST /usbci/fetchsn/John-SurfacePro/0801/0001 HTTP/1.1" 201 10 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:19:32:27 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:21:10:30 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+system 2017/09/18 21:21:38 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 21:21:38 main.go:57: Server started and listening on ":8080"
+::1 - - [18/Sep/2017:21:21:53 -0700] "POST /usbci/fetchsn/John-SurfacePro/0801/0001 HTTP/1.1" 201 10 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:21:21:53 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+system 2017/09/18 21:30:16 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 21:30:16 main.go:57: Server started and listening on ":8080"
+::1 - - [18/Sep/2017:21:30:23 -0700] "POST /usbci/fetchsn/John-SurfacePro/0801/0001 HTTP/1.1" 201 10 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:21:30:23 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+system 2017/09/18 21:33:37 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 21:33:37 main.go:57: Server started and listening on ":8080"
+::1 - - [18/Sep/2017:21:33:40 -0700] "POST /usbci/fetchsn/John-SurfacePro/0801/0001 HTTP/1.1" 201 10 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:21:33:40 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+system 2017/09/18 21:41:36 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/18 21:41:36 main.go:57: Server started and listening on ":8080"
+::1 - - [18/Sep/2017:21:41:40 -0700] "POST /usbci/fetchsn/John-SurfacePro/0801/0001 HTTP/1.1" 201 10 "" "Go-http-client/1.1"
+::1 - - [18/Sep/2017:21:41:40 -0700] "POST /usbci/checkin/John-SurfacePro/0801/0001 HTTP/1.1" 201 0 "" "Go-http-client/1.1"
+system 2017/09/19 06:23:23 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:23:23 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:27:22 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:27:22 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:29:19 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:29:19 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:30:42 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:30:42 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:33:41 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:33:41 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:34:30 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:34:30 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:35:13 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:35:13 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 06:37:53 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 06:37:53 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:11:50 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:11:50 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:14:56 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:14:56 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:16:35 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:16:35 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:17:17 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:17:17 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:21:24 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:21:24 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:26:47 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:26:47 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:36:23 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:36:23 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:37:47 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:37:47 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:37:55 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:37:55 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:42:23 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:42:23 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:43:32 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:43:32 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 08:50:39 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 08:50:39 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 09:00:30 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 09:00:30 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 09:18:36 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 09:18:36 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 09:19:06 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 09:19:06 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 09:19:09 handlers.go:73: serial number already set to "24F0011"
+system 2017/09/19 09:37:42 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 09:37:42 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 10:35:24 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 10:35:24 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 10:35:55 handlers.go:72: serial number already set to "24F0011"
+system 2017/09/19 11:57:17 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 11:57:17 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 12:01:49 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 12:01:49 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 12:02:53 handlers.go:64: Saving checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 12:04:40 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 12:04:40 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 12:04:44 handlers.go:64: Saving checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 12:05:44 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 12:05:44 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 12:05:48 handlers.go:64: Saving checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 12:07:01 handlers.go:105: Generating SN for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 12:07:01 handlers.go:110: serial number already set to "24F0011"
+system 2017/09/19 12:07:18 handlers.go:105: Generating SN for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 12:07:18 handlers.go:64: Saving checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 14:23:31 main.go:56: Database "" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:23:31 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:35:40 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:35:40 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:41:38 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:41:38 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:42:32 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:42:32 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:43:42 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:43:42 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:45:02 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:45:02 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 14:45:43 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 14:45:43 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 19:00:55 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 19:00:55 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:49:39 main.go:56: Database "" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:49:39 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:50:22 main.go:56: Database "" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:50:22 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:52:38 main.go:56: Database "" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:52:38 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:54:53 main.go:56: Database "" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:54:53 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:55:38 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:55:38 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:57:42 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 21:57:42 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 21:58:15 handlers.go:68: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 22:08:23 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/19 22:08:23 main.go:57: Server started and listening on ":8080"
+system 2017/09/19 22:13:34 handlers.go:117: generated SN "24F0013" for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 22:13:34 handlers.go:68: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/19 22:14:09 handlers.go:108: serial number already set to "24F0013"
+system 2017/09/20 13:40:44 main.go:56: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 13:40:44 main.go:57: Server started and listening on ":8080"
+system 2017/09/20 13:42:58 handlers.go:68: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 13:42:58 handlers.go:68: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 13:49:09 handlers.go:117: generated SN "24F0014" for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 13:49:09 handlers.go:68: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 13:49:34 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 13:50:39 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 13:51:00 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 13:54:07 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 13:54:13 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 13:55:58 handlers.go:147: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"

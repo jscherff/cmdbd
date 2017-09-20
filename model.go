@@ -20,33 +20,36 @@ import (
 	`github.com/jscherff/goutil`
 )
 
+// SaveDeviceCheckin saves a device checkin to the database 'checkins' table.
 func SaveDeviceCheckin(dev *cmapi.UsbCi) (err error) {
 
-	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciCheckinInsert`])
+	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciInsertCheckin`])
 
 	if err != nil {
 		elog.Print(err)
 		return err
 	}
 
-	if _, err := db.Statements[`usbciCheckinInsert`].Exec(vals...); err != nil {
+	if _, err := db.Statements[`usbciInsertCheckin`].Exec(vals...); err != nil {
 		elog.Print(err)
 	}
 
 	return err
 }
 
+// GetNewSerialNumber generates a new device serial number using the value
+// from the auto-incremented ID column of the 'snrequest' table with the
+// format string provided by the caller.
 func GetNewSerialNumber(sfmt string, dev *cmapi.UsbCi) (sn string, err error) {
 
-
-	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciSnRequestInsert`])
+	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciInsertSnRequest`])
 
 	if err != nil {
 		elog.Print(err)
 		return sn, err
 	}
 
-	res, err := db.Statements[`usbciSnRequestInsert`].Exec(vals...)
+	res, err := db.Statements[`usbciInsertSnRequest`].Exec(vals...)
 
 	if err != nil {
 		elog.Print(err)
@@ -62,25 +65,29 @@ func GetNewSerialNumber(sfmt string, dev *cmapi.UsbCi) (sn string, err error) {
 
 	sn = fmt.Sprintf(`24F%04X`, id)
 
-	if _, err = db.Statements[`usbciSnRequestUpdate`].Exec(sn, id); err != nil {
+	if _, err = db.Statements[`usbciUpdateSnRequest`].Exec(sn, id); err != nil {
 		elog.Print(err)
 	}
 
 	return sn, err
 }
 
+// SaveDeviceChanges records changes reported in a device audit in the 'changes'
+// table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	if _, err := db.Statements[`usbciChangeInsert`].Exec(host, vid, pid, sn, chgs); err != nil {
+	if _, err := db.Statements[`usbciInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
 		elog.Print(err)
 	}
 
 	return err
 }
 
+// GetDeviceJSONObject retreives device properties from the 'serialized' device
+// table and returns them to the caller in JSON format.
 func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 
-	if err = db.Statements[`usbciJSONObjectSelect`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
+	if err = db.Statements[`usbciSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
 		elog.Print(err)
 	}
 	return j, err
@@ -89,7 +96,7 @@ func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 // RowToMap converts a database row into a map of string values indexed by column name.
 func RowToMap(vid, pid, sn string) (mss map[string]string, err error) {
 
-	rows, err := db.Statements[`usbciObjectSelect`].Query(vid, pid, sn)
+	rows, err := db.Statements[`usbciSelectSerialized`].Query(vid, pid, sn)
 
 	if err != nil {
 		elog.Print(err)

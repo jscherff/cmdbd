@@ -26,11 +26,11 @@ func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	for _, route := range conf.Routes {
+	for _, route := range routes {
 
 		var handler http.Handler
 
-		handler = HandlerFuncs[route.HandlerFunc]
+		handler = route.HandlerFunc
 
 		handler = handlers.RecoveryHandler(handlers.PrintRecoveryStack(
 			conf.Options.RecoveryStack), handlers.RecoveryLogger(elog))(handler)

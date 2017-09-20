@@ -23,7 +23,6 @@ import (
 type Config struct {
 
 	Server *Server
-	Routes Routes
 	Database *Database
 	Loggers Loggers
 	LogDir struct {

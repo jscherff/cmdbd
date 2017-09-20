@@ -141,7 +141,6 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-
 	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
