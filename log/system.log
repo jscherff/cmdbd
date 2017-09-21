@@ -189,3 +189,49 @@ system 2017/09/20 17:28:54 handlers.go:61: saved checkin for "John-SurfacePro" d
 system 2017/09/20 17:28:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
 system 2017/09/20 17:37:05 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
 system 2017/09/20 17:37:05 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 17:51:55 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 17:51:55 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 17:52:07 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 17:52:07 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 17:52:07 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 17:53:17 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 17:53:17 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 17:53:20 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 17:53:20 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 17:53:20 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 17:54:56 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 17:54:56 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 17:55:23 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 17:55:23 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 17:55:23 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 17:59:06 handlers.go:140: recorded audit for "John-SurfacePro" device VID "0801" PID "0001" SN "24F0014"
+system 2017/09/20 18:01:22 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:01:22 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:01:26 handlers.go:155: found SN "24F0014" for "John-SurfacePro" device VID "0801" PID "0001"
+system 2017/09/20 18:01:52 handlers.go:155: found SN "24F0014" for "John-SurfacePro" device VID "0801" PID "0001"
+system 2017/09/20 18:36:07 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:36:07 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:37:03 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:37:03 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:38:13 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:38:13 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:38:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 18:38:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 18:38:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 18:39:55 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:39:55 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:40:13 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 18:40:13 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 18:40:13 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 18:40:32 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 18:40:32 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 18:40:32 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 18:41:37 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 18:41:37 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
+system 2017/09/20 18:41:37 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 18:42:05 handlers.go:155: found SN "24F0014" for "John-SurfacePro" device VID "0801" PID "0001"
+system 2017/09/20 18:42:05 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
+system 2017/09/20 18:42:52 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 18:42:52 main.go:63: Server started and listening on ":8080"
+system 2017/09/20 18:43:50 handlers.go:155: found SN "24F0014" for "John-SurfacePro" device VID "0801" PID "0001"
+system 2017/09/20 18:43:50 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"

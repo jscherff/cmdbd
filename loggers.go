@@ -61,8 +61,8 @@ func (this Loggers) Init() {
 
 		logger.MLogger = log.NewMLogger(tag, flags, stdout, stderr, file)
 
-		if logger.Syslog && conf.Syslog != nil {
-			logger.AddWriter(conf.Syslog)
+		if logger.Syslog && conf.Syslog.Writer != nil {
+			logger.AddWriter(conf.Syslog.Writer)
 		}
 	}
 }

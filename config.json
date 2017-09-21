@@ -93,9 +93,9 @@
 
 	"Syslog": {
 		"Writer": {},
-		"Protocol": "",
-		"Port": "",
-		"Host": "",
+		"Protocol": "tcp",
+		"Port": "1468",
+		"Host": "localhost",
 		"Tag": "gocmdbd",
 		"Facility": "LOG_LOCAL7",
 		"Severity": "LOG_INFO"
