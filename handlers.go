@@ -23,13 +23,6 @@ import (
 	`github.com/jscherff/gocmdb/cmapi`
 )
 
-var HandlerFuncs = map[string]http.HandlerFunc {
-	`usbciCheckin`: usbciCheckin,
-	`usbciNewSN`: usbciNewSN,
-	`usbciAudit`: usbciAudit,
-	`usbciFetch`: usbciFetch,
-}
-
 // usbciCheckin records a device checkin.
 func usbciCheckin(w http.ResponseWriter, r *http.Request) {
 
@@ -156,16 +149,13 @@ func usbciFetch(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	j, err := GetDeviceJSONObject(vid, pid, sn)
-
-	if err != nil {
+	if j, err := GetDeviceJSONObject(vid, pid, sn); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
-	}
-
-	if err = json.NewEncoder(w).Encode(j); err != nil {
-		elog.Panic(err)
+		if err = json.NewEncoder(w).Encode(j); err != nil {
+			elog.Panic(err)
+		}
 	}
 }

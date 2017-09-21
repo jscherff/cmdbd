@@ -50,7 +50,7 @@ var routes = Routes {
 
 	Route {
 		Name:		"USBCI Fetch Handler",
-		Method:		"POST",
+		Method:		"GET",
 		Pattern:	"/usbci/audit/{host}/{vid}/{pid}/{sn}",
 		HandlerFunc:	usbciFetch,
 	},

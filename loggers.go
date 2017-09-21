@@ -21,7 +21,7 @@ import (
 	`github.com/jscherff/gox/log`
 )
 
-// Logger contains logger infomration and logging options. It is part of
+// Logger contains logger information and logging options. It is part of
 // the systemwide configuration under Config.Loggers.
 type Logger struct {
 	*log.MLogger
@@ -55,10 +55,15 @@ func (this Loggers) Init() {
 
 		flags := log.LoggerFlags(logger.LogFlags...)
 		file := filepath.Join(logDir, logger.LogFile)
+
 		stdout := logger.Stdout || conf.Options.Stdout || *FStdout
 		stderr := logger.Stderr || conf.Options.Stderr || *FStderr
 
 		logger.MLogger = log.NewMLogger(tag, flags, stdout, stderr, file)
+
+		if logger.Syslog && conf.Syslog != nil {
+			logger.AddWriter(conf.Syslog)
+		}
 	}
 }
 

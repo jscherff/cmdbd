@@ -35,7 +35,13 @@ func init() {
 	flag.Parse()
 
 	if conf, err = NewConfig(*FConfig); err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln(err)
+	}
+
+	if conf.Options.Syslog || *FSyslog {
+		if err = conf.Syslog.Init(); err != nil {
+			log.Println(err)
+		}
 	}
 
 	conf.Loggers.Init()

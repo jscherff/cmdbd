@@ -25,21 +25,18 @@ type Config struct {
 	Server *Server
 	Database *Database
 	Loggers Loggers
+	Syslog *Syslog
+
 	LogDir struct {
 		Windows string
 		Linux string
 	}
+
 	Options struct {
 		Stdout bool
 		Stderr bool
 		Syslog bool
 		RecoveryStack bool
-	}
-	Syslog struct {
-		Proto string
-		Port string
-		Host string
-		Tag string
 	}
 }
 
