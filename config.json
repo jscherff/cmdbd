@@ -69,7 +69,7 @@
 			"LogFlags": ["date","time","shortfile"],
 			"Stdout": false,
 			"Stderr": false,
-			"Syslog": true
+			"Syslog": false
 		},
 
 		"access": {
@@ -93,9 +93,9 @@
 
 	"Syslog": {
 		"Writer": {},
-		"Protocol": "tcp",
-		"Port": "1468",
-		"Host": "127.0.0.1",
+		"Protocol": "",
+		"Port": "",
+		"Host": "",
 		"Tag": "gocmdbd",
 		"Facility": "LOG_LOCAL7",
 		"Severity": "LOG_INFO"

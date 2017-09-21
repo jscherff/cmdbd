@@ -187,3 +187,5 @@ system 2017/09/20 17:28:19 handlers.go:61: saved checkin for "John-SurfacePro" d
 system 2017/09/20 17:28:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "0001" PID "0801"
 system 2017/09/20 17:28:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "2030" PID "0acd"
 system 2017/09/20 17:28:54 handlers.go:61: saved checkin for "John-SurfacePro" device VID "c52b" PID "046d"
+system 2017/09/20 17:37:05 main.go:62: Database "10.2.8-MariaDB" (gocmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/20 17:37:05 main.go:63: Server started and listening on ":8080"
