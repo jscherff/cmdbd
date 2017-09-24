@@ -142,7 +142,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func usbciFetch(w http.ResponseWriter, r *http.Request) {
+func usbciCheckout(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -154,7 +154,7 @@ func usbciFetch(w http.ResponseWriter, r *http.Request) {
 	} else {
 		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(j); err != nil {
+		if _, err = w.Write(j); err != nil {
 			elog.Panic(err)
 		}
 	}

@@ -35,6 +35,13 @@ var routes = Routes {
 	},
 
 	Route {
+		Name:		"USBCI Checkout Handler",
+		Method:		"GET",
+		Pattern:	"/usbci/checkout/{host}/{vid}/{pid}/{sn}",
+		HandlerFunc:	usbciCheckout,
+	},
+
+	Route {
 		Name:		"USBCI NewSN Handler",
 		Method:		"POST",
 		Pattern:	"/usbci/newsn/{host}/{vid}/{pid}",
@@ -46,12 +53,5 @@ var routes = Routes {
 		Method:		"POST",
 		Pattern:	"/usbci/audit/{host}/{vid}/{pid}/{sn}",
 		HandlerFunc:	usbciAudit,
-	},
-
-	Route {
-		Name:		"USBCI Fetch Handler",
-		Method:		"GET",
-		Pattern:	"/usbci/fetch/{host}/{vid}/{pid}/{sn}",
-		HandlerFunc:	usbciFetch,
 	},
 }

@@ -50,3 +50,14 @@ error 2017/09/19 21:54:53 database.go:148: Error 1146: Table 'gocmdb.view_usbci_
 error 2017/09/19 21:54:53 main.go:48: Error 1146: Table 'gocmdb.view_usbci_snrequests' doesn't exist
 error 2017/09/20 13:50:39 model.go:80: Error 1062: Duplicate entry '0801-0001-24F0014' for key 'unique_id'
 error 2017/09/20 13:51:00 model.go:80: Error 1062: Duplicate entry '0801-0001-24F0014' for key 'unique_id'
+error 2017/09/21 06:10:54 model.go:91: invalid connection
+error 2017/09/21 06:26:27 model.go:91: sql: no rows in result set
+error 2017/09/21 06:26:52 model.go:91: sql: no rows in result set
+error 2017/09/21 06:29:07 model.go:91: sql: no rows in result set
+error 2017/09/21 06:36:31 model.go:91: sql: no rows in result set
+error 2017/09/21 06:41:07 model.go:91: sql: no rows in result set
+error 2017/09/21 08:20:00 model.go:91: sql: no rows in result set
+error 2017/09/21 11:08:09 model.go:91: sql: no rows in result set
+error 2017/09/21 11:09:29 model.go:91: sql: no rows in result set
+error 2017/09/21 11:10:58 model.go:91: sql: no rows in result set
+error 2017/09/21 11:35:37 model.go:91: sql: no rows in result set
