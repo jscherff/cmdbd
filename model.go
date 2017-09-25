@@ -14,20 +14,15 @@
 
 package main
 
-import (
-	`fmt`
-	`github.com/jscherff/gocmdb/cmapi`
-	`github.com/jscherff/goutil`
-)
+import `fmt`
 
 // SaveDeviceCheckin saves a device checkin to the database 'checkins' table.
-func SaveDeviceCheckin(dev *cmapi.UsbCi) (err error) {
+func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 
-	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciInsertCheckin`])
+	var vals []interface{}
 
-	if err != nil {
-		elog.Print(err)
-		return err
+	for _, col := range db.Columns[`usbciInsertCheckin`] {
+		vals = append(vals, dev[col])
 	}
 
 	if _, err := db.Statements[`usbciInsertCheckin`].Exec(vals...); err != nil {
@@ -40,13 +35,12 @@ func SaveDeviceCheckin(dev *cmapi.UsbCi) (err error) {
 // GetNewSerialNumber generates a new device serial number using the value
 // from the auto-incremented ID column of the 'snrequest' table with the
 // format string provided by the caller.
-func GetNewSerialNumber(sfmt string, dev *cmapi.UsbCi) (sn string, err error) {
+func GetNewSerialNumber(sfmt string, dev map[string]interface{}) (sn string, err error) {
 
-	vals, err := goutil.ObjectDbValsByCol(dev, `db`, db.Columns[`usbciInsertSnRequest`])
+	var vals []interface{}
 
-	if err != nil {
-		elog.Print(err)
-		return sn, err
+	for _, col := range db.Columns[`usbciInsertSnRequest`] {
+		vals = append(vals, dev[col])
 	}
 
 	res, err := db.Statements[`usbciInsertSnRequest`].Exec(vals...)
@@ -91,56 +85,4 @@ func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 		elog.Print(err)
 	}
 	return j, err
-}
-
-// RowToMap converts a database row into a map of string values indexed by column name.
-func RowToMap(vid, pid, sn string) (mss map[string]string, err error) {
-
-	rows, err := db.Statements[`usbciSelectSerialized`].Query(vid, pid, sn)
-
-	if err != nil {
-		elog.Print(err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var cols []string
-
-	if cols, err = rows.Columns(); err != nil {
-		elog.Print(err)
-		return nil, err
-	}
-
-	for rows.Next() {
-
-		vals := make([]interface{}, len(cols))
-		pvals := make([]interface{}, len(cols))
-
-		for i, _ := range vals {
-			pvals[i] = &vals[i]
-		}
-
-		if err = rows.Scan(pvals...); err != nil {
-			elog.Print(err)
-			return nil, err
-		}
-
-		mss = make(map[string]string)
-
-		for i, cn := range cols {
-			if b, ok := vals[i].([]byte); ok {
-				mss[cn] = string(b)
-			} else {
-				mss[cn] = fmt.Sprintf(`%v`, vals[i])
-			}
-		}
-	}
-
-	if rows.Err() != nil {
-		err = rows.Err()
-		elog.Print(err)
-	}
-
-	return mss, err
 }

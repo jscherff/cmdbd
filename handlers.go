@@ -20,7 +20,6 @@ import (
 	`io/ioutil`
 	`net/http`
 	`github.com/gorilla/mux`
-	`github.com/jscherff/gocmdb/cmapi`
 )
 
 // usbciCheckin records a device checkin.
@@ -41,7 +40,7 @@ func usbciCheckin(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	dev := cmapi.NewUsbCi()
+	dev := make(map[string]interface{})
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
@@ -81,7 +80,7 @@ func usbciNewSN(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	dev := cmapi.NewUsbCi()
+	dev := make(map[string]interface{})
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
@@ -95,7 +94,7 @@ func usbciNewSN(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sn = dev.ID()
+	var sn string = dev[`serial_num`].(string)
 
 	if len(sn) > 0 {
 		slog.Printf(`serial number already set to %q`, sn)
@@ -142,6 +141,8 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// usbciCheckout retrieves a device from the serialized device database as a
+// JSON object and returns it to the caller.
 func usbciCheckout(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
