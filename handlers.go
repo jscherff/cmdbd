@@ -97,11 +97,8 @@ func usbciNewSN(w http.ResponseWriter, r *http.Request) {
 	var sn string = dev[`serial_num`].(string)
 
 	if len(sn) > 0 {
-		slog.Printf(`serial number already set to %q`, sn)
-		w.WriteHeader(http.StatusNoContent)
-		return
+		slog.Printf(`serial number was already set to SN %q`, sn)
 	}
-
 
 	if sn, err = GetNewSerialNumber(`24F%04X`, dev); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
