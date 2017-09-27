@@ -1,6 +1,6 @@
 #!/bin/sh
 
-useradd -M -r -d /opt/gocmdbd -c 'gocmdbd Service' gocmdbd
+useradd -M -r -d /opt/gocmdbd -c 'GoCMDBd Service' gocmdbd
 
 mkdir -p /var/log/gocmdbd /opt/gocmdbd/{bin,etc}
 
