@@ -29,7 +29,6 @@ Prefix:		%{prefix}
 Packager: 	%{packager}
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Distribution:	el
-DistTag:	el7
 
 BuildRequires:    golang >= 1.8.0
 Requires(pre):    /usr/sbin/useradd, /usr/bin/getent
@@ -37,11 +36,13 @@ Requires(postun): /usr/sbin/userdel
 
 %description
 Go Configuration Management Database Daemon, gocmdbd, is a lightweight HTTP
-daemon that provides a REST API for the gocmdbcli client running on Windows
-endpoints. The client collects information about attached devices and sends
-that information to the server for storage in the database. The client can
-perform audits and report on addition or removal of devices or configuration
-changes to existing devices.
+daemon that provides a REST API for gocmdbcli clients installed on Windows
+endpoints. The clients collect information about attached devices and send
+that information to the server for storage in the database. Clients can
+register attached devices with the server, obtain unique serial numbers from
+the server for devices that support serial number configuration, perform
+audits against previous device configurations, and report any configuration
+changes found during the audit to the server for later analysis.
 
 %prep
 
