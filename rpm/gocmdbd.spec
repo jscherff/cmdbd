@@ -64,13 +64,13 @@ changes to existing devices.
 
 %post
 
-  systemctl --quiet is-enabled gocmdbd || systemctl enable gocmdbd
+  systemctl --quiet is-enabled gocmdbd || systemctl --quiet enable gocmdbd
 
 
 %preun
 
-  systemctl --quiet is-active gocmdbd && systemctl stop gocmdbd
-  systemctl --quiet is-enabled gocmdbd && systemctl disable gocmdbd
+  systemctl --quiet is-active gocmdbd && systemctl --quiet stop gocmdbd
+  systemctl --quiet is-enabled gocmdbd && systemctl --quiet disable gocmdbd
 
 %postun
 
