@@ -59,7 +59,7 @@ changes to existing devices.
 
 %pre
 
-  /usr/bin/getent passwd %{name} ||
+  /usr/bin/getent passwd %{name} >/dev/null 2>&1 ||
     /usr/sbin/useradd -Mrd %{prefix} -c '%{gecos}' -s /sbin/nologin %{name}
 
 %post
@@ -74,7 +74,8 @@ changes to existing devices.
 
 %postun
 
-  /usr/bin/getent passwd %{name} && /usr/sbin/userdel %{name}
+  /usr/bin/getent passwd %{name} >/dev/null 2>&1 &&
+    /usr/sbin/userdel %{name}
 
 %clean
 
