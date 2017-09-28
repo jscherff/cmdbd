@@ -6,6 +6,7 @@
 %define		sbindir	%{prefix}/sbin
 %define		confdir	%{prefix}/etc
 %define		docdir	%{prefix}/doc
+%define		logdir	%{_var}/log/gocmdbd
 %define		gopath	%{_builddir}/go
 %define		sysdir	%{_sysconfdir}/systemd/system
 %define		syslib	%{_prefix}/lib/systemd/system
@@ -50,9 +51,10 @@ changes to existing devices.
   test %{buildroot} != / && rm -rf %{buildroot}
 
   mkdir -p %{buildroot}{%{sbindir},%{confdir},%{docdir},%{syslib}}
+  mkdir -p %{buildroot}%{logdir}
 
   install -s -m 755 gocmdbd %{buildroot}%{sbindir}/
-  install -m 640 go/src/%{package}/config.json %{buildroot}%{confdir}/
+  install -m 644 go/src/%{package}/config.json %{buildroot}%{confdir}/
   install -m 644 %{gopath}/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/svc/gocmdbd.service %{buildroot}%{syslib}/
   install -m 640 %{gopath}/src/%{package}/ddl/{database.sql,users.sql} %{buildroot}%{confdir}/
@@ -80,7 +82,7 @@ changes to existing devices.
 %clean
 
   test %{buildroot} != / && rm -rf %{buildroot}
-  test %{gopath} != / && rm -rf %{gopath}
+  test %{_builddir} != / && rm -rf %{_builddir}/*
 
 %files
 
@@ -90,7 +92,10 @@ changes to existing devices.
   %{syslib}/gocmdbd.service
   %{confdir}/database.sql
   %{confdir}/users.sql
-  %config %{confdir}/config.json
   %license %{docdir}/LICENSE
+  %config %{confdir}/config.json
+  
+  %defattr(-,%{name},%{name})
+  %{logdir}
 
 %changelog
