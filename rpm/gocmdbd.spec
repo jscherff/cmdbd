@@ -1,22 +1,25 @@
+# =============================================================================
 %define		name	gocmdbd
 %define		version	1.0.0
 %define		release	1
+%define		gecos	GoCMDBd Service
+%define		summary	[Go] Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
 %define		prefix	/opt/gocmdbd
 %define		sbindir	%{prefix}/sbin
 %define		confdir	%{prefix}/etc
 %define		docdir	%{prefix}/doc
 %define		logdir	%{_var}/log/gocmdbd
-%define		gopath	%{_builddir}/go
 %define		sysdir	%{_sysconfdir}/systemd/system
 %define		syslib	%{_prefix}/lib/systemd/system
-%define		gecos	GoCMDBd Service
+%define		gopath	%{_builddir}/go
 %define		package	github.com/jscherff/gocmdbd
+# =============================================================================
 
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}%{?dist}
-Summary:	Go Configuration Management Database Daemon
+Summary:	%{summary}
 
 Group:		Applications/System
 License:	ASL 2.0
@@ -25,6 +28,8 @@ Vendor:		24 Hour Fitness, Inc.
 Prefix:		%{prefix}
 Packager: 	%{packager}
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Distribution:	el
+DistTag:	el7
 
 BuildRequires:    golang >= 1.8.0
 Requires(pre):    /usr/sbin/useradd, /usr/bin/getent
