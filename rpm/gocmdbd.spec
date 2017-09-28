@@ -79,6 +79,7 @@ changes to existing devices.
 %clean
 
   test %{buildroot} != / && rm -rf %{buildroot}
+  test %{gopath} != / && rm -rf %{gopath}
 
 %files
 
