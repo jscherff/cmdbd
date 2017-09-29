@@ -1,1 +1,1 @@
-# gocmdbd
+# cmdbd

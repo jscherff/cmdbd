@@ -1,11 +1,11 @@
 [Unit]
-Description=gocmdbd Service
+Description=cmdbd Service
 After=syslog.target network.target
 
 [Service]
 Type=simple
-User=gocmdbd
-ExecStart=/opt/gocmdbd/sbin/gocmdbd -config /opt/gocmdbd/etc/config.json
+User=cmdbd
+ExecStart=/usr/sbin/cmdbd -config /etc/cmdbd.json
 Restart=on-abort
 
 [Install]

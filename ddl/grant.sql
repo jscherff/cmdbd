@@ -1,1 +1,0 @@
-GRANT SELECT, INSERT, UPDATE, LOCK TABLES, DELETE, EXECUTE  ON `gocmdb`.* TO 'gocmdbd'@'%';
