@@ -21,8 +21,8 @@ const (
 )
 
 var (
-	FConfig = flag.String(`config`, configDefault, `Web server configuration file`)
-	FStdout = flag.Bool(`stdout`, false, `Enable logging to stdout`)
-	FStderr = flag.Bool(`stderr`, false, `Enable logging to stderr`)
-	FSyslog = flag.Bool(`syslog`, false, `Enable logging to syslog`)
+	FConfig = flag.String(`config`, configDefault, "Web server configuration `file`")
+	FStdout = flag.Bool(`stdout`, false, "Enable logging to stdout")
+	FStderr = flag.Bool(`stderr`, false, "Enable logging to stderr")
+	FSyslog = flag.Bool(`syslog`, false, "Enable logging to syslog")
 )
