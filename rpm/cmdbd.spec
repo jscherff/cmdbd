@@ -63,7 +63,7 @@ the audit to the server for later analysis.
 
 %pre
 
-  %{_bindir}getent passwd %{name} >/dev/null 2>&1 ||
+  %{_bindir}/getent passwd %{name} >/dev/null 2>&1 ||
     %{_sbindir}/useradd -Mrd %{_sbindir} -c '%{gecos}' -s /sbin/nologin %{name}
 
 %post
