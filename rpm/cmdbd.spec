@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	1.0.1
-%define		release	1
+%define		release	2
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
@@ -61,26 +61,6 @@ the audit to the server for later analysis.
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
   install -m 640 go/src/%{package}/ddl/{%{name}.sql,users.sql} %{buildroot}%{docdir}/
 
-%pre
-
-  %{_bindir}/getent passwd %{name} >/dev/null 2>&1 ||
-    %{_sbindir}/useradd -Mrd %{_sbindir} -c '%{gecos}' -s /sbin/nologin %{name}
-
-%post
-
-  systemctl --quiet is-enabled %{name} || systemctl --quiet enable %{name} 
-
-
-%preun
-
-  systemctl --quiet is-active %{name} && systemctl --quiet stop %{name}
-  systemctl --quiet is-enabled %{name} && systemctl --quiet disable %{name}
-
-%postun
-
-  %{_bindir}/getent passwd %{name} >/dev/null 2>&1 &&
-    %{_sbindir}/userdel %{name}
-
 %clean
 
   test %{buildroot} != / && rm -rf %{buildroot}
@@ -99,5 +79,71 @@ the audit to the server for later analysis.
   
   %defattr(-,%{name},%{name})
   %{logdir}
+
+%pre
+
+  # Tasks to perform FROM NEW RPM before install (1) or upgrade (2)
+
+  case ${1} in
+
+    1)
+      %{_sbindir}/useradd -Mrd %{_sbindir} -c '%{gecos}' -s /sbin/nologin %{name}
+      ;;
+
+    2)
+      systemctl --quiet is-active %{name} && systemctl --quiet stop %{name}
+      systemctl --quiet is-enabled %{name} && systemctl --quiet disable %{name}
+      ;;
+
+  esac
+
+%post
+
+  # Tasks to perform FROM NEW RPM after install (1) or upgrade (2)
+
+  case ${1} in
+
+    1)
+      systemctl --quiet is-enabled %{name} || systemctl --quiet enable %{name} 
+      ;;
+
+    2)
+      systemctl --quiet is-enabled %{name} || systemctl --quiet enable %{name} 
+      systemctl --quiet is-active %{name} || systemctl --quiet start %{name}
+      ;;
+
+  esac
+
+%preun
+
+  # Tasks to perform FROM OLD RPM before uninstall (0) or upgrade (1)
+
+  case ${1} in
+
+    0)
+      systemctl --quiet is-active %{name} && systemctl --quiet stop %{name}
+      systemctl --quiet is-enabled %{name} && systemctl --quiet disable %{name}
+      ;;
+
+    1)
+      ;;
+
+  esac
+
+%postun
+
+  # Tasks to perform FROM OLD RPM after uninstall (0) or upgrade (1)
+
+  case ${1} in
+
+    0)
+      %{_sbindir}/userdel %{name}
+      test %{logdir} != / && rm -rf %{logdir}
+      ;;
+
+    1)
+      ;;
+
+  esac
 
 %changelog
