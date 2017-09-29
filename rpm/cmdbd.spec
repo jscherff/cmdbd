@@ -59,7 +59,7 @@ the audit to the server for later analysis.
   install -m 644 go/src/%{package}/config.json %{buildroot}%{confdir}/
   install -m 644 go/src/%{package}/svc/%{name}.service %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
-  install -m 640 go/src/%{package}/ddl/{database.sql,users.sql} %{buildroot}%{docdir}/
+  install -m 640 go/src/%{package}/ddl/{%{name}.sql,users.sql} %{buildroot}%{docdir}/
 
 %pre
 
