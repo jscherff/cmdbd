@@ -97,6 +97,8 @@ the audit to the server for later analysis.
 
   esac
 
+  : Force zero return code
+
 %post
 
   # Tasks to perform FROM NEW RPM after install (1) or upgrade (2)
@@ -114,6 +116,8 @@ the audit to the server for later analysis.
 
   esac
 
+  : Force zero return code
+
 %preun
 
   # Tasks to perform FROM OLD RPM before uninstall (0) or upgrade (1)
@@ -130,6 +134,8 @@ the audit to the server for later analysis.
 
   esac
 
+  : Force zero return code
+
 %postun
 
   # Tasks to perform FROM OLD RPM after uninstall (0) or upgrade (1)
@@ -145,5 +151,7 @@ the audit to the server for later analysis.
       ;;
 
   esac
+
+  : Force zero return code
 
 %changelog
