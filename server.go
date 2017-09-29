@@ -24,7 +24,6 @@ import (
 type Server struct {
 	*http.Server
 	AllowedContentTypes []string
-	AllowedMethods []string
 	HttpBodySizeLimit int64
 }
 
