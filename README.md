@@ -1,8 +1,8 @@
 # CMDBd
-The _Configuration Management Database Daemon_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The [_Configuration Management Database Client_](https://github.com/jscherff/cmdbc/blob/master/README.md) or **CMDBc** is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database. It requires **MySQL 5.7** or **MariaDB 10.2** or higher.
+The _**Configuration Management Database Daemon**_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The _**Configuration Management Database Client**_ or [**CMDBc**](https://github.com/jscherff/cmdbc/blob/master/README.md) is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register or _"check-in"_ attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database.
 
 ### System Requirements
-**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 or equivalent operating system that supports the RPM package management and the SystemD initialization system.
+**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 -- or an equivalent operating system that supports **RPM** package management and the **SystemD** initialization system. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
 
 ### Installation
 You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
@@ -24,10 +24,10 @@ Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the p
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, the database schema, objects, and user account must be created on the target database server using the provided SQL, `cmdb.sql` and `users.sql`, and the `config.json` file (see below) must be configured with the correct database server hostname and port, database user and password, application listener port, and other preferences.
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdb.sql` and `users.sql`. You must also modify `config.json` configuration file to reflect the correct database server hostname and port, database user and password, application listener port, and other preferences (see below). By default, the `config.json` file is owned by the daemon user account and is not world-readable. You should not relax the permissions mode of this file as it contains the database password.
 
 ### Configuration
-The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
+The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
 **Server Settings**
 ```json
@@ -188,13 +188,38 @@ Service access, system events, and errors are written to the following log files
 * **`access.log`** records client activity in Apache Combined Log Format.
 * **`error.log`** records service and database errors.
 
+The daemon can also be started from the command line. The following command-line options are available:
+* **`-config`** specifies an alternate JSON configuration file; the default is `/etc/cmdbd/config.json`.
+* **`-stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
+* **`-stderr`** causes _all logs_ to be written to standard error; it overrides `Stderr` setting for individual logs.
+* **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
+* **`-help`** displays the above options with a short description.
+
+You will need to become `root` or use the `sudo` command to start the daemon or it will not be able to write to its log files. (For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account.) Manual startup example:
+```sh
+[root@sysadm-dev-01 ~]# /usr/sbin/cmdbd -help
+Usage of /usr/sbin/cmdbd:
+  -config file
+        Web server configuration file (default "/etc/cmdbd/config.json")
+  -stderr
+        Enable logging to stderr
+  -stdout
+        Enable logging to stdout
+  -syslog
+        Enable logging to syslog
+
+[root@sysadm-dev-01 ~]# /usr/sbin/cmdbd -stdout
+system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
+system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
+```
+
 ### API Endpoints
 | Endpoint | Method | Purpose
 | :------ | :------ | :------ |
-| `/usbci/checkin/{host}/{vid}/{pid}` | POST | Submit configuration information for a new device or update information for an existing device. |
-| `/usbci/checkout/{host}/{vid}/{pid}/{sn}` | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
-| `/usbci/audit/{host}/{vid}/{pid}/{sn}` | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.
-| `/usbci/newsn/{host}/{vid}/{pid}` | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
+| **`/usbci/checkin/{host}/{vid}/{pid}`** | POST | Submit configuration information for a new device or update information for an existing device. |
+| **`/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
+| **`/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.
+| **`/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
