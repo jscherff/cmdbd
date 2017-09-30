@@ -27,7 +27,7 @@ systemctl start cmdbd
 Service access, system events, and errors are written to the following log files:
 * **`system.log`** records significant, non-error events.
 * **`access.log`** records client activity in Apache Combined Log Format.
-* **`error.log`** records ervice and database errors.
+* **`error.log`** records service and database errors.
 
 ### Configuration
 The JSON configuration file, `config.json`, is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
