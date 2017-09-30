@@ -101,12 +101,12 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
 ```
 * **`LogFile`** is the filename of the log file.
 * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
-  * **`date`** adds the date of the event in `YYYY/MM/DD` format.
-  * **`time`** adds the local time of the event in `HH:MM:SS` 24-hour clock format.
-  * **`utc`** writes the time in UTC rather than local time.
-  * **`standard`** is shorthand for `date` and `time`.
-  * **`longfile`** adds the long filename of the source code file that generated the event.
-  * **`shortfile`** adds the short filename of the source code file that generated the event.
+  * **`date`** -- date of the event in `YYYY/MM/DD` format.
+  * **`time`** -- local time of the event in `HH:MM:SS` 24-hour clock format.
+  * **`utc`** -- time in UTC rather than local time.
+  * **`standard`** -- shorthand for `date` and `time`.
+  * **`longfile`** -- long filename of the source code file that generated the event.
+  * **`shortfile`** -- short filename of the source code file that generated the event.
 * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
 * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
@@ -122,20 +122,52 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
     "Severity": "LOG_INFO"
 }
 ```
-* **`Protocol`** --
-* **`Port`** --
-* **`Host`** --
-* **`Tag`** --
-* **`Facility`** --
-* **`Severity`** --
+* **`Protocol`** is the transport-layer protocol used by the syslog daemon (blank for local).
+* **`Port`** is the port used by the syslog daemon (blank for local).
+* **`Host`** is the hostname or IP address of the syslog daemon (blank for local).
+* **`Tag`** is an arbitrary string to add to the event.
+* **`Facility`** specifies the type of program that is logging the message:
+  * **`LOG_KERN`** -- kernel messages
+  * **`LOG_USER`** -- user-level messages
+  * **`LOG_MAIL`** -- mail system
+  * **`LOG_DAEMON`** -- system daemons
+  * **`LOG_AUTH`** -- security/authorization messages
+  * **`LOG_SYSLOG`** -- messages generated internally by syslogd
+  * **`LOG_LPR`** -- line printer subsystem
+  * **`LOG_NEWS`** -- network news subsystem
+  * **`LOG_UUCP`** -- UUCP subsystem
+  * **`LOG_CRON`** -- security/authorization messages
+  * **`LOG_AUTHPRIV`** -- FTP daemon
+  * **`LOG_FTP`** -- scheduling daemon
+  * **`LOG_LOCAL0`** -- local use 0
+  * **`LOG_LOCAL1`** -- local use 1
+  * **`LOG_LOCAL2`** -- local use 2
+  * **`LOG_LOCAL3`** -- local use 3
+  * **`LOG_LOCAL4`** -- local use 4
+  * **`LOG_LOCAL5`** -- local use 5
+  * **`LOG_LOCAL6`** -- local use 6
+  * **`LOG_LOCAL7`** -- local use 7
+* **`Severity`** specifies the severity of the event:
+  * **`LOG_EMERG`** -- system is unusable
+  * **`LOG_ALERT`** -- action must be taken immediately
+  * **`LOG_CRIT`** -- critical conditions
+  * **`LOG_ERR`** -- error conditions
+  * **`LOG_WARNING`** -- warning conditions
+  * **`LOG_NOTICE`** -- normal but significant conditions
+  * **`LOG_INFO`** -- informational messages
+  * **`LOG_DEBUG`** -- debug-level messages
+
+**Log Directory Settings**
 ```json
 "LogDir": {
     "Windows": "log",
     "Linux": "/var/log/cmdbd"
 }
 ```
-* **`Windows`** --
-* **`Linux`** --
+* **`Windows`** is the log directory to use for Windows installations.
+* **`Linux`** is the log directory to use for Linux installations.
+
+**Options**
 ```json
 "Options": {
     "Stdout": false,
@@ -144,6 +176,10 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
     "RecoveryStack": false
 }
 ```
+* **`Stdout`** causes all logs to be written to standard output in addition to other destinations.
+* **`Stderr`** causes all logs to be written to standard error in addition to other destinations.
+* **`Syslog`** causes all logs to be written to the configured syslog daemon in addition to other destinations.
+* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
 ### API Endpoints
 | Endpoint | Method | Purpose
