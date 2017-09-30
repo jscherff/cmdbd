@@ -195,7 +195,7 @@ The daemon can also be started from the command line. The following command-line
 * **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
 * **`-help`** displays the above options with a short description.
 
-You will need to become `root` or use the `sudo` command to start the daemon or it will not be able to write to its log files. (For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account.) Manual startup example:
+You will need to become `root` or use the `sudo` command when starting the daemon manually or it will not be able to write to its log files. (For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account.) Manual startup example:
 ```sh
 [root@sysadm-dev-01 ~]# /usr/sbin/cmdbd -help
 Usage of /usr/sbin/cmdbd:
