@@ -1,4 +1,3 @@
-# cmdbd
 # CMDBd
 The _Configuration Management Database Daemon_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The [_Configuration Management Database Client_](https://github.com/jscherff/cmdbc/blob/master/README.md) or **CMDBc** is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database. It requires **MySQL 5.7** or **MariaDB 10.2** or higher.
 
@@ -111,6 +110,8 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
 * `Stdout` causes the daemon to write log entries to standard output (console) in addition to other destinations.
 * `Stderr` causes the daemon to write log entries to standard error in addition to other destinations.
 * `Syslog` causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
+
+**Syslog Settings**
 ```json
 "Syslog": {
     "Protocol": "tcp",
@@ -121,14 +122,20 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
     "Severity": "LOG_INFO"
 }
 ```
-
+* `Protocol` --
+* `Port` --
+* `Host` --
+* `Tag` --
+* `Facility` --
+* `Severity` --
 ```json
 "LogDir": {
     "Windows": "log",
     "Linux": "/var/log/cmdbd"
 }
 ```
-
+* `Windows` --
+* `Linux` --
 ```json
 "Options": {
     "Stdout": false,
@@ -140,7 +147,7 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
 
 ### API Endpoints
 | Endpoint | Method | Purpose
-| ------ | ------ | ------|
+| :------ | :------ | :------ |
 | `/usbci/checkin/{host}/{vid}/{pid}` | POST | Submit configuration information for a new device or update information for an existing device. |
 | `/usbci/checkout/{host}/{vid}/{pid}/{sn}` | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
 | `/usbci/audit/{host}/{vid}/{pid}/{sn}` | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.
@@ -151,4 +158,3 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
 * `vid` -- The _vendor ID_ of the device.
 * `pid` -- The _product ID_ of the device.
 * `sn` -- The _serial number_ of the device.
-
