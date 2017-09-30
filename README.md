@@ -5,7 +5,7 @@ The _Configuration Management Database Daemon_ is a lightweight HTTP server that
 **CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 or equivalent operating system that supports the RPM package management and the SystemD init system.
 
 ### Installation
-The RPM package can be built using only the RPM spec file, [`cmdbd.spec`](https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec), using the following commands:
+The RPM package can be built using only the RPM spec file, [**`cmdbd.spec`**](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
 ```sh
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
@@ -30,7 +30,7 @@ Service access, system events, and errors are written to the following log files
 * **`error.log`** records service and database errors.
 
 ### Configuration
-The JSON configuration file, `config.json`, is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
+The JSON configuration file, [**`config.json`**](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
 
 **Server Settings**
 ```json
