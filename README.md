@@ -2,14 +2,19 @@
 The _Configuration Management Database Daemon_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The [_Configuration Management Database Client_](https://github.com/jscherff/cmdbc/blob/master/README.md) or **CMDBc** is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database. It requires **MySQL 5.7** or **MariaDB 10.2** or higher.
 
 ### System Requirements
-**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 or equivalent operating system that supports the RPM package management and the SystemD init system.
+**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 or equivalent operating system that supports the RPM package management and the SystemD initialization system.
 
 ### Installation
-The RPM package can be built using only the RPM spec file, [**`cmdbd.spec`**](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
+You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
 ```sh
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
+You will need to install the `git`, `golang`, and `rpm-build` packages in order to perform the build. Once you've built the RPM, you can install it with these commands:
+```sh
+rpm -i ${HOME}/rpmbuild/RPMS/`uname -i`/cmdbd-*.rpm
+```
+If you've built more than one version of the package, you'll need to specify 
 The package will install the following files:
 * **`/usr/sbin/cmdbd`** is the CMDBd daemon.
 * **`/etc/cmdbd/config.json`** is the CMDBd configuration file.
@@ -30,7 +35,7 @@ Service access, system events, and errors are written to the following log files
 * **`error.log`** records service and database errors.
 
 ### Configuration
-The JSON configuration file, [**`config.json`**](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
+The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
 
 **Server Settings**
 ```json
@@ -167,7 +172,7 @@ The JSON configuration file, [**`config.json`**](https://github.com/jscherff/cmd
 * **`Windows`** is the log directory to use for Windows installations.
 * **`Linux`** is the log directory to use for Linux installations.
 
-**Options**
+**Global Options**
 ```json
 "Options": {
     "Stdout": false,
@@ -176,9 +181,9 @@ The JSON configuration file, [**`config.json`**](https://github.com/jscherff/cmd
     "RecoveryStack": false
 }
 ```
-* **`Stdout`** causes all logs to be written to standard output in addition to other destinations.
-* **`Stderr`** causes all logs to be written to standard error in addition to other destinations.
-* **`Syslog`** causes all logs to be written to the configured syslog daemon in addition to other destinations.
+* **`Stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
+* **`Stderr`** causes all logs to be written to standard error; it overrides `Stderr` setting for individual logs.
+* **`Syslog`** causes all logs to be written to the configured syslog daemon; it overrides `Syslog` settings for individual logs.
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
 ### API Endpoints
