@@ -190,7 +190,7 @@ The JSON configuration file, `config.json`, is mostly self-explanatory. The defa
 | `/usbci/newsn/{host}/{vid}/{pid}` | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
 
 ### API Parameters
-* `host` -- The _hostname_ of the workstation to which the device is attached.
-* `vid` -- The _vendor ID_ of the device.
-* `pid` -- The _product ID_ of the device.
-* `sn` -- The _serial number_ of the device.
+* **`host`** is the _hostname_ of the workstation to which the device is attached.
+* **`vid`** is the _vendor ID_ of the device.
+* **`pid`** is the _product ID_ of the device.
+* **`sn`** is the _serial number_ of the device.
