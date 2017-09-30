@@ -10,12 +10,11 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, and `rpm-build` packages in order to perform the build. Once you've built the RPM, you can install it with these commands:
+You will need to install the `git`, `golang`, and `rpm-build` packages in order to perform the build. Once you've built the RPM, you can install it with this command:
 ```sh
-rpm -i ${HOME}/rpmbuild/RPMS/`uname -i`/cmdbd-*.rpm
+rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
-If you've built more than one version of the package, you'll need to specify 
-The package will install the following files:
+Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
 * **`/usr/sbin/cmdbd`** is the CMDBd daemon.
 * **`/etc/cmdbd/config.json`** is the CMDBd configuration file.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
@@ -25,14 +24,7 @@ The package will install the following files:
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, the database schema, objects, and user account must be created on the target database server using the provided SQL, `cmdb.sql` and `users.sql`, and the `config.json` file (see below) must be configured with the correct database server hostname and port, database user and password, application listener port, and other preferences. Once these tasks are complete, the daemon can be started with the following command:
-```sh
-systemctl start cmdbd
-```
-Service access, system events, and errors are written to the following log files:
-* **`system.log`** records significant, non-error events.
-* **`access.log`** records client activity in Apache Combined Log Format.
-* **`error.log`** records service and database errors.
+Once the package is installed, the database schema, objects, and user account must be created on the target database server using the provided SQL, `cmdb.sql` and `users.sql`, and the `config.json` file (see below) must be configured with the correct database server hostname and port, database user and password, application listener port, and other preferences.
 
 ### Configuration
 The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and should not have to be changed for most use cases.
@@ -185,6 +177,18 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`Stderr`** causes all logs to be written to standard error; it overrides `Stderr` setting for individual logs.
 * **`Syslog`** causes all logs to be written to the configured syslog daemon; it overrides `Syslog` settings for individual logs.
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+
+### Startup
+Once all configuration tasks are complete, the daemon can be started with the following command:
+```sh
+systemctl start cmdbd
+```
+Service access, system events, and errors are written to the following log files:
+* **`system.log`** records significant, non-error events.
+* **`access.log`** records client activity in Apache Combined Log Format.
+* **`error.log`** records service and database errors.
+ 
+The 
 
 ### API Endpoints
 | Endpoint | Method | Purpose
