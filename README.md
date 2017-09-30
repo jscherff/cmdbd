@@ -195,9 +195,13 @@ The daemon can also be started from the command line. The following command-line
 * **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
 * **`-help`** displays the above options with a short description.
 
-You will need to become `root` or use the `sudo` command when starting the daemon manually or it will not be able to write to its log files. (For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account.) Manual startup example:
+Starting the daemon manually with console logging (`-stdout` option) is good for troubleshooting. Use the `su` command as `root` (or `sudo su` as a non-privileged user) to start the daemon with the `cmdbd` account or it will not be able to write to its log files:
 ```sh
-[root@sysadm-dev-01 ~]# /usr/sbin/cmdbd -help
+su - cmdbd -c '/usr/sbin/cmdbd -stdout
+```
+You can also start the daemon manually as `root`, but this can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
+```sh
+[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -help '
 Usage of /usr/sbin/cmdbd:
   -config file
         Web server configuration file (default "/etc/cmdbd/config.json")
@@ -208,7 +212,7 @@ Usage of /usr/sbin/cmdbd:
   -syslog
         Enable logging to syslog
 
-[root@sysadm-dev-01 ~]# /usr/sbin/cmdbd -stdout
+[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -stdout'
 system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
 system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 ```
