@@ -187,8 +187,6 @@ Service access, system events, and errors are written to the following log files
 * **`system.log`** records significant, non-error events.
 * **`access.log`** records client activity in Apache Combined Log Format.
 * **`error.log`** records service and database errors.
- 
-The 
 
 ### API Endpoints
 | Endpoint | Method | Purpose
