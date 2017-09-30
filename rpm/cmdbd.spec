@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	1.0.1
-%define		release	2
+%define		release	3
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
@@ -56,7 +56,7 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{confdir},%{syslib},%{logdir},%{docdir}}
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
-  install -m 644 go/src/%{package}/config.json %{buildroot}%{confdir}/
+  install -m 640 go/src/%{package}/config.json %{buildroot}%{confdir}/
   install -m 644 go/src/%{package}/svc/%{name}.service %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
   install -m 640 go/src/%{package}/ddl/{%{name}.sql,users.sql} %{buildroot}%{docdir}/
@@ -75,9 +75,9 @@ the audit to the server for later analysis.
   %{docdir}/README.md
   %{docdir}/users.sql
   %license %{docdir}/LICENSE
-  %config %{confdir}/config.json
   
   %defattr(-,%{name},%{name})
+  %config %{confdir}/config.json
   %{logdir}
 
 %pre
