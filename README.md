@@ -197,11 +197,11 @@ The daemon can also be started from the command line. The following command-line
 
 Starting the daemon manually with console logging (`-stdout` option) is good for troubleshooting. Use the `su` command as `root` (or `sudo su` as a non-privileged user) to start the daemon with the `cmdbd` account or it will not be able to write to its log files:
 ```sh
-su - cmdbd -c '/usr/sbin/cmdbd -stdout
+su - cmdbd -c '/usr/sbin/cmdbd -stdout'
 ```
 You can also start the daemon manually as `root`, but this can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
 ```sh
-[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -help '
+[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -help'
 Usage of /usr/sbin/cmdbd:
   -config file
         Web server configuration file (default "/etc/cmdbd/config.json")
