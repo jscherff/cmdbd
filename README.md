@@ -14,10 +14,10 @@ The package will install the following files:
 * **`/usr/sbin/cmdbd`** is the CMDBd daemon.
 * **`/etc/cmdbd/config.json`** is the CMDBd configuration file.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
-* **`/usr/share/doc/cmdbd-1.0.1/LICENSE`** is the Apache 2.0 license.
-* **`/usr/share/doc/cmdbd-1.0.1/README.md`** is this documentation file.
-* **`/usr/share/doc/cmdbd-1.0.1/cmdbd.sql`** is the database creation SQL.
-* **`/usr/share/doc/cmdbd-1.0.1/users.sql`** is the application user creation SQL.
+* **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
+* **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
+* **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** is the database creation SQL.
+* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
 Once the package is installed, the database schema, objects, and user account must be created on the target database server using the provided SQL, `cmdb.sql` and `users.sql`, and the `config.json` file (see below) must be configured with the correct database server hostname and port, database user and password, application listener port, and other preferences. Once these tasks are complete, the daemon can be started with the following command:
