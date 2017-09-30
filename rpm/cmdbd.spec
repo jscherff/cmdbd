@@ -155,3 +155,5 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Sat Sep 30 2017 - jscherff@gmail.com
+- Tightened file permissions mode on config.json
