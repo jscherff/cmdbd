@@ -233,7 +233,7 @@ The following tables comprise the database:
 * **Device Changes** contains configuration changes detected during device audits. Each device configuration attribute change detected during an audit creates one record.
 
 #### Columns
-The Device Checkins, Serialized Devices, Unserialized Devices, and Serial Number Requests tables have the following columns:
+The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and **Serial Number Requests** tables have the following columns:
 
 * Hostname
 * Vendor ID
@@ -264,7 +264,7 @@ The **Device Changes** table has the  following columns:
 * Product ID
 * Serial Number
 * Changes
-The **Changes** column contains a JSON object that reepreaents a collection of one or more changes. Each change element has the following fields:
+For a given record, the **Changes** column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
 * Property Name
 * Old Value
 * New Value
