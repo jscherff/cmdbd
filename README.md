@@ -10,7 +10,7 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, and `rpm-build` packages in order to perform the build. Once you've built the RPM, you can install it with this command:
+You will need to install the `git`, `golang`, and `rpm-build` packages and their dependencies in order to perform the build. Once you've built the RPM, you can install it with this command:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
@@ -29,7 +29,7 @@ Once the package is installed, you must create the database schema, objects, and
 ### Configuration
 The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
-**Server Settings**
+**Server Settings** --- parameters that affect the behavior of the HTTP server.
 ```json
 "Server": {
     "Addr": ":8080",
@@ -47,7 +47,7 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
-**Database Settings**
+**Database Settings** --- parameters for communicating with the database server.
 ```json
 "Database": {
     "Driver": "mysql",
@@ -70,7 +70,7 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-**Logger Settings**
+**Logger Settings** --- parameters that determine log file names and logging behavior.
 ```json
 "Loggers": {
     "system": {
@@ -98,17 +98,17 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 ```
 * **`LogFile`** is the filename of the log file.
 * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
-  * **`date`** -- date of the event in `YYYY/MM/DD` format.
-  * **`time`** -- local time of the event in `HH:MM:SS` 24-hour clock format.
-  * **`utc`** -- time in UTC rather than local time.
-  * **`standard`** -- shorthand for `date` and `time`.
-  * **`longfile`** -- long filename of the source code file that generated the event.
-  * **`shortfile`** -- short filename of the source code file that generated the event.
+    * **`date`** includes date of the event in `YYYY/MM/DD` format.
+    * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
+    * **`utc`** includes time in UTC rather than local time.
+    * **`standard`** is shorthand for `date` and `time`.
+    * **`longfile`** includes the long filename of the source file of the code that generated the event.
+    * **`shortfile`** includes the short filename of the source file of the code that generated the event.
 * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
 * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
 
-**Syslog Settings**
+**Syslog Settings** --- parameters for communicating with a local or remote syslog server.
 ```json
 "Syslog": {
     "Protocol": "tcp",
@@ -123,38 +123,38 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`Port`** is the port used by the syslog daemon (blank for local).
 * **`Host`** is the hostname or IP address of the syslog daemon (blank for local).
 * **`Tag`** is an arbitrary string to add to the event.
-* **`Facility`** specifies the type of program that is logging the message:
-  * **`LOG_KERN`** -- kernel messages
-  * **`LOG_USER`** -- user-level messages
-  * **`LOG_MAIL`** -- mail system
-  * **`LOG_DAEMON`** -- system daemons
-  * **`LOG_AUTH`** -- security/authorization messages
-  * **`LOG_SYSLOG`** -- messages generated internally by syslogd
-  * **`LOG_LPR`** -- line printer subsystem
-  * **`LOG_NEWS`** -- network news subsystem
-  * **`LOG_UUCP`** -- UUCP subsystem
-  * **`LOG_CRON`** -- security/authorization messages
-  * **`LOG_AUTHPRIV`** -- FTP daemon
-  * **`LOG_FTP`** -- scheduling daemon
-  * **`LOG_LOCAL0`** -- local use 0
-  * **`LOG_LOCAL1`** -- local use 1
-  * **`LOG_LOCAL2`** -- local use 2
-  * **`LOG_LOCAL3`** -- local use 3
-  * **`LOG_LOCAL4`** -- local use 4
-  * **`LOG_LOCAL5`** -- local use 5
-  * **`LOG_LOCAL6`** -- local use 6
-  * **`LOG_LOCAL7`** -- local use 7
-* **`Severity`** specifies the severity of the event:
-  * **`LOG_EMERG`** -- system is unusable
-  * **`LOG_ALERT`** -- action must be taken immediately
-  * **`LOG_CRIT`** -- critical conditions
-  * **`LOG_ERR`** -- error conditions
-  * **`LOG_WARNING`** -- warning conditions
-  * **`LOG_NOTICE`** -- normal but significant conditions
-  * **`LOG_INFO`** -- informational messages
-  * **`LOG_DEBUG`** -- debug-level messages
+* **`Facility`** specifies the type of program that is logging the message (see [RFC 5424](https://tools.ietf.org/html/rfc5424)):
+    * **`LOG_KERN`** -- kernel messages
+    * **`LOG_USER`** -- user-level messages
+    * **`LOG_MAIL`** -- mail system
+    * **`LOG_DAEMON`** -- system daemons
+    * **`LOG_AUTH`** -- security/authorization messages
+    * **`LOG_SYSLOG`** -- messages generated internally by syslogd
+    * **`LOG_LPR`** -- line printer subsystem
+    * **`LOG_NEWS`** -- network news subsystem
+    * **`LOG_UUCP`** -- UUCP subsystem
+    * **`LOG_CRON`** -- security/authorization messages
+    * **`LOG_AUTHPRIV`** -- FTP daemon
+    * **`LOG_FTP`** -- scheduling daemon
+    * **`LOG_LOCAL0`** -- local use 0
+    * **`LOG_LOCAL1`** -- local use 1
+    * **`LOG_LOCAL2`** -- local use 2
+    * **`LOG_LOCAL3`** -- local use 3
+    * **`LOG_LOCAL4`** -- local use 4
+    * **`LOG_LOCAL5`** -- local use 5
+    * **`LOG_LOCAL6`** -- local use 6
+    * **`LOG_LOCAL7`** -- local use 7
+* **`Severity`** specifies the severity of the event (see [RFC 5424](https://tools.ietf.org/html/rfc5424)):
+    * **`LOG_EMERG`** -- system is unusable
+    * **`LOG_ALERT`** -- action must be taken immediately
+    * **`LOG_CRIT`** -- critical conditions
+    * **`LOG_ERR`** -- error conditions
+    * **`LOG_WARNING`** -- warning conditions
+    * **`LOG_NOTICE`** -- normal but significant conditions
+    * **`LOG_INFO`** -- informational messages
+    * **`LOG_DEBUG`** -- debug-level messages
 
-**Log Directory Settings**
+**Log Directory Settings** --- directory where log files are written.
 ```json
 "LogDir": {
     "Windows": "log",
@@ -164,7 +164,7 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`Windows`** is the log directory to use for Windows installations.
 * **`Linux`** is the log directory to use for Linux installations.
 
-**Global Options**
+**Global Options** --- systemwide parameters.
 ```json
 "Options": {
     "Stdout": false,
