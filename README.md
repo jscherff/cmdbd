@@ -30,7 +30,7 @@ Once the package is installed, you must create the database schema, objects, and
 The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
 #### Server Settings
-Parameters that affect the behavior of the HTTP server.
+Parameters that affect the behavior of the HTTP server:
 ```json
 "Server": {
     "Addr": ":8080",
@@ -49,7 +49,7 @@ Parameters that affect the behavior of the HTTP server.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
 #### Database Settings
-Parameters for communicating with the database server.
+Parameters for communicating with the database server:
 ```json
 "Database": {
     "Driver": "mysql",
@@ -73,7 +73,7 @@ Parameters for communicating with the database server.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
 #### Logger Settings
-Parameters that determine log file names and logging behavior.
+Parameters that determine log file names and logging behavior:
 ```json
 "Loggers": {
     "system": {
@@ -112,7 +112,7 @@ Parameters that determine log file names and logging behavior.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
 
 #### Syslog Settings
-Parameters for communicating with a local or remote syslog server.
+Parameters for communicating with a local or remote syslog server:
 ```json
 "Syslog": {
     "Protocol": "tcp",
@@ -159,7 +159,7 @@ Parameters for communicating with a local or remote syslog server.
     * **`LOG_DEBUG`** -- debug-level messages
 
 ##### Log Directory Settings
-Directory where log files are written.
+Directory where log files are written:
 ```json
 "LogDir": {
     "Windows": "log",
@@ -170,7 +170,7 @@ Directory where log files are written.
 * **`Linux`** is the log directory to use for Linux installations.
 
 #### Global Settings
-System-wide parameters.
+System-wide parameters:
 ```json
 "Options": {
     "Stdout": false,
@@ -222,6 +222,40 @@ Usage of /usr/sbin/cmdbd:
 system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
 system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 ```
+
+### Database Structure
+The following tables comprise the database:
+* **Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
+* **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on vendor ID, product ID, and serial number and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
+* **Unserialized Devices**
+Serial number requests, check-ins, and audits record the following information in the database:
+* Hostname
+* Vendor ID
+* Product ID
+* Serial Number
+* Vendor Name
+* Product Name
+* Product Version
+* Software ID
+* Bus Number
+* Bus Address
+* Port Number
+* Buffer Size
+* Max Packet Size
+* USB Specification
+* USB Class
+* USB Subclass
+* USB Protocol
+* Device Speed
+* Device Version
+* Factory Serial Number
+* Date/Time
+ 
+Audits also record the following information for each change detected:
+* Property
+* Old Value
+* New Value
+* Date/Time
 
 ### API Endpoints
 | Endpoint | Method | Purpose
