@@ -259,10 +259,15 @@ The Device Checkins, Serialized Devices, Unserialized Devices, and Serial Number
 The **Device Checkins** table adds a _Checkin Date_ column, the **Serial Number Requests** table adds a _Request Date_ column, and the **Serialized Devices** and **Unserialized Devices** tables both add a _First Seen_, _Last Seen_, and _Checkins_ (counter) column.
  
 The **Device Changes** table has the  following columns:
-* Property
+* Host Name
+* Vendor ID
+* Product ID
+* Serial Number
+* Changes
+The **Changes** column contains a JSON object that reepreaents a collection of one or more changes. Each change element has the following fields:
+* Property Name
 * Old Value
 * New Value
-* Date/Time
 
 ### API Endpoints
 | Endpoint | Method | Purpose
