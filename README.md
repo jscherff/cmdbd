@@ -29,7 +29,7 @@ Once the package is installed, you must create the database schema, objects, and
 ### Configuration
 The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
-##### Server Settings
+#### Server Settings
 Parameters that affect the behavior of the HTTP server.
 ```json
 "Server": {
@@ -48,7 +48,7 @@ Parameters that affect the behavior of the HTTP server.
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
-##### Database Settings
+#### Database Settings
 Parameters for communicating with the database server.
 ```json
 "Database": {
@@ -72,7 +72,7 @@ Parameters for communicating with the database server.
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-##### Logger Settings
+#### Logger Settings
 Parameters that determine log file names and logging behavior.
 ```json
 "Loggers": {
@@ -111,7 +111,7 @@ Parameters that determine log file names and logging behavior.
 * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
 
-##### Syslog Settings
+#### Syslog Settings
 Parameters for communicating with a local or remote syslog server.
 ```json
 "Syslog": {
@@ -169,7 +169,7 @@ Directory where log files are written.
 * **`Windows`** is the log directory to use for Windows installations.
 * **`Linux`** is the log directory to use for Linux installations.
 
-##### Global Options
+#### Global Settings
 System-wide parameters.
 ```json
 "Options": {
