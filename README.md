@@ -265,7 +265,7 @@ The **Device Changes** table has the  following columns:
 * Serial Number
 * Changes
 
-For a given **Device Changes** record, the **Changes** column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
+For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
 * Property Name
 * Old Value
 * New Value
