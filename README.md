@@ -227,7 +227,7 @@ system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 The following tables comprise the database:
 * **Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
 * **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on vendor ID, product ID, and serial number and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
-* **Unserialized Devices**
+* **Unserialized Devices** contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on hostname, vendor ID, product ID, bus number, bus address, and port number and strives to have as few records as possible per unserialized device, though this cannot be guaranteed if a device is move to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
 Serial number requests, check-ins, and audits record the following information in the database:
 * Hostname
 * Vendor ID
