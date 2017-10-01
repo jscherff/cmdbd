@@ -1,3 +1,3 @@
 #!/bin/sh
 
-go build -o ${MSYSTEM_CARCH}/cmdbc.exe
+go build -o ${MSYSTEM_CARCH}/cmdbd.exe
