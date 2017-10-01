@@ -29,7 +29,8 @@ Once the package is installed, you must create the database schema, objects, and
 ### Configuration
 The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
-**Server Settings** --- parameters that affect the behavior of the HTTP server.
+##### Server Settings
+Parameters that affect the behavior of the HTTP server.
 ```json
 "Server": {
     "Addr": ":8080",
@@ -47,7 +48,8 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
-**Database Settings** --- parameters for communicating with the database server.
+##### Database Settings
+Parameters for communicating with the database server.
 ```json
 "Database": {
     "Driver": "mysql",
@@ -70,7 +72,8 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-**Logger Settings** --- parameters that determine log file names and logging behavior.
+##### Logger Settings
+Parameters that determine log file names and logging behavior.
 ```json
 "Loggers": {
     "system": {
@@ -108,7 +111,8 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
 
-**Syslog Settings** --- parameters for communicating with a local or remote syslog server.
+##### Syslog Settings
+Parameters for communicating with a local or remote syslog server.
 ```json
 "Syslog": {
     "Protocol": "tcp",
@@ -154,7 +158,8 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
     * **`LOG_INFO`** -- informational messages
     * **`LOG_DEBUG`** -- debug-level messages
 
-**Log Directory Settings** --- directory where log files are written.
+##### Log Directory Settings
+Directory where log files are written.
 ```json
 "LogDir": {
     "Windows": "log",
@@ -164,7 +169,8 @@ The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/b
 * **`Windows`** is the log directory to use for Windows installations.
 * **`Linux`** is the log directory to use for Linux installations.
 
-**Global Options** --- systemwide parameters.
+##### Global Options
+System-wide parameters.
 ```json
 "Options": {
     "Stdout": false,
