@@ -205,7 +205,7 @@ Starting the daemon manually with console logging (`-stdout` option) is good for
 ```sh
 su - cmdbd -c '/usr/sbin/cmdbd -stdout'
 ```
-You can also start the daemon directly as `root`, but this can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
+You can also start the daemon directly as `root`, but doing so can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
 ```sh
 [root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -help'
 Usage of /usr/sbin/cmdbd:
