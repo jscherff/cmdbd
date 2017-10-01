@@ -224,7 +224,7 @@ system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 ```
 
 ### Database Structure
-#### Database Tables
+#### Tables
 The following tables comprise the database:
 * **Device Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
 * **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on vendor ID, product ID, and serial number and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
@@ -232,8 +232,9 @@ The following tables comprise the database:
 * **Serial Number Requests** contains all requests for a new serial number. **CMDBd** updates new request records with the issued serial number. Multiple requests will create multiple records. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
 * **Device Changes** contains configuration changes detected during device audits. Each device configuration attribute change detected during an audit creates one record.
 
+#### Columns
+The Device Checkins, Serialized Devices, Unserialized Devices, and Serial Number Requests tables have the following columns:
 
-Serial number requests, check-ins, and audits record the following information in the database:
 * Hostname
 * Vendor ID
 * Product ID
@@ -254,9 +255,10 @@ Serial number requests, check-ins, and audits record the following information i
 * Device Speed
 * Device Version
 * Factory Serial Number
-* Date/Time
+
+The **Device Checkins** table adds a _Checkin Date_ column, the **Serial Number Requests** table adds a _Request Date_ column, and the **Serialized Devices** and **Unserialized Devices** tables both add a _First Seen_, _Last Seen_, and _Checkins_ (counter) column.
  
-Audits also record the following information for each change detected:
+The **Device Changes** table has the  following columns:
 * Property
 * Old Value
 * New Value
