@@ -270,7 +270,7 @@ The **Serialized Devices** and **Unserialized Devices** tables both include the 
 * Last Seen
 * Checkins
 
-The **Device Changes** table has the  following columns:
+The **Device Changes** table has the following columns:
 * Host Name
 * Vendor ID
 * Product ID
