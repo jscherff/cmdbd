@@ -28,8 +28,8 @@ Once the package is installed, you must create the database schema, objects, and
 
 Pre-compiled binaries are also available for both 32- and 64-bit Windows systems and can be installed in any folder along with the required JSON configuration file:
 
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/i686/cmdbd.exe) (32-bit Windows Server 2008 or higher)
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/x86_64/cmdbd.exe) (64-bit Windows Server 2008 or higher)
+* [**`cmdbd.exe`**](https://raw.githubusercontent.com/jscherff/cmdbd/master/i686/cmdbd.exe) (32-bit Windows Server 2008 or higher)
+* [**`cmdbd.exe`**](https://raw.githubusercontent.com/jscherff/cmdbd/master/x86_64/cmdbd.exe) (64-bit Windows Server 2008 or higher)
 * [**`config.json`**](https://raw.githubusercontent.com/jscherff/cmdbd/master/config.json)
 
 ### Configuration
