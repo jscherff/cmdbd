@@ -26,10 +26,10 @@ Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the p
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdb.sql` and `users.sql`. You must also modify `config.json` configuration file to reflect the correct database server hostname and port, database user and password, application listener port, and other preferences (see below). By default, the `config.json` file is owned by the daemon user account and is not world-readable. You should not relax the permissions mode of this file as it contains the database password.
 
-Pre-compiled binaries are also available for both 32- and 64-bit Windows systems:
+Pre-compiled binaries are also available for both 32- and 64-bit Windows systems and can be installed in any folder along with the required JSON configuration file:
 
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/i686/cmdbd.exe) (Windows 32-bit)
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/x86_64/cmdbd.exe) (Windows 64-bit)
+* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/i686/cmdbd.exe) (32-bit Windows Server 2008 or higher)
+* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/x86_64/cmdbd.exe) (64-bit Windows Server 2008 or higher)
 * [**`config.json`**](https://raw.githubusercontent.com/jscherff/cmdbd/master/config.json)
 
 ### Configuration
