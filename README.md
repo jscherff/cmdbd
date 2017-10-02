@@ -60,8 +60,7 @@ Parameters for communicating with the database server:
         "Addr": "localhost",
         "DBName": "gocmdb",
         "Params": null
-    },
-    ...
+    }
 }
 ```
 * **`Driver`** is the database driver. Only `mysql` is supported.
@@ -201,13 +200,17 @@ The daemon can also be started from the command line. The following command-line
 * **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
 * **`-help`** displays the above options with a short description.
 
-Starting the daemon manually with console logging (`-stdout` option) is good for troubleshooting. Use the `su` command as `root` (or `sudo su` as a non-privileged user) to start the daemon in the context of the `cmdbd` account or it will not be able to write to its log files:
+Starting the daemon manually with console logging (using the `stdout` or `stderr` _option flags_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
 ```sh
-su - cmdbd -c '/usr/sbin/cmdbd -stdout'
+sudo -u cmdbd /usr/sbin/cmdbd -stdout
 ```
-You can also start the daemon directly as `root`, but doing so can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
+You can also start the daemon directly as `root`:
 ```sh
-[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -help'
+/usr/sbin/cmdbd -stdout
+```
+However, doing so can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
+```sh
+[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -help
 Usage of /usr/sbin/cmdbd:
   -config file
         Web server configuration file (default "/etc/cmdbd/config.json")
@@ -218,7 +221,7 @@ Usage of /usr/sbin/cmdbd:
   -syslog
         Enable logging to syslog
 
-[root@sysadm-dev-01 ~]# su - cmdbd  -c '/usr/sbin/cmdbd -stdout'
+[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -stdout
 system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
 system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 ```
@@ -227,9 +230,9 @@ system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
 #### Tables
 The following tables comprise the database:
 * **Device Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
-* **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on vendor ID, product ID, and serial number and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
-* **Unserialized Devices** contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on hostname, vendor ID, product ID, bus number, bus address, and port number and strives to have as few records as possible per unserialized device, though this cannot be guaranteed if a device is move to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's 'last seen' timestamp, and increment the records 'check-ins' counter.
-* **Serial Number Requests** contains all requests for a new serial number. **CMDBd** updates new request records with the issued serial number. Multiple requests will create multiple records. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
+* **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Unserialized Devices** contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Bus Number_, _Bus Address_, and _Port Number_, and strives to have as few records as possible per unserialized device, though this cannot be guaranteed if a device is move to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Serial Number Requests** contains all requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
 * **Device Changes** contains configuration changes detected during device audits. Each device configuration attribute change detected during an audit creates one record.
 
 #### Columns
@@ -256,8 +259,17 @@ The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and *
 * Device Version
 * Factory Serial Number
 
-The **Device Checkins** table adds a _Checkin Date_ column, the **Serial Number Requests** table adds a _Request Date_ column, and the **Serialized Devices** and **Unserialized Devices** tables both add a _First Seen_, _Last Seen_, and _Checkins_ (counter) column.
- 
+The **Device Checkins** table includes the following additional column:
+* Checkin Date
+
+The **Serial Number Requests** table includes the following additional column:
+* Request Date
+
+The **Serialized Devices** and **Unserialized Devices** tables both include the following additional columns:
+* First Seen
+* Last Seen
+* Checkins
+
 The **Device Changes** table has the  following columns:
 * Host Name
 * Vendor ID
