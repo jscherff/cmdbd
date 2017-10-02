@@ -195,13 +195,13 @@ Service access, system events, and errors are written to the following log files
 * **`error.log`** records service and database errors.
 
 The daemon can also be started from the command line. The following command-line options are available:
-* **&#x2013;`config`** specifies an alternate JSON configuration file; the default is `/etc/cmdbd/config.json`.
-* **&#x2013;`stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **&#x2013;`stderr`** causes _all logs_ to be written to standard error; it overrides `Stderr` setting for individual logs.
-* **&#x2013;`syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
-* **&#x2013;`help`** displays the above options with a short description.
+* **`-config`** specifies an alternate JSON configuration file; the default is `/etc/cmdbd/config.json`.
+* **`-stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
+* **`-stderr`** causes _all logs_ to be written to standard error; it overrides `Stderr` setting for individual logs.
+* **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
+* **`-help`** displays the above options with a short description.
 
-Starting the daemon manually with console logging (&#x2013;`stdout` option) is good for troubleshooting. Use the `su` command as `root` (or `sudo su` as a non-privileged user) to start the daemon in the context of the `cmdbd` account or it will not be able to write to its log files:
+Starting the daemon manually with console logging (`-stdout` option) is good for troubleshooting. Use the `su` command as `root` (or `sudo su` as a non-privileged user) to start the daemon in the context of the `cmdbd` account or it will not be able to write to its log files:
 ```sh
 su - cmdbd -c '/usr/sbin/cmdbd -stdout'
 ```
