@@ -45,6 +45,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `func_insert_usbci_snrequests`(
 	`descriptor_sn_in` varchar(126),
 	`object_type_in` varchar(255),
 	`checkin_date_in` DATETIME
+
 ) RETURNS int(11)
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -58,9 +59,9 @@ BEGIN
 		product_name,
 		product_ver,
 		software_id,
+		port_number,
 		bus_number,
 		bus_address,
-		port_number,
 		buffer_size,
 		max_pkt_size,
 		usb_spec,
@@ -83,9 +84,9 @@ BEGIN
 		product_name_in,
 		product_ver_in,
 		software_id_in,
+		port_number_in,
 		bus_number_in,
 		bus_address_in,
-		port_number_in,
 		buffer_size_in,
 		max_pkt_size_in,
 		usb_spec_in,
@@ -149,6 +150,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_checkins`(
 	IN `descriptor_sn_in` varchar(126),
 	IN `object_type_in` varchar(255),
 	IN `checkin_date_in` DATETIME
+
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -162,9 +164,9 @@ BEGIN
 		product_name,
 		product_ver,
 		software_id,
+		port_number,
 		bus_number,
 		bus_address,
-		port_number,
 		buffer_size,
 		max_pkt_size,
 		usb_spec,
@@ -187,9 +189,9 @@ BEGIN
 		product_name_in,
 		product_ver_in,
 		software_id_in,
+		port_number_in,
 		bus_number_in,
 		bus_address_in,
-		port_number_in,
 		buffer_size_in,
 		max_pkt_size_in,
 		usb_spec_in,
@@ -234,6 +236,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_serialized`(
 	IN `descriptor_sn_in` varchar(126),
 	IN `object_type_in` varchar(255),
 	IN `checkin_date_in` DATETIME
+
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -247,9 +250,9 @@ BEGIN
 		product_name,
 		product_ver,
 		software_id,
+		port_number,
 		bus_number,
 		bus_address,
-		port_number,
 		buffer_size,
 		max_pkt_size,
 		usb_spec,
@@ -274,9 +277,9 @@ BEGIN
 		product_name_in,
 		product_ver_in,
 		software_id_in,
+		port_number_in,
 		bus_number_in,
 		bus_address_in,
-		port_number_in,
 		buffer_size_in,
 		max_pkt_size_in,
 		usb_spec_in,
@@ -300,9 +303,9 @@ BEGIN
 		product_name = product_name_in,
 		product_ver = product_ver_in,
 		software_id = software_id_in,
+		port_number = port_number_in,
 		bus_number = bus_number_in,
 		bus_address = bus_address_in,
-		port_number = port_number_in,
 		buffer_size = buffer_size_in,
 		max_pkt_size = max_pkt_size_in,
 		usb_spec = usb_spec_in,
@@ -348,6 +351,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_unserialized`(
 	IN `descriptor_sn_in` varchar(126),
 	IN `object_type_in` varchar(255),
 	IN `checkin_date_in` DATETIME
+
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -361,9 +365,9 @@ BEGIN
 		product_name,
 		product_ver,
 		software_id,
+		port_number,
 		bus_number,
 		bus_address,
-		port_number,
 		buffer_size,
 		max_pkt_size,
 		usb_spec,
@@ -388,9 +392,9 @@ BEGIN
 		product_name_in,
 		product_ver_in,
 		software_id_in,
+		port_number_in,
 		bus_number_in,
 		bus_address_in,
-		port_number_in,
 		buffer_size_in,
 		max_pkt_size_in,
 		usb_spec_in,
@@ -414,9 +418,9 @@ BEGIN
 		product_name = product_name_in,
 		product_ver = product_ver_in,
 		software_id = software_id_in,
-		-- bus_number = bus_number_in,
-		-- bus_address = bus_address_in,
 		-- port_number = port_number_in,
+		-- bus_number = bus_number_in,
+		bus_address = bus_address_in,
 		buffer_size = buffer_size_in,
 		max_pkt_size = max_pkt_size_in,
 		usb_spec = usb_spec_in,
@@ -450,7 +454,7 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
   KEY `product_id` (`product_id`),
   KEY `serial_num` (`serial_num`),
   CONSTRAINT `CONSTRAINT_1` CHECK (json_valid(`changes`))
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=346 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_checkins
@@ -465,9 +469,9 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `product_name` varchar(126) NOT NULL,
   `product_ver` varchar(7) NOT NULL,
   `software_id` varchar(11) NOT NULL,
+  `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
   `usb_spec` varchar(5) NOT NULL,
@@ -491,7 +495,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=908 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
@@ -506,9 +510,9 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `product_name` varchar(126) NOT NULL,
   `product_ver` varchar(7) NOT NULL,
   `software_id` varchar(11) NOT NULL,
+  `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
   `usb_spec` varchar(5) NOT NULL,
@@ -532,7 +536,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=210 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=861 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
@@ -547,9 +551,9 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `product_name` varchar(126) NOT NULL,
   `product_ver` varchar(7) NOT NULL,
   `software_id` varchar(11) NOT NULL,
+  `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
   `usb_spec` varchar(5) NOT NULL,
@@ -573,7 +577,7 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `serial_num` (`serial_num`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
@@ -588,9 +592,9 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `product_name` varchar(126) DEFAULT NULL,
   `product_ver` varchar(7) NOT NULL,
   `software_id` varchar(11) NOT NULL,
+  `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
   `usb_spec` varchar(5) NOT NULL,
@@ -607,13 +611,13 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `last_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_id` (`host_name`,`vendor_id`,`product_id`,`bus_number`,`bus_address`,`port_number`),
+  UNIQUE KEY `unique_id` (`host_name`,`vendor_id`,`product_id`,`port_number`,`bus_number`),
   KEY `software_id` (`software_id`),
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for view gocmdb.view_usbci_changes_object
@@ -639,9 +643,9 @@ CREATE TABLE `view_usbci_checkins_object` (
 	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
 	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
-	`port_number` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -678,9 +682,9 @@ CREATE TABLE `view_usbci_serialized_object` (
 	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
 	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
-	`port_number` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -707,9 +711,9 @@ CREATE TABLE `view_usbci_snrequests_object` (
 	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
 	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
-	`port_number` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -739,9 +743,9 @@ CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkin
 			NEW.product_name,
 			NEW.product_ver,
 			NEW.software_id,
+			NEW.port_number,
 			NEW.bus_number,
 			NEW.bus_address,
-			NEW.port_number,
 			NEW.buffer_size,
 			NEW.max_pkt_size,
 			NEW.usb_spec,
@@ -766,9 +770,9 @@ CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkin
 			NEW.product_name,
 			NEW.product_ver,
 			NEW.software_id,
+			NEW.port_number,
 			NEW.bus_number,
 			NEW.bus_address,
-			NEW.port_number,
 			NEW.buffer_size,
 			NEW.max_pkt_size,
 			NEW.usb_spec,
@@ -814,9 +818,9 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_checkins_
 	product_name,
 	product_ver,
 	software_id,
+	port_number,
 	bus_number,
 	bus_address,
-	port_number,
 	buffer_size,
 	max_pkt_size,
 	usb_spec,
@@ -849,9 +853,9 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialize
 		'product_name',  product_name,
 		'product_ver',   product_ver,
 		'software_id',   software_id,
+		'port_number',   port_number,
 		'bus_number',    bus_number,
 		'bus_address',   bus_address,
-		'port_number',   port_number,
 		'buffer_size',   buffer_size,
 		'max_pkt_size',  max_pkt_size,
 		'usb_spec',      usb_spec,
@@ -864,7 +868,9 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialize
 		'factory_sn',    factory_sn,
 		'descriptor_sn', descriptor_sn,
 		'object_type',   object_type
-	) AS    'json_object'
+	)
+AS
+		'json_object'
 FROM
 	usbci_serialized ;
 
@@ -881,9 +887,9 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialize
 	product_name,
 	product_ver,
 	software_id,
+	port_number,
 	bus_number,
 	bus_address,
-	port_number,
 	buffer_size,
 	max_pkt_size,
 	usb_spec,
@@ -912,9 +918,9 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_snrequest
 	product_name,
 	product_ver,
 	software_id,
+	port_number,
 	bus_number,
 	bus_address,
-	port_number,
 	buffer_size,
 	max_pkt_size,
 	usb_spec,
