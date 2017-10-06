@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               10.2.8-MariaDB - mariadb.org binary distribution
--- Server OS:                    Win64
+-- Host:                         sysadm-dev-01
+-- Server version:               10.2.9-MariaDB - MariaDB Server
+-- Server OS:                    Linux
 -- HeidiSQL Version:             9.4.0.5125
 -- --------------------------------------------------------
 
@@ -454,7 +454,7 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
   KEY `product_id` (`product_id`),
   KEY `serial_num` (`serial_num`),
   CONSTRAINT `CONSTRAINT_1` CHECK (json_valid(`changes`))
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_checkins
@@ -495,7 +495,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
@@ -536,7 +536,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
@@ -577,7 +577,7 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
   KEY `serial_num` (`serial_num`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
@@ -658,6 +658,16 @@ CREATE TABLE `view_usbci_checkins_object` (
 	`factory_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
 	`descriptor_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
+) ENGINE=MyISAM;
+
+-- Dumping structure for view gocmdb.view_usbci_distinct_devices
+DROP VIEW IF EXISTS `view_usbci_distinct_devices`;
+-- Creating temporary table to overcome VIEW dependency errors
+CREATE TABLE `view_usbci_distinct_devices` (
+	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
+	`vendor_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_json
@@ -796,145 +806,37 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 DROP VIEW IF EXISTS `view_usbci_changes_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_changes_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_changes_object` AS SELECT
-	host_name,
-	vendor_id,
-	product_id,
-	serial_num,
-	changes
-FROM
-	usbci_changes ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_changes_object` AS select `usbci_changes`.`host_name` AS `host_name`,`usbci_changes`.`vendor_id` AS `vendor_id`,`usbci_changes`.`product_id` AS `product_id`,`usbci_changes`.`serial_num` AS `serial_num`,`usbci_changes`.`changes` AS `changes` from `usbci_changes`;
 
 -- Dumping structure for view gocmdb.view_usbci_checkins_object
 DROP VIEW IF EXISTS `view_usbci_checkins_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_checkins_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_checkins_object` AS SELECT
-	host_name,
-	vendor_id,
-	product_id,
-	serial_num,
-	vendor_name,
-	product_name,
-	product_ver,
-	software_id,
-	port_number,
-	bus_number,
-	bus_address,
-	buffer_size,
-	max_pkt_size,
-	usb_spec,
-	usb_class,
-	usb_subclass,
-	usb_protocol,
-	device_speed,
-	device_ver,
-	device_sn,
-	factory_sn,
-	descriptor_sn,
-	object_type
-FROM
-	usbci_checkins ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_checkins_object` AS select `usbci_checkins`.`host_name` AS `host_name`,`usbci_checkins`.`vendor_id` AS `vendor_id`,`usbci_checkins`.`product_id` AS `product_id`,`usbci_checkins`.`serial_num` AS `serial_num`,`usbci_checkins`.`vendor_name` AS `vendor_name`,`usbci_checkins`.`product_name` AS `product_name`,`usbci_checkins`.`product_ver` AS `product_ver`,`usbci_checkins`.`software_id` AS `software_id`,`usbci_checkins`.`port_number` AS `port_number`,`usbci_checkins`.`bus_number` AS `bus_number`,`usbci_checkins`.`bus_address` AS `bus_address`,`usbci_checkins`.`buffer_size` AS `buffer_size`,`usbci_checkins`.`max_pkt_size` AS `max_pkt_size`,`usbci_checkins`.`usb_spec` AS `usb_spec`,`usbci_checkins`.`usb_class` AS `usb_class`,`usbci_checkins`.`usb_subclass` AS `usb_subclass`,`usbci_checkins`.`usb_protocol` AS `usb_protocol`,`usbci_checkins`.`device_speed` AS `device_speed`,`usbci_checkins`.`device_ver` AS `device_ver`,`usbci_checkins`.`device_sn` AS `device_sn`,`usbci_checkins`.`factory_sn` AS `factory_sn`,`usbci_checkins`.`descriptor_sn` AS `descriptor_sn`,`usbci_checkins`.`object_type` AS `object_type` from `usbci_checkins`;
+
+-- Dumping structure for view gocmdb.view_usbci_distinct_devices
+DROP VIEW IF EXISTS `view_usbci_distinct_devices`;
+-- Removing temporary table and create final VIEW structure
+DROP TABLE IF EXISTS `view_usbci_distinct_devices`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`jscherff`@`%` SQL SECURITY DEFINER VIEW `view_usbci_distinct_devices` AS select distinct `usbci_checkins`.`vendor_id` AS `vendor_id`,`usbci_checkins`.`product_id` AS `product_id`,`usbci_checkins`.`vendor_name` AS `vendor_name`,`usbci_checkins`.`product_name` AS `product_name` from `usbci_checkins`;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_json
 DROP VIEW IF EXISTS `view_usbci_serialized_json`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_serialized_json`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialized_json` AS SELECT
-	vendor_id,
-	product_id,
-	serial_num,
-	JSON_OBJECT(
-		'host_name',     host_name,
-		'vendor_id',     vendor_id,
-		'product_id',    product_id,
-		'serial_num',    serial_num,
-		'vendor_name',   vendor_name,
-		'product_name',  product_name,
-		'product_ver',   product_ver,
-		'software_id',   software_id,
-		'port_number',   port_number,
-		'bus_number',    bus_number,
-		'bus_address',   bus_address,
-		'buffer_size',   buffer_size,
-		'max_pkt_size',  max_pkt_size,
-		'usb_spec',      usb_spec,
-		'usb_class',     usb_class,
-		'usb_subclass',  usb_subclass,
-		'usb_protocol',  usb_protocol,
-		'device_speed',  device_speed,
-		'device_ver',    device_ver,
-		'device_sn',     device_sn,
-		'factory_sn',    factory_sn,
-		'descriptor_sn', descriptor_sn,
-		'object_type',   object_type
-	)
-AS
-		'json_object'
-FROM
-	usbci_serialized ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_serialized_json` AS select `usbci_serialized`.`vendor_id` AS `vendor_id`,`usbci_serialized`.`product_id` AS `product_id`,`usbci_serialized`.`serial_num` AS `serial_num`,json_object('host_name',`usbci_serialized`.`host_name`,'vendor_id',`usbci_serialized`.`vendor_id`,'product_id',`usbci_serialized`.`product_id`,'serial_num',`usbci_serialized`.`serial_num`,'vendor_name',`usbci_serialized`.`vendor_name`,'product_name',`usbci_serialized`.`product_name`,'product_ver',`usbci_serialized`.`product_ver`,'software_id',`usbci_serialized`.`software_id`,'port_number',`usbci_serialized`.`port_number`,'bus_number',`usbci_serialized`.`bus_number`,'bus_address',`usbci_serialized`.`bus_address`,'buffer_size',`usbci_serialized`.`buffer_size`,'max_pkt_size',`usbci_serialized`.`max_pkt_size`,'usb_spec',`usbci_serialized`.`usb_spec`,'usb_class',`usbci_serialized`.`usb_class`,'usb_subclass',`usbci_serialized`.`usb_subclass`,'usb_protocol',`usbci_serialized`.`usb_protocol`,'device_speed',`usbci_serialized`.`device_speed`,'device_ver',`usbci_serialized`.`device_ver`,'device_sn',`usbci_serialized`.`device_sn`,'factory_sn',`usbci_serialized`.`factory_sn`,'descriptor_sn',`usbci_serialized`.`descriptor_sn`,'object_type',`usbci_serialized`.`object_type`) AS `json_object` from `usbci_serialized`;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_object
 DROP VIEW IF EXISTS `view_usbci_serialized_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_serialized_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialized_object` AS SELECT
-	host_name,
-	vendor_id,
-	product_id,
-	serial_num,
-	vendor_name,
-	product_name,
-	product_ver,
-	software_id,
-	port_number,
-	bus_number,
-	bus_address,
-	buffer_size,
-	max_pkt_size,
-	usb_spec,
-	usb_class,
-	usb_subclass,
-	usb_protocol,
-	device_speed,
-	device_ver,
-	device_sn,
-	factory_sn,
-	descriptor_sn,
-	object_type
-FROM
-	usbci_serialized ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_serialized_object` AS select `usbci_serialized`.`host_name` AS `host_name`,`usbci_serialized`.`vendor_id` AS `vendor_id`,`usbci_serialized`.`product_id` AS `product_id`,`usbci_serialized`.`serial_num` AS `serial_num`,`usbci_serialized`.`vendor_name` AS `vendor_name`,`usbci_serialized`.`product_name` AS `product_name`,`usbci_serialized`.`product_ver` AS `product_ver`,`usbci_serialized`.`software_id` AS `software_id`,`usbci_serialized`.`port_number` AS `port_number`,`usbci_serialized`.`bus_number` AS `bus_number`,`usbci_serialized`.`bus_address` AS `bus_address`,`usbci_serialized`.`buffer_size` AS `buffer_size`,`usbci_serialized`.`max_pkt_size` AS `max_pkt_size`,`usbci_serialized`.`usb_spec` AS `usb_spec`,`usbci_serialized`.`usb_class` AS `usb_class`,`usbci_serialized`.`usb_subclass` AS `usb_subclass`,`usbci_serialized`.`usb_protocol` AS `usb_protocol`,`usbci_serialized`.`device_speed` AS `device_speed`,`usbci_serialized`.`device_ver` AS `device_ver`,`usbci_serialized`.`device_sn` AS `device_sn`,`usbci_serialized`.`factory_sn` AS `factory_sn`,`usbci_serialized`.`descriptor_sn` AS `descriptor_sn`,`usbci_serialized`.`object_type` AS `object_type` from `usbci_serialized`;
 
 -- Dumping structure for view gocmdb.view_usbci_snrequests_object
 DROP VIEW IF EXISTS `view_usbci_snrequests_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_snrequests_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_snrequests_object` AS SELECT
-	host_name,
-	vendor_id,
-	product_id,
-	serial_num,
-	vendor_name,
-	product_name,
-	product_ver,
-	software_id,
-	port_number,
-	bus_number,
-	bus_address,
-	buffer_size,
-	max_pkt_size,
-	usb_spec,
-	usb_class,
-	usb_subclass,
-	usb_protocol,
-	device_speed,
-	device_ver,
-	device_sn,
-	factory_sn,
-	descriptor_sn,
-	object_type
-FROM
-	usbci_snrequests ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_snrequests_object` AS select `usbci_snrequests`.`host_name` AS `host_name`,`usbci_snrequests`.`vendor_id` AS `vendor_id`,`usbci_snrequests`.`product_id` AS `product_id`,`usbci_snrequests`.`serial_num` AS `serial_num`,`usbci_snrequests`.`vendor_name` AS `vendor_name`,`usbci_snrequests`.`product_name` AS `product_name`,`usbci_snrequests`.`product_ver` AS `product_ver`,`usbci_snrequests`.`software_id` AS `software_id`,`usbci_snrequests`.`port_number` AS `port_number`,`usbci_snrequests`.`bus_number` AS `bus_number`,`usbci_snrequests`.`bus_address` AS `bus_address`,`usbci_snrequests`.`buffer_size` AS `buffer_size`,`usbci_snrequests`.`max_pkt_size` AS `max_pkt_size`,`usbci_snrequests`.`usb_spec` AS `usb_spec`,`usbci_snrequests`.`usb_class` AS `usb_class`,`usbci_snrequests`.`usb_subclass` AS `usb_subclass`,`usbci_snrequests`.`usb_protocol` AS `usb_protocol`,`usbci_snrequests`.`device_speed` AS `device_speed`,`usbci_snrequests`.`device_ver` AS `device_ver`,`usbci_snrequests`.`device_sn` AS `device_sn`,`usbci_snrequests`.`factory_sn` AS `factory_sn`,`usbci_snrequests`.`descriptor_sn` AS `descriptor_sn`,`usbci_snrequests`.`object_type` AS `object_type` from `usbci_snrequests`;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
