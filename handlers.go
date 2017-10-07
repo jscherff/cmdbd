@@ -23,7 +23,7 @@ import (
 )
 
 // usbciCheckin records a device checkin.
-func usbciCheckin(w http.ResponseWriter, r *http.Request) {
+func usbciV1Checkin(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -63,7 +63,7 @@ func usbciCheckin(w http.ResponseWriter, r *http.Request) {
 }
 
 // usbciNewSN generates a new serial number for an unserialized device.
-func usbciNewSN(w http.ResponseWriter, r *http.Request) {
+func usbciV1NewSN(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -113,7 +113,7 @@ func usbciNewSN(w http.ResponseWriter, r *http.Request) {
 }
 
 // usbciAudit accepts the results of a device self-audit and stores the results.
-func usbciAudit(w http.ResponseWriter, r *http.Request) {
+func usbciV1Audit(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -140,7 +140,7 @@ func usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 // usbciCheckout retrieves a device from the serialized device database as a
 // JSON object and returns it to the caller.
-func usbciCheckout(w http.ResponseWriter, r *http.Request) {
+func usbciV1Checkout(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
