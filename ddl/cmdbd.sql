@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         sysadm-dev-01
--- Server version:               10.2.9-MariaDB - MariaDB Server
--- Server OS:                    Linux
+-- Host:                         127.0.0.1
+-- Server version:               10.2.8-MariaDB - mariadb.org binary distribution
+-- Server OS:                    Win64
 -- HeidiSQL Version:             9.4.0.5125
 -- --------------------------------------------------------
 
@@ -21,30 +21,32 @@ USE `gocmdb`;
 DROP FUNCTION IF EXISTS `func_insert_usbci_snrequests`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `func_insert_usbci_snrequests`(
-	`host_name_in` varchar(255),
-	`vendor_id_in` varchar(4),
-	`product_id_in` varchar(4),
-	`serial_num_in` varchar(126),
-	`vendor_name_in` varchar(126),
-	`product_name_in` varchar(126),
-	`product_ver_in` varchar(7),
-	`software_id_in` varchar(11),
+	`host_name_in` VARCHAR(255),
+	`vendor_id_in` VARCHAR(4),
+	`product_id_in` VARCHAR(4),
+	`serial_number_in` VARCHAR(127),
+	`vendor_name_in` VARCHAR(127),
+	`product_name_in` VARCHAR(127),
+	`product_ver_in` VARCHAR(255),
+	`firmware_ver_in` VARCHAR(255),
+	`software_id_in` VARCHAR(255),
 	`bus_number_in` int(10),
 	`bus_address_in` int(10),
 	`port_number_in` int(10),
 	`buffer_size_in` int(10),
 	`max_pkt_size_in` int(10),
-	`usb_spec_in` varchar(5),
-	`usb_class_in` varchar(126),
-	`usb_subclass_in` varchar(126),
-	`usb_protocol_in` varchar(126),
-	`device_speed_in` varchar(126),
-	`device_ver_in` varchar(5),
-	`device_sn_in` varchar(126),
-	`factory_sn_in` varchar(126),
-	`descriptor_sn_in` varchar(126),
-	`object_type_in` varchar(255),
+	`usb_spec_in` VARCHAR(5),
+	`usb_class_in` VARCHAR(127),
+	`usb_subclass_in` VARCHAR(127),
+	`usb_protocol_in` VARCHAR(127),
+	`device_speed_in` VARCHAR(127),
+	`device_ver_in` VARCHAR(5),
+	`device_sn_in` VARCHAR(127),
+	`factory_sn_in` VARCHAR(127),
+	`descriptor_sn_in` VARCHAR(127),
+	`object_type_in` VARCHAR(255),
 	`checkin_date_in` DATETIME
+
 
 ) RETURNS int(11)
     DETERMINISTIC
@@ -54,10 +56,11 @@ BEGIN
 		host_name,
 		vendor_id,
 		product_id,
-		serial_num,
+		serial_number,
 		vendor_name,
 		product_name,
 		product_ver,
+		firmware_ver,
 		software_id,
 		port_number,
 		bus_number,
@@ -79,10 +82,11 @@ BEGIN
 		host_name_in,
 		vendor_id_in,
 		product_id_in,
-		serial_num_in,
+		serial_number_in,
 		vendor_name_in,
 		product_name_in,
 		product_ver_in,
+		firmware_ver_in,
 		software_id_in,
 		port_number_in,
 		bus_number_in,
@@ -126,30 +130,33 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `proc_insert_usbci_checkins`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_checkins`(
-	IN `host_name_in` varchar(255),
-	IN `vendor_id_in` varchar(4),
-	IN `product_id_in` varchar(4),
-	IN `serial_num_in` varchar(126),
-	IN `vendor_name_in` varchar(126),
-	IN `product_name_in` varchar(126),
-	IN `product_ver_in` varchar(7),
-	IN `software_id_in` varchar(11),
+	IN `host_name_in` VARCHAR(255),
+	IN `vendor_id_in` VARCHAR(4),
+	IN `product_id_in` VARCHAR(4),
+	IN `serial_number_in` VARCHAR(127),
+	IN `vendor_name_in` VARCHAR(127),
+	IN `product_name_in` VARCHAR(127),
+	IN `product_ver_in` VARCHAR(255),
+	IN `firmware_ver_in` VARCHAR(255),
+	IN `software_id_in` VARCHAR(255),
 	IN `bus_number_in` int(10),
 	IN `bus_address_in` int(10),
 	IN `port_number_in` int(10),
 	IN `buffer_size_in` int(10),
 	IN `max_pkt_size_in` int(10),
-	IN `usb_spec_in` varchar(5),
-	IN `usb_class_in` varchar(126),
-	IN `usb_subclass_in` varchar(126),
-	IN `usb_protocol_in` varchar(126),
-	IN `device_speed_in` varchar(126),
-	IN `device_ver_in` varchar(5),
-	IN `device_sn_in` varchar(126),
-	IN `factory_sn_in` varchar(126),
-	IN `descriptor_sn_in` varchar(126),
-	IN `object_type_in` varchar(255),
+	IN `usb_spec_in` VARCHAR(5),
+	IN `usb_class_in` VARCHAR(127),
+	IN `usb_subclass_in` VARCHAR(127),
+	IN `usb_protocol_in` VARCHAR(127),
+	IN `device_speed_in` VARCHAR(127),
+	IN `device_ver_in` VARCHAR(5),
+	IN `device_sn_in` VARCHAR(127),
+	IN `factory_sn_in` VARCHAR(127),
+	IN `descriptor_sn_in` VARCHAR(127),
+	IN `object_type_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
+
+
 
 )
     DETERMINISTIC
@@ -159,10 +166,11 @@ BEGIN
 		host_name,
 		vendor_id,
 		product_id,
-		serial_num,
+		serial_number,
 		vendor_name,
 		product_name,
 		product_ver,
+		firmware_ver,
 		software_id,
 		port_number,
 		bus_number,
@@ -184,10 +192,11 @@ BEGIN
 		host_name_in,
 		vendor_id_in,
 		product_id_in,
-		serial_num_in,
+		serial_number_in,
 		vendor_name_in,
 		product_name_in,
 		product_ver_in,
+		firmware_ver_in,
 		software_id_in,
 		port_number_in,
 		bus_number_in,
@@ -212,30 +221,32 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `proc_insert_usbci_serialized`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_serialized`(
-	IN `host_name_in` varchar(255),
-	IN `vendor_id_in` varchar(4),
-	IN `product_id_in` varchar(4),
-	IN `serial_num_in` varchar(126),
-	IN `vendor_name_in` varchar(126),
-	IN `product_name_in` varchar(126),
-	IN `product_ver_in` varchar(7),
-	IN `software_id_in` varchar(11),
+	IN `host_name_in` VARCHAR(255),
+	IN `vendor_id_in` VARCHAR(4),
+	IN `product_id_in` VARCHAR(4),
+	IN `serial_number_in` VARCHAR(127),
+	IN `vendor_name_in` VARCHAR(127),
+	IN `product_name_in` VARCHAR(127),
+	IN `product_ver_in` VARCHAR(255),
+	IN `firmware_ver_in` VARCHAR(255),
+	IN `software_id_in` VARCHAR(255),
 	IN `bus_number_in` int(10),
 	IN `bus_address_in` int(10),
 	IN `port_number_in` int(10),
 	IN `buffer_size_in` int(10),
 	IN `max_pkt_size_in` int(10),
-	IN `usb_spec_in` varchar(5),
-	IN `usb_class_in` varchar(126),
-	IN `usb_subclass_in` varchar(126),
-	IN `usb_protocol_in` varchar(126),
-	IN `device_speed_in` varchar(126),
-	IN `device_ver_in` varchar(5),
-	IN `device_sn_in` varchar(126),
-	IN `factory_sn_in` varchar(126),
-	IN `descriptor_sn_in` varchar(126),
-	IN `object_type_in` varchar(255),
+	IN `usb_spec_in` VARCHAR(5),
+	IN `usb_class_in` VARCHAR(127),
+	IN `usb_subclass_in` VARCHAR(127),
+	IN `usb_protocol_in` VARCHAR(127),
+	IN `device_speed_in` VARCHAR(127),
+	IN `device_ver_in` VARCHAR(5),
+	IN `device_sn_in` VARCHAR(127),
+	IN `factory_sn_in` VARCHAR(127),
+	IN `descriptor_sn_in` VARCHAR(127),
+	IN `object_type_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
+
 
 )
     DETERMINISTIC
@@ -245,10 +256,11 @@ BEGIN
 		host_name,
 		vendor_id,
 		product_id,
-		serial_num,
+		serial_number,
 		vendor_name,
 		product_name,
 		product_ver,
+		firmware_ver,
 		software_id,
 		port_number,
 		bus_number,
@@ -272,10 +284,11 @@ BEGIN
 		host_name_in,
 		vendor_id_in,
 		product_id_in,
-		serial_num_in,
+		serial_number_in,
 		vendor_name_in,
 		product_name_in,
 		product_ver_in,
+		firmware_ver_in,
 		software_id_in,
 		port_number_in,
 		bus_number_in,
@@ -302,6 +315,7 @@ BEGIN
 		vendor_name = vendor_name_in,
 		product_name = product_name_in,
 		product_ver = product_ver_in,
+		firmware_ver = firmware_ver_in,
 		software_id = software_id_in,
 		port_number = port_number_in,
 		bus_number = bus_number_in,
@@ -327,30 +341,32 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `proc_insert_usbci_unserialized`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insert_usbci_unserialized`(
-	IN `host_name_in` varchar(255),
-	IN `vendor_id_in` varchar(4),
-	IN `product_id_in` varchar(4),
-	IN `serial_num_in` varchar(126),
-	IN `vendor_name_in` varchar(126),
-	IN `product_name_in` varchar(126),
-	IN `product_ver_in` varchar(7),
-	IN `software_id_in` varchar(11),
+	IN `host_name_in` VARCHAR(255),
+	IN `vendor_id_in` VARCHAR(4),
+	IN `product_id_in` VARCHAR(4),
+	IN `serial_number_in` VARCHAR(127),
+	IN `vendor_name_in` VARCHAR(127),
+	IN `product_name_in` VARCHAR(127),
+	IN `product_ver_in` VARCHAR(255),
+	IN `firmware_ver_in` VARCHAR(255),
+	IN `software_id_in` VARCHAR(255),
 	IN `bus_number_in` int(10),
 	IN `bus_address_in` int(10),
 	IN `port_number_in` int(10),
 	IN `buffer_size_in` int(10),
 	IN `max_pkt_size_in` int(10),
-	IN `usb_spec_in` varchar(5),
-	IN `usb_class_in` varchar(126),
-	IN `usb_subclass_in` varchar(126),
-	IN `usb_protocol_in` varchar(126),
-	IN `device_speed_in` varchar(126),
-	IN `device_ver_in` varchar(5),
-	IN `device_sn_in` varchar(126),
-	IN `factory_sn_in` varchar(126),
-	IN `descriptor_sn_in` varchar(126),
-	IN `object_type_in` varchar(255),
+	IN `usb_spec_in` VARCHAR(5),
+	IN `usb_class_in` VARCHAR(127),
+	IN `usb_subclass_in` VARCHAR(127),
+	IN `usb_protocol_in` VARCHAR(127),
+	IN `device_speed_in` VARCHAR(127),
+	IN `device_ver_in` VARCHAR(5),
+	IN `device_sn_in` VARCHAR(127),
+	IN `factory_sn_in` VARCHAR(127),
+	IN `descriptor_sn_in` VARCHAR(127),
+	IN `object_type_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
+
 
 )
     DETERMINISTIC
@@ -360,10 +376,11 @@ BEGIN
 		host_name,
 		vendor_id,
 		product_id,
-		serial_num,
+		serial_number,
 		vendor_name,
 		product_name,
 		product_ver,
+		firmware_ver,
 		software_id,
 		port_number,
 		bus_number,
@@ -387,10 +404,11 @@ BEGIN
 		host_name_in,
 		vendor_id_in,
 		product_id_in,
-		serial_num_in,
+		serial_number_in,
 		vendor_name_in,
 		product_name_in,
 		product_ver_in,
+		firmware_ver_in,
 		software_id_in,
 		port_number_in,
 		bus_number_in,
@@ -417,6 +435,7 @@ BEGIN
 		vendor_name = vendor_name_in,
 		product_name = product_name_in,
 		product_ver = product_ver_in,
+		firmware_ver = firmware_ver_in,
 		software_id = software_id_in,
 		-- port_number = port_number_in,
 		-- bus_number = bus_number_in,
@@ -442,17 +461,17 @@ DELIMITER ;
 DROP TABLE IF EXISTS `usbci_changes`;
 CREATE TABLE IF NOT EXISTS `usbci_changes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_num` varchar(126) NOT NULL,
-  `changes` varchar(2048) NOT NULL,
+  `host_name` VARCHAR(255) NOT NULL,
+  `vendor_id` VARCHAR(4) NOT NULL,
+  `product_id` VARCHAR(4) NOT NULL,
+  `serial_number` VARCHAR(127) NOT NULL,
+  `changes` VARCHAR(2048) NOT NULL,
   `audit_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
   KEY `vendor_id` (`vendor_id`),
   KEY `product_id` (`product_id`),
-  KEY `serial_num` (`serial_num`),
+  KEY `serial_number` (`serial_number`),
   CONSTRAINT `CONSTRAINT_1` CHECK (json_valid(`changes`))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -461,40 +480,42 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
 DROP TABLE IF EXISTS `usbci_checkins`;
 CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_num` varchar(126) NOT NULL,
-  `vendor_name` varchar(126) NOT NULL,
-  `product_name` varchar(126) NOT NULL,
-  `product_ver` varchar(7) NOT NULL,
-  `software_id` varchar(11) NOT NULL,
+  `host_name` VARCHAR(255) NOT NULL,
+  `vendor_id` VARCHAR(4) NOT NULL,
+  `product_id` VARCHAR(4) NOT NULL,
+  `serial_number` VARCHAR(127) NOT NULL,
+  `vendor_name` VARCHAR(127) NOT NULL,
+  `product_name` VARCHAR(127) NOT NULL,
+  `product_ver` VARCHAR(255) NOT NULL,
+  `firmware_ver` VARCHAR(255) NOT NULL,
+  `software_id` VARCHAR(255) NOT NULL,
   `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(126) NOT NULL,
-  `usb_subclass` varchar(126) NOT NULL,
-  `usb_protocol` varchar(126) NOT NULL,
-  `device_speed` varchar(126) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(126) NOT NULL,
-  `factory_sn` varchar(126) NOT NULL,
-  `descriptor_sn` varchar(126) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
+  `usb_spec` VARCHAR(5) NOT NULL,
+  `usb_class` VARCHAR(127) NOT NULL,
+  `usb_subclass` VARCHAR(127) NOT NULL,
+  `usb_protocol` VARCHAR(127) NOT NULL,
+  `device_speed` VARCHAR(127) NOT NULL,
+  `device_ver` VARCHAR(5) NOT NULL,
+  `device_sn` VARCHAR(127) NOT NULL,
+  `factory_sn` VARCHAR(127) NOT NULL,
+  `descriptor_sn` VARCHAR(127) NOT NULL,
+  `object_type` VARCHAR(255) NOT NULL,
   `checkin_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
-  KEY `serial_num` (`serial_num`),
+  KEY `serial_number` (`serial_number`),
   KEY `vendor_id` (`vendor_id`),
   KEY `product_id` (`product_id`),
   KEY `software_id` (`software_id`),
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
-  KEY `product_ver` (`product_ver`)
+  KEY `product_ver` (`product_ver`),
+  KEY `firmware_ver` (`firmware_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
@@ -502,40 +523,42 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
 DROP TABLE IF EXISTS `usbci_serialized`;
 CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_num` varchar(126) NOT NULL,
-  `vendor_name` varchar(126) NOT NULL,
-  `product_name` varchar(126) NOT NULL,
-  `product_ver` varchar(7) NOT NULL,
-  `software_id` varchar(11) NOT NULL,
+  `host_name` VARCHAR(255) NOT NULL,
+  `vendor_id` VARCHAR(4) NOT NULL,
+  `product_id` VARCHAR(4) NOT NULL,
+  `serial_number` VARCHAR(127) NOT NULL,
+  `vendor_name` VARCHAR(127) NOT NULL,
+  `product_name` VARCHAR(127) NOT NULL,
+  `product_ver` VARCHAR(255) NOT NULL,
+  `firmware_ver` VARCHAR(255) NOT NULL,
+  `software_id` VARCHAR(255) NOT NULL,
   `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(126) NOT NULL,
-  `usb_subclass` varchar(126) NOT NULL,
-  `usb_protocol` varchar(126) NOT NULL,
-  `device_speed` varchar(126) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(126) NOT NULL,
-  `factory_sn` varchar(126) NOT NULL,
-  `descriptor_sn` varchar(126) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
+  `usb_spec` VARCHAR(5) NOT NULL,
+  `usb_class` VARCHAR(127) NOT NULL,
+  `usb_subclass` VARCHAR(127) NOT NULL,
+  `usb_protocol` VARCHAR(127) NOT NULL,
+  `device_speed` VARCHAR(127) NOT NULL,
+  `device_ver` VARCHAR(5) NOT NULL,
+  `device_sn` VARCHAR(127) NOT NULL,
+  `factory_sn` VARCHAR(127) NOT NULL,
+  `descriptor_sn` VARCHAR(127) NOT NULL,
+  `object_type` VARCHAR(255) NOT NULL,
   `first_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_id` (`vendor_id`,`product_id`,`serial_num`),
+  UNIQUE KEY `unique_id` (`vendor_id`,`product_id`,`serial_number`),
   KEY `software_id` (`software_id`),
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
-  KEY `host_name` (`host_name`)
+  KEY `host_name` (`host_name`),
+  KEY `firmware_ver` (`firmware_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
@@ -543,29 +566,30 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
 DROP TABLE IF EXISTS `usbci_snrequests`;
 CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_num` varchar(126) NOT NULL,
-  `vendor_name` varchar(126) NOT NULL,
-  `product_name` varchar(126) NOT NULL,
-  `product_ver` varchar(7) NOT NULL,
-  `software_id` varchar(11) NOT NULL,
+  `host_name` VARCHAR(255) NOT NULL,
+  `vendor_id` VARCHAR(4) NOT NULL,
+  `product_id` VARCHAR(4) NOT NULL,
+  `serial_number` VARCHAR(127) NOT NULL,
+  `vendor_name` VARCHAR(127) NOT NULL,
+  `product_name` VARCHAR(127) NOT NULL,
+  `product_ver` VARCHAR(255) NOT NULL,
+  `firmware_ver` VARCHAR(255) NOT NULL,
+  `software_id` VARCHAR(255) NOT NULL,
   `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(126) NOT NULL,
-  `usb_subclass` varchar(126) NOT NULL,
-  `usb_protocol` varchar(126) NOT NULL,
-  `device_speed` varchar(126) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(126) NOT NULL,
-  `factory_sn` varchar(126) NOT NULL,
-  `descriptor_sn` varchar(126) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
+  `usb_spec` VARCHAR(5) NOT NULL,
+  `usb_class` VARCHAR(127) NOT NULL,
+  `usb_subclass` VARCHAR(127) NOT NULL,
+  `usb_protocol` VARCHAR(127) NOT NULL,
+  `device_speed` VARCHAR(127) NOT NULL,
+  `device_ver` VARCHAR(5) NOT NULL,
+  `device_sn` VARCHAR(127) NOT NULL,
+  `factory_sn` VARCHAR(127) NOT NULL,
+  `descriptor_sn` VARCHAR(127) NOT NULL,
+  `object_type` VARCHAR(255) NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
@@ -576,7 +600,8 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
   KEY `product_ver` (`product_ver`),
-  KEY `serial_num` (`serial_num`)
+  KEY `serial_number` (`serial_number`),
+  KEY `firmware_ver` (`firmware_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
@@ -584,29 +609,30 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
 DROP TABLE IF EXISTS `usbci_unserialized`;
 CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_num` varchar(126) DEFAULT NULL,
-  `vendor_name` varchar(126) DEFAULT NULL,
-  `product_name` varchar(126) DEFAULT NULL,
-  `product_ver` varchar(7) NOT NULL,
-  `software_id` varchar(11) NOT NULL,
+  `host_name` VARCHAR(255) NOT NULL,
+  `vendor_id` VARCHAR(4) NOT NULL,
+  `product_id` VARCHAR(4) NOT NULL,
+  `serial_number` VARCHAR(127) DEFAULT NULL,
+  `vendor_name` VARCHAR(127) DEFAULT NULL,
+  `product_name` VARCHAR(127) DEFAULT NULL,
+  `product_ver` VARCHAR(255) NOT NULL,
+  `firmware_ver` VARCHAR(255) NOT NULL,
+  `software_id` VARCHAR(255) NOT NULL,
   `port_number` int(10) unsigned NOT NULL,
   `bus_number` int(10) unsigned NOT NULL,
   `bus_address` int(10) unsigned NOT NULL,
   `buffer_size` int(10) unsigned NOT NULL,
   `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(126) NOT NULL,
-  `usb_subclass` varchar(126) NOT NULL,
-  `usb_protocol` varchar(126) NOT NULL,
-  `device_speed` varchar(126) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(126) NOT NULL,
-  `factory_sn` varchar(126) NOT NULL,
-  `descriptor_sn` varchar(126) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
+  `usb_spec` VARCHAR(5) NOT NULL,
+  `usb_class` VARCHAR(127) NOT NULL,
+  `usb_subclass` VARCHAR(127) NOT NULL,
+  `usb_protocol` VARCHAR(127) NOT NULL,
+  `device_speed` VARCHAR(127) NOT NULL,
+  `device_ver` VARCHAR(5) NOT NULL,
+  `device_sn` VARCHAR(127) NOT NULL,
+  `factory_sn` VARCHAR(127) NOT NULL,
+  `descriptor_sn` VARCHAR(127) NOT NULL,
+  `object_type` VARCHAR(255) NOT NULL,
   `first_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
@@ -616,7 +642,8 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `descriptor_sn` (`descriptor_sn`),
-  KEY `product_ver` (`product_ver`)
+  KEY `product_ver` (`product_ver`),
+  KEY `firmware_ver` (`firmware_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
@@ -627,7 +654,7 @@ CREATE TABLE `view_usbci_changes_object` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`serial_num` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`serial_number` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`changes` VARCHAR(2048) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
@@ -638,36 +665,27 @@ CREATE TABLE `view_usbci_checkins_object` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`serial_num` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
-	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`serial_number` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`vendor_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`firmware_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`software_id` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_class` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_subclass` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_protocol` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_speed` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_class` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_subclass` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_protocol` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_speed` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`device_ver` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`factory_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`descriptor_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
-) ENGINE=MyISAM;
-
--- Dumping structure for view gocmdb.view_usbci_distinct_devices
-DROP VIEW IF EXISTS `view_usbci_distinct_devices`;
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `view_usbci_distinct_devices` (
-	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_json
@@ -676,7 +694,7 @@ DROP VIEW IF EXISTS `view_usbci_serialized_json`;
 CREATE TABLE `view_usbci_serialized_json` (
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`serial_num` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`serial_number` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`json_object` TEXT NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
@@ -687,25 +705,26 @@ CREATE TABLE `view_usbci_serialized_object` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`serial_num` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
-	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`serial_number` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`vendor_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`firmware_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`software_id` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_class` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_subclass` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_protocol` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_speed` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_class` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_subclass` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_protocol` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_speed` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`device_ver` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`factory_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`descriptor_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
@@ -716,25 +735,26 @@ CREATE TABLE `view_usbci_snrequests_object` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
 	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`serial_num` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_ver` VARCHAR(7) NOT NULL COLLATE 'latin1_swedish_ci',
-	`software_id` VARCHAR(11) NOT NULL COLLATE 'latin1_swedish_ci',
+	`serial_number` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`vendor_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`product_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`firmware_ver` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
+	`software_id` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
 	`port_number` INT(10) UNSIGNED NOT NULL,
 	`bus_number` INT(10) UNSIGNED NOT NULL,
 	`bus_address` INT(10) UNSIGNED NOT NULL,
 	`buffer_size` INT(10) UNSIGNED NOT NULL,
 	`max_pkt_size` INT(10) UNSIGNED NOT NULL,
 	`usb_spec` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_class` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_subclass` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`usb_protocol` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_speed` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_class` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_subclass` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`usb_protocol` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_speed` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`device_ver` VARCHAR(5) NOT NULL COLLATE 'latin1_swedish_ci',
-	`device_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`factory_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
-	`descriptor_sn` VARCHAR(126) NOT NULL COLLATE 'latin1_swedish_ci',
+	`device_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
+	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
@@ -743,15 +763,16 @@ DROP TRIGGER IF EXISTS `trig_insert_after_usbci_checkins`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkins` FOR EACH ROW BEGIN
-	IF (NEW.serial_num != '') THEN
+	IF (NEW.serial_number != '') THEN
 		CALL proc_insert_usbci_serialized(
 			NEW.host_name,
 			NEW.vendor_id,
 			NEW.product_id,
-			NEW.serial_num,
+			NEW.serial_number,
 			NEW.vendor_name,
 			NEW.product_name,
 			NEW.product_ver,
+			NEW.firmware_ver,
 			NEW.software_id,
 			NEW.port_number,
 			NEW.bus_number,
@@ -775,10 +796,11 @@ CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkin
 			NEW.host_name,
 			NEW.vendor_id,
 			NEW.product_id,
-			NEW.serial_num,
+			NEW.serial_number,
 			NEW.vendor_name,
 			NEW.product_name,
 			NEW.product_ver,
+			NEW.firmware_ver,
 			NEW.software_id,
 			NEW.port_number,
 			NEW.bus_number,
@@ -806,37 +828,149 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 DROP VIEW IF EXISTS `view_usbci_changes_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_changes_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_changes_object` AS select `usbci_changes`.`host_name` AS `host_name`,`usbci_changes`.`vendor_id` AS `vendor_id`,`usbci_changes`.`product_id` AS `product_id`,`usbci_changes`.`serial_num` AS `serial_num`,`usbci_changes`.`changes` AS `changes` from `usbci_changes`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_changes_object` AS SELECT
+	host_name,
+	vendor_id,
+	product_id,
+	serial_number,
+	changes
+FROM
+	usbci_changes ;
 
 -- Dumping structure for view gocmdb.view_usbci_checkins_object
 DROP VIEW IF EXISTS `view_usbci_checkins_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_checkins_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_checkins_object` AS select `usbci_checkins`.`host_name` AS `host_name`,`usbci_checkins`.`vendor_id` AS `vendor_id`,`usbci_checkins`.`product_id` AS `product_id`,`usbci_checkins`.`serial_num` AS `serial_num`,`usbci_checkins`.`vendor_name` AS `vendor_name`,`usbci_checkins`.`product_name` AS `product_name`,`usbci_checkins`.`product_ver` AS `product_ver`,`usbci_checkins`.`software_id` AS `software_id`,`usbci_checkins`.`port_number` AS `port_number`,`usbci_checkins`.`bus_number` AS `bus_number`,`usbci_checkins`.`bus_address` AS `bus_address`,`usbci_checkins`.`buffer_size` AS `buffer_size`,`usbci_checkins`.`max_pkt_size` AS `max_pkt_size`,`usbci_checkins`.`usb_spec` AS `usb_spec`,`usbci_checkins`.`usb_class` AS `usb_class`,`usbci_checkins`.`usb_subclass` AS `usb_subclass`,`usbci_checkins`.`usb_protocol` AS `usb_protocol`,`usbci_checkins`.`device_speed` AS `device_speed`,`usbci_checkins`.`device_ver` AS `device_ver`,`usbci_checkins`.`device_sn` AS `device_sn`,`usbci_checkins`.`factory_sn` AS `factory_sn`,`usbci_checkins`.`descriptor_sn` AS `descriptor_sn`,`usbci_checkins`.`object_type` AS `object_type` from `usbci_checkins`;
-
--- Dumping structure for view gocmdb.view_usbci_distinct_devices
-DROP VIEW IF EXISTS `view_usbci_distinct_devices`;
--- Removing temporary table and create final VIEW structure
-DROP TABLE IF EXISTS `view_usbci_distinct_devices`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`jscherff`@`%` SQL SECURITY DEFINER VIEW `view_usbci_distinct_devices` AS select distinct `usbci_checkins`.`vendor_id` AS `vendor_id`,`usbci_checkins`.`product_id` AS `product_id`,`usbci_checkins`.`vendor_name` AS `vendor_name`,`usbci_checkins`.`product_name` AS `product_name` from `usbci_checkins`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_checkins_object` AS SELECT
+	host_name,
+	vendor_id,
+	product_id,
+	serial_number,
+	vendor_name,
+	product_name,
+	product_ver,
+	firmware_ver,
+	software_id,
+	port_number,
+	bus_number,
+	bus_address,
+	buffer_size,
+	max_pkt_size,
+	usb_spec,
+	usb_class,
+	usb_subclass,
+	usb_protocol,
+	device_speed,
+	device_ver,
+	device_sn,
+	factory_sn,
+	descriptor_sn,
+	object_type
+FROM
+	usbci_checkins ;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_json
 DROP VIEW IF EXISTS `view_usbci_serialized_json`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_serialized_json`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_serialized_json` AS select `usbci_serialized`.`vendor_id` AS `vendor_id`,`usbci_serialized`.`product_id` AS `product_id`,`usbci_serialized`.`serial_num` AS `serial_num`,json_object('host_name',`usbci_serialized`.`host_name`,'vendor_id',`usbci_serialized`.`vendor_id`,'product_id',`usbci_serialized`.`product_id`,'serial_num',`usbci_serialized`.`serial_num`,'vendor_name',`usbci_serialized`.`vendor_name`,'product_name',`usbci_serialized`.`product_name`,'product_ver',`usbci_serialized`.`product_ver`,'software_id',`usbci_serialized`.`software_id`,'port_number',`usbci_serialized`.`port_number`,'bus_number',`usbci_serialized`.`bus_number`,'bus_address',`usbci_serialized`.`bus_address`,'buffer_size',`usbci_serialized`.`buffer_size`,'max_pkt_size',`usbci_serialized`.`max_pkt_size`,'usb_spec',`usbci_serialized`.`usb_spec`,'usb_class',`usbci_serialized`.`usb_class`,'usb_subclass',`usbci_serialized`.`usb_subclass`,'usb_protocol',`usbci_serialized`.`usb_protocol`,'device_speed',`usbci_serialized`.`device_speed`,'device_ver',`usbci_serialized`.`device_ver`,'device_sn',`usbci_serialized`.`device_sn`,'factory_sn',`usbci_serialized`.`factory_sn`,'descriptor_sn',`usbci_serialized`.`descriptor_sn`,'object_type',`usbci_serialized`.`object_type`) AS `json_object` from `usbci_serialized`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialized_json` AS SELECT
+	vendor_id,
+	product_id,
+	serial_number,
+	JSON_OBJECT(
+		'host_name',     host_name,
+		'vendor_id',     vendor_id,
+		'product_id',    product_id,
+		'serial_number',    serial_number,
+		'vendor_name',   vendor_name,
+		'product_name',  product_name,
+		'product_ver',   product_ver,
+		'firmware_ver',  firmware_ver,
+		'software_id',   software_id,
+		'port_number',   port_number,
+		'bus_number',    bus_number,
+		'bus_address',   bus_address,
+		'buffer_size',   buffer_size,
+		'max_pkt_size',  max_pkt_size,
+		'usb_spec',      usb_spec,
+		'usb_class',     usb_class,
+		'usb_subclass',  usb_subclass,
+		'usb_protocol',  usb_protocol,
+		'device_speed',  device_speed,
+		'device_ver',    device_ver,
+		'device_sn',     device_sn,
+		'factory_sn',    factory_sn,
+		'descriptor_sn', descriptor_sn,
+		'object_type',   object_type
+	)
+AS
+		'json_object'
+FROM
+	usbci_serialized ;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized_object
 DROP VIEW IF EXISTS `view_usbci_serialized_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_serialized_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_serialized_object` AS select `usbci_serialized`.`host_name` AS `host_name`,`usbci_serialized`.`vendor_id` AS `vendor_id`,`usbci_serialized`.`product_id` AS `product_id`,`usbci_serialized`.`serial_num` AS `serial_num`,`usbci_serialized`.`vendor_name` AS `vendor_name`,`usbci_serialized`.`product_name` AS `product_name`,`usbci_serialized`.`product_ver` AS `product_ver`,`usbci_serialized`.`software_id` AS `software_id`,`usbci_serialized`.`port_number` AS `port_number`,`usbci_serialized`.`bus_number` AS `bus_number`,`usbci_serialized`.`bus_address` AS `bus_address`,`usbci_serialized`.`buffer_size` AS `buffer_size`,`usbci_serialized`.`max_pkt_size` AS `max_pkt_size`,`usbci_serialized`.`usb_spec` AS `usb_spec`,`usbci_serialized`.`usb_class` AS `usb_class`,`usbci_serialized`.`usb_subclass` AS `usb_subclass`,`usbci_serialized`.`usb_protocol` AS `usb_protocol`,`usbci_serialized`.`device_speed` AS `device_speed`,`usbci_serialized`.`device_ver` AS `device_ver`,`usbci_serialized`.`device_sn` AS `device_sn`,`usbci_serialized`.`factory_sn` AS `factory_sn`,`usbci_serialized`.`descriptor_sn` AS `descriptor_sn`,`usbci_serialized`.`object_type` AS `object_type` from `usbci_serialized`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialized_object` AS SELECT
+	host_name,
+	vendor_id,
+	product_id,
+	serial_number,
+	vendor_name,
+	product_name,
+	product_ver,
+	firmware_ver,
+	software_id,
+	port_number,
+	bus_number,
+	bus_address,
+	buffer_size,
+	max_pkt_size,
+	usb_spec,
+	usb_class,
+	usb_subclass,
+	usb_protocol,
+	device_speed,
+	device_ver,
+	device_sn,
+	factory_sn,
+	descriptor_sn,
+	object_type
+FROM
+	usbci_serialized ;
 
 -- Dumping structure for view gocmdb.view_usbci_snrequests_object
 DROP VIEW IF EXISTS `view_usbci_snrequests_object`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_snrequests_object`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_usbci_snrequests_object` AS select `usbci_snrequests`.`host_name` AS `host_name`,`usbci_snrequests`.`vendor_id` AS `vendor_id`,`usbci_snrequests`.`product_id` AS `product_id`,`usbci_snrequests`.`serial_num` AS `serial_num`,`usbci_snrequests`.`vendor_name` AS `vendor_name`,`usbci_snrequests`.`product_name` AS `product_name`,`usbci_snrequests`.`product_ver` AS `product_ver`,`usbci_snrequests`.`software_id` AS `software_id`,`usbci_snrequests`.`port_number` AS `port_number`,`usbci_snrequests`.`bus_number` AS `bus_number`,`usbci_snrequests`.`bus_address` AS `bus_address`,`usbci_snrequests`.`buffer_size` AS `buffer_size`,`usbci_snrequests`.`max_pkt_size` AS `max_pkt_size`,`usbci_snrequests`.`usb_spec` AS `usb_spec`,`usbci_snrequests`.`usb_class` AS `usb_class`,`usbci_snrequests`.`usb_subclass` AS `usb_subclass`,`usbci_snrequests`.`usb_protocol` AS `usb_protocol`,`usbci_snrequests`.`device_speed` AS `device_speed`,`usbci_snrequests`.`device_ver` AS `device_ver`,`usbci_snrequests`.`device_sn` AS `device_sn`,`usbci_snrequests`.`factory_sn` AS `factory_sn`,`usbci_snrequests`.`descriptor_sn` AS `descriptor_sn`,`usbci_snrequests`.`object_type` AS `object_type` from `usbci_snrequests`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_snrequests_object` AS SELECT
+	host_name,
+	vendor_id,
+	product_id,
+	serial_number,
+	vendor_name,
+	product_name,
+	product_ver,
+	firmware_ver,
+	software_id,
+	port_number,
+	bus_number,
+	bus_address,
+	buffer_size,
+	max_pkt_size,
+	usb_spec,
+	usb_class,
+	usb_subclass,
+	usb_protocol,
+	device_speed,
+	device_ver,
+	device_sn,
+	factory_sn,
+	descriptor_sn,
+	object_type
+FROM
+	usbci_snrequests ;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
