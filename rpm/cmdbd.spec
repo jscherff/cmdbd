@@ -155,7 +155,7 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
-* Sat Sep 30 2017 - jscherff@gmail.com
-- Tightened file permissions mode on config.json
 * Sat Oct 7 2017 - jscherff@gmail.com
 - Added v1 prefix to URLs and handlers
+* Sat Sep 30 2017 - jscherff@gmail.com
+- Tightened file permissions mode on config.json
