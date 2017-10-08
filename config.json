@@ -38,20 +38,20 @@
 			"usbciUpdateSnRequest": [
 		       		"UPDATE",
 				"usbci_snrequests",
-				"serial_num = ?",
+				"serial_number = ?",
 				"id = ?"
 			],
 			"usbciSelectSerialized": [
 				"SELECT",
 				"*",
 			       	"view_usbci_serialized_object",
-				"vendor_id = ? AND product_id = ? AND serial_num = ?"
+				"vendor_id = ? AND product_id = ? AND serial_number = ?"
 			],
 			"usbciSelectJSONObject": [
 				"SELECT",
 				"json_object",
 				"view_usbci_serialized_json",
-				"vendor_id = ? AND product_id = ? AND serial_num = ?"
+				"vendor_id = ? AND product_id = ? AND serial_number = ?"
 			]
 		},
 

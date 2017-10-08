@@ -94,7 +94,7 @@ func v1usbciNewSN(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sn string = dev[`serial_num`].(string)
+	var sn string = dev[`serial_number`].(string)
 
 	if len(sn) > 0 {
 		slog.Printf(`serial number was already set to SN %q`, sn)
