@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	1.0.1
-%define		release	4
+%define		release	5
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
@@ -155,6 +155,10 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Mon Oct 9 2017 - jscherff@gmail.com
+- Modified table, view, and stored procedure names
+- Added column to each table for the JSON object
+- Modified changes column in changes table to be datatype JSON
 * Sat Oct 7 2017 - jscherff@gmail.com
 - Added v1 prefix to URLs and handlers
 * Sat Sep 30 2017 - jscherff@gmail.com
