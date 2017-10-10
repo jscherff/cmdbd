@@ -314,8 +314,13 @@ func RefreshDatabaseUsbInfo(db *sql.DB) error {
 	}
 
 	if err != nil {
-		err = tx.Rollback()
-		log.Fatal(err)
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+	} else {
+		if err := tx.Commit(); err != nil {
+			return err
+		}
 	}
 
 	return err
