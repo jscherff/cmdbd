@@ -22,7 +22,8 @@ DROP TABLE IF EXISTS `cmdb_meta_usb_class`;
 CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_class` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `class_id` varchar(2) NOT NULL,
-  `class_desc` varchar(127) NOT NULL,
+  `class_desc` varchar(255) NOT NULL,
+  `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -34,8 +35,8 @@ CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_product` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
-  `vendor_name` varchar(127) NOT NULL,
-  `product_name` varchar(127) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`vendor_id`,`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
@@ -48,7 +49,8 @@ CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_protocol` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_id` varchar(2) NOT NULL DEFAULT '0',
-  `protocol_desc` varchar(127) NOT NULL DEFAULT '0',
+  `protocol_desc` varchar(255) NOT NULL DEFAULT '0',
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`,`protocol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -60,7 +62,8 @@ CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_subclass` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
-  `subclass_desc` varchar(127) NOT NULL DEFAULT '0',
+  `subclass_desc` varchar(255) NOT NULL DEFAULT '0',
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -71,7 +74,8 @@ DROP TABLE IF EXISTS `cmdb_meta_usb_vendor`;
 CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_vendor` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `vendor_id` varchar(4) NOT NULL,
-  `vendor_name` varchar(127) NOT NULL,
+  `vendor_name` varchar(255) NOT NULL,
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
