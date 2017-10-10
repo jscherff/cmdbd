@@ -54,6 +54,8 @@ func v1usbciCheckin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dev[`object_json`] = body
+
 	if err = SaveDeviceCheckin(dev); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
@@ -94,6 +96,7 @@ func v1usbciNewSN(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dev[`object_json`] = body
 	var sn string = dev[`serial_number`].(string)
 
 	if len(sn) > 0 {

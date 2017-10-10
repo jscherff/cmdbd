@@ -79,7 +79,7 @@ func (this *Database) BuildSQL() (err error) {
 
 	for key, query := range this.Queries {
 
-		rows, err := this.Query(`CALL proc_columns_for_table(?)`, query[1])
+		rows, err := this.Query(`CALL proc_usbci_columns_for_table(?)`, query[1])
 
 		if err != nil {
 			elog.Print(err)
