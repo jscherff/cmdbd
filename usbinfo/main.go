@@ -19,14 +19,14 @@ const (
 	UsbInfoFileMode = 0640
 
 	usbVendorSQL = `
-		INSERT INTO cmdb_meta_usb_vendor (
+		REPLACE INTO cmdb_meta_usb_vendor (
 			vendor_id,
 			vendor_name
 		)
 		VALUES (?, ?)
 	`
 	usbProductSQL = `
-		INSERT INTO cmdb_meta_usb_product (
+		REPLACE INTO cmdb_meta_usb_product (
 			vendor_id,
 			product_id,
 			product_name
@@ -34,7 +34,7 @@ const (
 		VALUES (?, ?, ?)
 	`
 	usbClassSQL = `
-		INSERT INTO cmdb_meta_usb_class (
+		REPLACE INTO cmdb_meta_usb_class (
 			class_id,
 			class_desc
 		)
@@ -42,7 +42,7 @@ const (
 	`
 
 	usbSubclassSQL = `
-		INSERT INTO cmdb_meta_usb_subclass (
+		REPLACE INTO cmdb_meta_usb_subclass (
 			class_id,
 			subclass_id,
 			subclass_desc
@@ -51,7 +51,7 @@ const (
 	`
 
 	usbProtocolSQL = `
-		INSERT INTO cmdb_meta_usb_protocol (
+		REPLACE INTO cmdb_meta_usb_protocol (
 			class_id,
 			subclass_id,
 			protocol_id,
