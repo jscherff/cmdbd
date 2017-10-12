@@ -115,11 +115,11 @@ func SaveUsbMeta() error {
 		return err
 	}
 
-	vendorStmt := tx.Stmt(db.Statements[`usbMetaReplaceVendor`])
-	productStmt := tx.Stmt(db.Statements[`usbMetaReplaceProduct`])
-	classStmt := tx.Stmt(db.Statements[`usbMetaReplaceClass`])
-	subclassStmt := tx.Stmt(db.Statements[`usbMetaReplaceSubclass`])
-	protocolStmt := tx.Stmt(db.Statements[`usbMetaReplaceProtocol`])
+	vendorStmt := tx.Stmt(db.Statements[`metaReplaceUsbVendor`])
+	productStmt := tx.Stmt(db.Statements[`metaReplaceUsbProduct`])
+	classStmt := tx.Stmt(db.Statements[`metaReplaceUsbClass`])
+	subclassStmt := tx.Stmt(db.Statements[`metaReplaceUsbSubclass`])
+	protocolStmt := tx.Stmt(db.Statements[`metaReplaceUsbProtocol`])
 
 	VendorLoop:
 	for vid, v := range conf.Data.UsbMeta.Vendors {
@@ -143,7 +143,7 @@ func SaveUsbMeta() error {
 	ClassLoop:
 	for cid, c := range conf.Data.UsbMeta.Classes {
 
-		scid, sc := fmt.Sprintf(`%2x`, cid), c.String()
+		scid, sc := fmt.Sprintf(`%02x`, uint8(cid)), c.String()
 
 		if _, err = classStmt.Exec(scid, sc); err != nil {
 			break ClassLoop
@@ -151,7 +151,7 @@ func SaveUsbMeta() error {
 
 		for sid, s := range c.Subclass {
 
-			ssid, ss := fmt.Sprintf(`%02x`, sid), s.String
+			ssid, ss := fmt.Sprintf(`%02x`, uint8(sid)), s.String()
 
 			if _, err = subclassStmt.Exec(scid, ssid, ss); err != nil {
 				break ClassLoop
@@ -159,7 +159,7 @@ func SaveUsbMeta() error {
 
 			for pid, p := range s.Protocol {
 
-				spid, sp := fmt.Sprintf(`%02x`, pid), p.String()
+				spid, sp := fmt.Sprintf(`%02x`, uint8(pid)), p.String()
 
 				if _, err = protocolStmt.Exec(scid, ssid, spid, sp); err != nil {
 					break ClassLoop

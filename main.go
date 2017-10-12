@@ -54,13 +54,19 @@ func init() {
 		elog.Fatal(err)
 	}
 
-	if err = conf.Data.UsbMeta.Init(*FRefresh); err != nil {
+	db = conf.Database
+
+	if err = conf.Data.UsbMeta.Init(); err != nil {
 		elog.Fatal(err)
 	}
 
-	conf.Server.Init()
+	if *FRefreshDb {
+		if err = SaveUsbMeta(); err != nil {
+			elog.Print(err)
+		}
+	}
 
-	db = conf.Database
+	conf.Server.Init()
 	ws = conf.Server
 
 	slog.Print(db.Info())

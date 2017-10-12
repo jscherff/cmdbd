@@ -34,10 +34,7 @@ func NewRouter() *mux.Router {
 
 		handler = handlers.RecoveryHandler(handlers.PrintRecoveryStack(
 			conf.Options.RecoveryStack), handlers.RecoveryLogger(elog))(handler)
-/*
-		handler = handlers.ContentTypeHandler(handler,
-			conf.Server.AllowedContentTypes...)
-*/
+
 		handler = handlers.CombinedLoggingHandler(alog, handler)
 
 		router. Methods(route.Method).

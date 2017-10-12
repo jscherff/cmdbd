@@ -54,4 +54,40 @@ var routes = Routes {
 		Pattern:	"/v1/usbci/audit/{host}/{vid}/{pid}/{sn}",
 		HandlerFunc:	v1usbciAudit,
 	},
+/*
+	Route {
+		Name:		"Metadata USB Vendor Handler",
+		Method:		"GET",
+		Pattern:	"/v1/meta/usb/{vid}",
+		HandlerFunc:	v1usbMetaVendorName
+	},
+
+	Route {
+		Name:		"Metadata USB Product Handler",
+		Method:		"GET",
+		Pattern:	"/v1/meta/usb/{vid}/{pid}",
+		HandlerFunc:	v1usbMetaProductName
+	},
+
+	Route {
+		Name:		"Metadata USB Class Handler",
+		Method:		"GET",
+		Pattern:	"/v1/meta/usb/{cid}",
+		HandlerFunc:	v1usbMetaClassDesc
+	},
+
+	Route {
+		Name:		"Metadata USB Subclass Handler",
+		Method:		"GET",
+		Pattern:	"/v1/meta/usb/{cid}/{sid}",
+		HandlerFunc:	v1usbMetaSubclassDesc
+	},
+
+	Route {
+		Name:		"Metadata USB Protocol Handler",
+		Method:		"GET",
+		Pattern:	"/v1/meta/usb/{cid}/{sid}/{pid}",
+		HandlerFunc:	v1usbMetaProtocolDesc
+	},
+*/
 }

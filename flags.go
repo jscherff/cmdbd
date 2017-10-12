@@ -26,4 +26,5 @@ var (
 	FStderr = flag.Bool(`stderr`, false, "Enable logging to stderr")
 	FSyslog = flag.Bool(`syslog`, false, "Enable logging to syslog")
 	FRefresh = flag.Bool(`refresh`, false, "Refresh application metadata")
+	FRefreshDb = flag.Bool(`refreshdb`, false, "Refresh database metadata")
 )

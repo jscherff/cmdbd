@@ -94,14 +94,12 @@ func (this *Protocol) String() string {
 }
 
 // NewUsbMeta creates a new instance of UsbMeta with empty vendor/class maps.
-func (this *UsbMeta) Init(refresh bool) (err error) {
+func (this *UsbMeta) Init() (err error) {
 
-	this = &UsbMeta{
-		Vendors: make(map[gousb.ID]*Vendor),
-		Classes: make(map[gousb.Class]*Class),
-	}
+	this.Vendors = make(map[gousb.ID]*Vendor)
+	this.Classes = make(map[gousb.Class]*Class)
 
-	if refresh {
+	if *FRefresh {
 		if err = this.LoadUrl(conf.URLs.UsbMeta); err != nil {
 			return err
 		}
