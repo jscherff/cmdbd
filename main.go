@@ -51,7 +51,11 @@ func init() {
 	elog = conf.Loggers[`error`]
 
 	if err = conf.Database.Init(); err != nil {
-		elog.Print(err)
+		elog.Fatal(err)
+	}
+
+	if err = conf.Data.UsbMeta.Init(*FRefresh); err != nil {
+		elog.Fatal(err)
 	}
 
 	conf.Server.Init()

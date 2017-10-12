@@ -1,4 +1,21 @@
 {
+	"Paths": {
+		"Logs": "/var/log/cmdbd"
+	},
+
+	"Files": {
+		"UsbMeta": "usbmeta.json"
+	},
+
+	"URLs": {
+		"UsbMeta": "http://www.linux-usb.org/usb.ids"
+	},
+
+
+	"Data": {
+		"UsbMeta": {}
+	},
+
 	"Server": {
 		"Addr": ":8080",
 		"ReadTimeout": 10,
@@ -23,6 +40,10 @@
 		},
 
 		"Queries": {
+			"cmdbInsertSequence": [
+				"INSERT_DEFAULTS",
+				"cmdb_sequence"
+			],
 			"usbciInsertChanges": [
 				"INSERT",
 				"view_usbci_changes"
@@ -52,6 +73,36 @@
 				"object_json",
 				"view_usbci_serialized",
 				"vendor_id = ? AND product_id = ? AND serial_number = ?"
+			],
+			"metaReplaceUsbVendor": [
+				"REPLACE",
+				"meta_usb_vendor",
+				"vendor_id, vendor_name",
+				"?, ?"
+			],
+			"metaReplaceUsbProduct": [
+				"REPLACE",
+				"meta_usb_product",
+				"vendor_id, product_id, product_name",
+				"?, ?, ?"
+			],
+			"metaReplaceUsbClass": [
+				"REPLACE",
+				"meta_usb_class",
+				"class_id, class_desc",
+				"?, ?"
+			],
+			"metaReplaceUsbSubclass": [
+				"REPLACE",
+				"meta_usb_subclass",
+				"class_id, subclass_id, subclass_desc",
+				"?, ?, ?"
+			],
+			"metaReplaceUsbProtocol": [
+				"REPLACE",
+				"meta_usb_protocol",
+				"class_id, subclass_id, protocol_id, protocol_desc",
+				"?, ?, ?, ?"
 			]
 		},
 
@@ -100,15 +151,11 @@
 		"Severity": "LOG_INFO"
 	},
 
-	"LogDir": {
-		"Windows": "log",
-		"Linux": "/var/log/cmdbd"
-	},
-
 	"Options": {
 		"Stdout": false,
 		"Stderr": false,
 		"Syslog": false,
-		"RecoveryStack": false
+		"RecoveryStack": false,
+		"SerialFormat": "24F%04X"
 	}
 }

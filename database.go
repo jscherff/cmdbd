@@ -111,9 +111,9 @@ func (this *Database) BuildSQL() (err error) {
 
 		case `INSERT`:
 
-			sql = fmt.Sprintf(`INSERT INTO %s VALUES (%s?)`,
+			sql = fmt.Sprintf(`INSERT INTO %s VALUES (%s)`,
 				query[1],
-				strings.Repeat(`?, `, len(this.Columns[key]) - 1),
+				strings.Repeat(`?, `, len(this.Columns[key]) - 1) + `?`,
 			)
 
 		case `UPDATE`:
@@ -130,6 +130,20 @@ func (this *Database) BuildSQL() (err error) {
 				query[1],
 				query[2],
 				query[3],
+			)
+
+		case `REPLACE`:
+
+			sql = fmt.Sprintf(`REPLACE INTO %s (%s) VALUES (%s)`,
+				query[1],
+				query[2],
+				query[3],
+			)
+
+		case `INSERT_DEFAULTS`:
+
+			sql = fmt.Sprintf(`INSERT INTO %s VALUES ()`,
+				query[1],
 			)
 		}
 

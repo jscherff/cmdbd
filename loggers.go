@@ -15,9 +15,7 @@
 package main
 
 import (
-	`os`
 	`path/filepath`
-	`runtime`
 	`github.com/jscherff/gox/log`
 )
 
@@ -40,21 +38,10 @@ type Loggers map[string]*Logger
 // configuration file.
 func (this Loggers) Init() {
 
-	var logDir string
-
-	switch runtime.GOOS {
-
-	case `windows`:
-		logDir = filepath.Dir(os.Args[0])
-		logDir = filepath.Join(logDir, conf.LogDir.Windows)
-	case `linux`:
-		logDir = conf.LogDir.Linux
-	}
-
 	for tag, logger := range this {
 
 		flags := log.LoggerFlags(logger.LogFlags...)
-		file := filepath.Join(logDir, logger.LogFile)
+		file := filepath.Join(conf.Paths.Logs, logger.LogFile)
 
 		stdout := logger.Stdout || conf.Options.Stdout || *FStdout
 		stderr := logger.Stderr || conf.Options.Stderr || *FStderr

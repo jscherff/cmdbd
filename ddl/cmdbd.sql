@@ -17,163 +17,69 @@ DROP DATABASE IF EXISTS `gocmdb`;
 CREATE DATABASE IF NOT EXISTS `gocmdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `gocmdb`;
 
--- Dumping structure for table gocmdb.cmdb_meta_usb_class
-DROP TABLE IF EXISTS `cmdb_meta_usb_class`;
-CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_class` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+-- Dumping structure for table gocmdb.cmdb_sequence
+DROP TABLE IF EXISTS `cmdb_sequence`;
+CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
+  `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `issued` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ord`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Data exporting was unselected.
+-- Dumping structure for table gocmdb.meta_usb_class
+DROP TABLE IF EXISTS `meta_usb_class`;
+CREATE TABLE IF NOT EXISTS `meta_usb_class` (
   `class_id` varchar(2) NOT NULL,
   `class_desc` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.cmdb_meta_usb_product
-DROP TABLE IF EXISTS `cmdb_meta_usb_product`;
-CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_product` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+-- Dumping structure for table gocmdb.meta_usb_product
+DROP TABLE IF EXISTS `meta_usb_product`;
+CREATE TABLE IF NOT EXISTS `meta_usb_product` (
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `product_name` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`vendor_id`,`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.cmdb_meta_usb_protocol
-DROP TABLE IF EXISTS `cmdb_meta_usb_protocol`;
-CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_protocol` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+-- Dumping structure for table gocmdb.meta_usb_protocol
+DROP TABLE IF EXISTS `meta_usb_protocol`;
+CREATE TABLE IF NOT EXISTS `meta_usb_protocol` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_desc` varchar(255) NOT NULL DEFAULT '0',
   `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`,`protocol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.cmdb_meta_usb_subclass
-DROP TABLE IF EXISTS `cmdb_meta_usb_subclass`;
-CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_subclass` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+-- Dumping structure for table gocmdb.meta_usb_subclass
+DROP TABLE IF EXISTS `meta_usb_subclass`;
+CREATE TABLE IF NOT EXISTS `meta_usb_subclass` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_desc` varchar(255) NOT NULL DEFAULT '0',
   `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.cmdb_meta_usb_vendor
-DROP TABLE IF EXISTS `cmdb_meta_usb_vendor`;
-CREATE TABLE IF NOT EXISTS `cmdb_meta_usb_vendor` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+-- Dumping structure for table gocmdb.meta_usb_vendor
+DROP TABLE IF EXISTS `meta_usb_vendor`;
+CREATE TABLE IF NOT EXISTS `meta_usb_vendor` (
   `vendor_id` varchar(4) NOT NULL,
   `vendor_name` varchar(255) NOT NULL,
   `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for function gocmdb.func_usbci_insert_snrequests
-DROP FUNCTION IF EXISTS `func_usbci_insert_snrequests`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` FUNCTION `func_usbci_insert_snrequests`(
-	`host_name_in` VARCHAR(255),
-	`vendor_id_in` VARCHAR(4),
-	`product_id_in` VARCHAR(4),
-	`serial_number_in` VARCHAR(127),
-	`vendor_name_in` VARCHAR(127),
-	`product_name_in` VARCHAR(127),
-	`product_ver_in` VARCHAR(255),
-	`firmware_ver_in` VARCHAR(255),
-	`software_id_in` VARCHAR(255),
-	`bus_number_in` INT(10),
-	`bus_address_in` INT(10),
-	`port_number_in` INT(10),
-	`buffer_size_in` INT(10),
-	`max_pkt_size_in` INT(10),
-	`usb_spec_in` VARCHAR(5),
-	`usb_class_in` VARCHAR(127),
-	`usb_subclass_in` VARCHAR(127),
-	`usb_protocol_in` VARCHAR(127),
-	`device_speed_in` VARCHAR(127),
-	`device_ver_in` VARCHAR(5),
-	`device_sn_in` VARCHAR(127),
-	`factory_sn_in` VARCHAR(127),
-	`descriptor_sn_in` VARCHAR(127),
-	`object_type_in` VARCHAR(255),
-	`object_json_in` JSON,
-	`checkin_date_in` DATETIME
-) RETURNS int(11)
-    DETERMINISTIC
-    SQL SECURITY INVOKER
-BEGIN
-	INSERT INTO usbci_snrequests (
-		host_name,
-		vendor_id,
-		product_id,
-		serial_number,
-		vendor_name,
-		product_name,
-		product_ver,
-		firmware_ver,
-		software_id,
-		port_number,
-		bus_number,
-		bus_address,
-		buffer_size,
-		max_pkt_size,
-		usb_spec,
-		usb_class,
-		usb_subclass,
-		usb_protocol,
-		device_speed,
-		device_ver,
-		device_sn,
-		factory_sn,
-		descriptor_sn,
-		object_type,
-		object_json
-	)
-	VALUES (
-		host_name_in,
-		vendor_id_in,
-		product_id_in,
-		serial_number_in,
-		vendor_name_in,
-		product_name_in,
-		product_ver_in,
-		firmware_ver_in,
-		software_id_in,
-		port_number_in,
-		bus_number_in,
-		bus_address_in,
-		buffer_size_in,
-		max_pkt_size_in,
-		usb_spec_in,
-		usb_class_in,
-		usb_subclass_in,
-		usb_protocol_in, 
-		device_speed_in,
-		device_ver_in,
-		device_sn_in,
-		factory_sn_in,
-		descriptor_sn_in,
-		object_type_in,
-		object_json_in
-	);
-	
-	RETURN LAST_INSERT_ID();
-END//
-DELIMITER ;
-
 -- Dumping structure for procedure gocmdb.proc_usbci_columns_for_table
 DROP PROCEDURE IF EXISTS `proc_usbci_columns_for_table`;
 DELIMITER //
@@ -218,7 +124,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_checkins`(
 	IN `descriptor_sn_in` VARCHAR(127),
 	IN `object_type_in` VARCHAR(255),
 	IN `object_json_in` JSON,
-	IN `checkin_date_in` DATETIME
+	IN `remote_addr_in` VARCHAR(255)
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -248,7 +154,8 @@ BEGIN
 		factory_sn,
 		descriptor_sn,
 		object_type,
-		object_json
+		object_json,
+		remote_addr
 	)
 	VALUES (
 		host_name_in,
@@ -275,7 +182,8 @@ BEGIN
 		factory_sn_in,
 		descriptor_sn_in,
 		object_type_in,
-		object_json_in
+		object_json_in,
+		remote_addr_in
 	);
 END//
 DELIMITER ;
@@ -309,7 +217,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_serialized`(
 	IN `descriptor_sn_in` VARCHAR(127),
 	IN `object_type_in` VARCHAR(255),
 	IN `object_json_in` JSON,
+	IN `remote_addr_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
+
+
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -340,6 +251,7 @@ BEGIN
 		descriptor_sn,
 		object_type,
 		object_json,
+		remote_addr,
 		first_seen,
 		last_seen
 	)
@@ -369,6 +281,7 @@ BEGIN
 		descriptor_sn_in,
 		object_type_in,
 		object_json_in,
+		remote_addr_in,
 		checkin_date_in,
 		checkin_date_in
 	)
@@ -397,6 +310,7 @@ BEGIN
 		descriptor_sn = descriptor_sn_in,
 		object_type = object_type_in,
 		object_json = object_json_in,
+		remote_addr = remote_addr_in,
 		last_seen = checkin_date_in,
 		checkins = checkins + 1;
 END//
@@ -431,7 +345,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_unserialized`(
 	IN `descriptor_sn_in` VARCHAR(127),
 	IN `object_type_in` VARCHAR(255),
 	IN `object_json_in` JSON,
+	IN `remote_addr_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
+
+
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -462,6 +379,7 @@ BEGIN
 		descriptor_sn,
 		object_type,
 		object_json,
+		remote_addr,
 		first_seen,
 		last_seen
 	)
@@ -491,6 +409,7 @@ BEGIN
 		descriptor_sn_in,
 		object_type_in,
 		object_json_in,
+		remote_addr_in,
 		checkin_date_in,
 		checkin_date_in
 	)
@@ -519,6 +438,7 @@ BEGIN
 		descriptor_sn = descriptor_sn_in,
 		object_type = object_type_in,
 		object_json = object_json_in,
+		remote_addr = remote_addr_in,
 		last_seen = checkin_date_in,
 		checkins = checkins + 1;
 END//
@@ -572,6 +492,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
   `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `checkin_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
@@ -616,6 +537,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
   `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `first_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
@@ -660,6 +582,7 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
   `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
@@ -704,6 +627,7 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
   `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `first_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen` datetime NOT NULL DEFAULT current_timestamp(),
   `checkins` int(10) unsigned NOT NULL DEFAULT 1,
@@ -757,7 +681,8 @@ CREATE TABLE `view_usbci_checkins` (
 	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
-	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin'
+	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin',
+	`remote_addr` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized
@@ -788,7 +713,8 @@ CREATE TABLE `view_usbci_serialized` (
 	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
-	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin'
+	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin',
+	`remote_addr` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_snrequests
@@ -819,7 +745,8 @@ CREATE TABLE `view_usbci_snrequests` (
 	`factory_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`descriptor_sn` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
 	`object_type` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
-	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin'
+	`object_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin',
+	`remote_addr` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_unique_devices
@@ -864,6 +791,7 @@ CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkin
 			NEW.descriptor_sn,
 			NEW.object_type,
 			NEW.object_json,
+			NEW.remote_addr,
 			NEW.checkin_date
 		);
 	ELSE
@@ -893,6 +821,7 @@ CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkin
 			NEW.descriptor_sn,
 			NEW.object_type,
 			NEW.object_json,
+			NEW.remote_addr,
 			NEW.checkin_date
 		);
 	END IF;
@@ -942,7 +871,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_checkins`
 	factory_sn,
 	descriptor_sn,
 	object_type,
-	object_json
+	object_json,
+	remote_addr
 FROM
 	usbci_checkins ;
 
@@ -975,7 +905,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialize
 	factory_sn,
 	descriptor_sn,
 	object_type,
-	object_json
+	object_json,
+	remote_addr
 FROM
 	usbci_serialized ;
 
@@ -1008,7 +939,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_snrequest
 	factory_sn,
 	descriptor_sn,
 	object_type,
-	object_json
+	object_json,
+	remote_addr
 FROM
 	usbci_snrequests ;
 

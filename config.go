@@ -27,9 +27,20 @@ type Config struct {
 	Loggers Loggers
 	Syslog *Syslog
 
-	LogDir struct {
-		Windows string
-		Linux string
+	Paths struct {
+		Logs string
+	}
+
+	Files struct {
+		UsbMeta string
+	}
+
+	URLs struct {
+		UsbMeta string
+	}
+
+	Data struct {
+		UsbMeta *UsbMeta
 	}
 
 	Options struct {
@@ -37,6 +48,7 @@ type Config struct {
 		Stderr bool
 		Syslog bool
 		RecoveryStack bool
+		SerialFormat string
 	}
 }
 

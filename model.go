@@ -25,7 +25,7 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 		vals = append(vals, dev[col])
 	}
 
-	if _, err := db.Statements[`usbciInsertCheckin`].Exec(vals...); err != nil {
+	if _, err = db.Statements[`usbciInsertCheckin`].Exec(vals...); err != nil {
 		elog.Print(err)
 	}
 
@@ -35,31 +35,48 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 // GetNewSerialNumber generates a new device serial number using the value
 // from the auto-incremented ID column of the 'snrequest' table with the
 // format string provided by the caller.
-func GetNewSerialNumber(sfmt string, dev map[string]interface{}) (sn string, err error) {
+func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 
-	var vals []interface{}
+	var (
+		id int64
+		vals []interface{}
+	)
+
+	tx, err := db.Begin()
+
+	if err != nil {
+		return sn, err
+	}
 
 	for _, col := range db.Columns[`usbciInsertSnRequest`] {
 		vals = append(vals, dev[col])
 	}
 
-	res, err := db.Statements[`usbciInsertSnRequest`].Exec(vals...)
-
-	if err != nil {
+	if res, err := db.Statements[`usbciInsertSnRequest`].Exec(vals...); err != nil {
+		elog.Print(err)
+		return sn, err
+	} else if id, err = res.LastInsertId(); err != nil {
 		elog.Print(err)
 		return sn, err
 	}
 
-	id, err := res.LastInsertId()
-
-	if err != nil {
+	if res, err := db.Statements[`cmdbInsertSequence`].Exec(); err != nil {
 		elog.Print(err)
 		return sn, err
+	} else if sq, err := res.LastInsertId(); err != nil {
+		elog.Print(err)
+		return sn, err
+	} else {
+		sn = fmt.Sprintf(conf.Options.SerialFormat, sq)
 	}
-
-	sn = fmt.Sprintf(`24F%04X`, id)
 
 	if _, err = db.Statements[`usbciUpdateSnRequest`].Exec(sn, id); err != nil {
+		elog.Print(err)
+	}
+
+	if err != nil {
+		elog.Print(err)
+	} else if err := tx.Commit(); err != nil {
 		elog.Print(err)
 	}
 
@@ -70,7 +87,7 @@ func GetNewSerialNumber(sfmt string, dev map[string]interface{}) (sn string, err
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	if _, err := db.Statements[`usbciInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
+	if _, err = db.Statements[`usbciInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
 		elog.Print(err)
 	}
 
@@ -84,5 +101,78 @@ func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 	if err = db.Statements[`usbciSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
 		elog.Print(err)
 	}
+
 	return j, err
+}
+
+// SaveUsbMeta updates the USB meta tables in the database.
+func SaveUsbMeta() error {
+
+	tx, err := db.Begin()
+
+	if err != nil {
+		elog.Print(err)
+		return err
+	}
+
+	vendorStmt := tx.Stmt(db.Statements[`usbMetaReplaceVendor`])
+	productStmt := tx.Stmt(db.Statements[`usbMetaReplaceProduct`])
+	classStmt := tx.Stmt(db.Statements[`usbMetaReplaceClass`])
+	subclassStmt := tx.Stmt(db.Statements[`usbMetaReplaceSubclass`])
+	protocolStmt := tx.Stmt(db.Statements[`usbMetaReplaceProtocol`])
+
+	VendorLoop:
+	for vid, v := range conf.Data.UsbMeta.Vendors {
+
+		svid, sv := vid.String(), v.String()
+
+		if _, err = vendorStmt.Exec(svid, sv); err != nil {
+			break VendorLoop
+		}
+
+		for pid, p := range v.Product {
+
+			spid, sp := pid.String(), p.String()
+
+			if _, err = productStmt.Exec(svid, spid, sp); err != nil {
+				break VendorLoop
+			}
+		}
+	}
+
+	ClassLoop:
+	for cid, c := range conf.Data.UsbMeta.Classes {
+
+		scid, sc := fmt.Sprintf(`%2x`, cid), c.String()
+
+		if _, err = classStmt.Exec(scid, sc); err != nil {
+			break ClassLoop
+		}
+
+		for sid, s := range c.Subclass {
+
+			ssid, ss := fmt.Sprintf(`%02x`, sid), s.String
+
+			if _, err = subclassStmt.Exec(scid, ssid, ss); err != nil {
+				break ClassLoop
+			}
+
+			for pid, p := range s.Protocol {
+
+				spid, sp := fmt.Sprintf(`%02x`, pid), p.String()
+
+				if _, err = protocolStmt.Exec(scid, ssid, spid, sp); err != nil {
+					break ClassLoop
+				}
+			}
+		}
+	}
+
+	if err != nil {
+		elog.Print(err)
+	} else if err := tx.Commit(); err != nil {
+		elog.Print(err)
+	}
+
+	return err
 }

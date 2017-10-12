@@ -55,6 +55,7 @@ func v1usbciCheckin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dev[`object_json`] = body
+	dev[`remote_addr`] = r.RemoteAddr
 
 	if err = SaveDeviceCheckin(dev); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -97,13 +98,15 @@ func v1usbciNewSN(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dev[`object_json`] = body
+	dev[`remote_addr`] = r.RemoteAddr
+
 	var sn string = dev[`serial_number`].(string)
 
 	if len(sn) > 0 {
 		slog.Printf(`serial number was already set to SN %q`, sn)
 	}
 
-	if sn, err = GetNewSerialNumber(`24F%04X`, dev); err != nil {
+	if sn, err = GetNewSerialNumber(dev); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		slog.Printf(`generated SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
