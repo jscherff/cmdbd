@@ -14,37 +14,19 @@
 
 package main
 
-import (
-	`encoding/json`
-	`os`
-)
+import `github.com/jscherff/cmdb/metaci/peripheral`
 
-// Config contains infomation about the server process and log writers.
-type Config struct {
-	Server   *Server
-	Database *Database
-	Queries  *Queries
-	Router   *Router
-	Logger   *Logger
-	Syslog   *Syslog
-	MetaCi   *MetaCi
+// MetaCi contains metatata for various classes of CIs.
+type MetaCi struct {
+	Usb *peripheral.Usb
 }
 
-// NewConfig creates a new Config object and reads its configuration from
-// the provided JSON configuration file.
-func NewConfig(cf string) (this *Config, err error) {
+// NewMetaCi creates and initializes a new instance of MetaCI.
+func NewMetaCi(uf string) (*MetaCi, error) {
 
-	fh, err := os.Open(cf)
-
-	if err != nil {
-		return this, err
+	if usb, err := NewUsb(uf); err != nil {
+		return nil, err
+	} else {
+		return &MetaCi{usb}, nil
 	}
-
-	defer fh.Close()
-
-	this = &Config{}
-	jd := json.NewDecoder(fh)
-	err = jd.Decode(&this)
-
-	return this, err
 }

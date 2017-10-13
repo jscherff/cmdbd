@@ -1,10 +1,12 @@
 {
 	"Paths": {
-		"Logs": "/var/log/cmdbd"
+		"Logs": "/var/log/cmdbd",
+		"Configs": "/etc/cmdbd"
 	},
 
 	"Files": {
-		"UsbMeta": "usbmeta.json"
+		"UsbMeta": "usbmeta.json",
+		"Queries": "queries.json"
 	},
 
 	"URLs": {
@@ -76,31 +78,31 @@
 			],
 			"metaReplaceUsbVendor": [
 				"REPLACE",
-				"meta_usb_vendor",
+				"usbmeta_vendor",
 				"vendor_id, vendor_name",
 				"?, ?"
 			],
 			"metaReplaceUsbProduct": [
 				"REPLACE",
-				"meta_usb_product",
+				"usbmeta_product",
 				"vendor_id, product_id, product_name",
 				"?, ?, ?"
 			],
 			"metaReplaceUsbClass": [
 				"REPLACE",
-				"meta_usb_class",
+				"usbmeta_class",
 				"class_id, class_desc",
 				"?, ?"
 			],
 			"metaReplaceUsbSubclass": [
 				"REPLACE",
-				"meta_usb_subclass",
+				"usbmeta_subclass",
 				"class_id, subclass_id, subclass_desc",
 				"?, ?, ?"
 			],
 			"metaReplaceUsbProtocol": [
 				"REPLACE",
-				"meta_usb_protocol",
+				"usbmeta_protocol",
 				"class_id, subclass_id, protocol_id, protocol_desc",
 				"?, ?, ?, ?"
 			]

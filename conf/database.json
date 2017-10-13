@@ -1,0 +1,12 @@
+{
+	"Driver": "mysql",
+
+	"Config": {
+		"User": "cmdbd",
+		"Passwd": "K2Cvg3NeyR",
+		"Net": "",
+		"Addr": "localhost",
+		"DBName": "gocmdb",
+		"Params": null
+	}
+}

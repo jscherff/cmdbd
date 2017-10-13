@@ -38,17 +38,17 @@ func init() {
 		log.Fatalln(err)
 	}
 
-	if conf.Options.Syslog || *FSyslog {
+	if conf.Logger.Syslog || *FSyslog {
 		if err = conf.Syslog.Init(); err != nil {
 			log.Println(err)
 		}
 	}
 
-	conf.Loggers.Init()
+	conf.Logger.Init()
 
-	slog = conf.Loggers[`system`]
-	alog = conf.Loggers[`access`]
-	elog = conf.Loggers[`error`]
+	slog = conf.Logger.Logs[`system`]
+	alog = conf.Logger.Logs[`access`]
+	elog = conf.Logger.Logs[`error`]
 
 	if err = conf.Database.Init(); err != nil {
 		elog.Fatal(err)
@@ -56,7 +56,15 @@ func init() {
 
 	db = conf.Database
 
-	if err = conf.Data.UsbMeta.Init(); err != nil {
+	if conf.MetaCi.Usb, err = NewMetaCi(conf.Configs. **************
+
+	if *FRefresh {
+		if err = conf.MetaCi.Usb.Init(conf.URLs.UsbMeta); err != nil {
+			elog.Fatal(err)
+		} else if err = conf.MetaCi.Usb.Save(conf.Files.UsbMeta); err != nil {
+			elog.Fatal(err)
+		}
+	} else if err = conf.MetaCi.Usb.Load(conf.Files.UsbMeta); err != nil {
 		elog.Fatal(err)
 	}
 
@@ -76,6 +84,7 @@ func init() {
 func main() {
 	log.Fatal(conf.Server.ListenAndServe())
 	slog.Print("shutting down")
+	conf.Queries.Close()
 	conf.Database.Close()
-	conf.Loggers.Close()
+	conf.Logger.Close()
 }

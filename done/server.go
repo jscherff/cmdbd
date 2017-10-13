@@ -30,7 +30,6 @@ type Server struct {
 // NewConfig creates a new Config object and reads its configuration from
 // the provided JSON configuration file.
 func (this *Server) Init() {
-
 	this.ReadTimeout *= time.Second
 	this.WriteTimeout *= time.Second
 	this.Handler = NewRouter()

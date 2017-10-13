@@ -1,0 +1,9 @@
+{
+	"Writer": {},
+	"Protocol": "tcp",
+	"Port": "1468",
+	"Host": "localhost",
+	"Tag": "cmdbd",
+	"Facility": "LOG_LOCAL7",
+	"Severity": "LOG_INFO"
+}

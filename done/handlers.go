@@ -23,7 +23,7 @@ import (
 )
 
 // usbciCheckin records a device checkin.
-func v1usbciCheckin(w http.ResponseWriter, r *http.Request) {
+func usbciCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -66,7 +66,7 @@ func v1usbciCheckin(w http.ResponseWriter, r *http.Request) {
 }
 
 // usbciNewSN generates a new serial number for an unserialized device.
-func v1usbciNewSN(w http.ResponseWriter, r *http.Request) {
+func usbciNewSNV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -119,7 +119,7 @@ func v1usbciNewSN(w http.ResponseWriter, r *http.Request) {
 }
 
 // usbciAudit accepts the results of a device self-audit and stores the results.
-func v1usbciAudit(w http.ResponseWriter, r *http.Request) {
+func usbciAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -146,7 +146,7 @@ func v1usbciAudit(w http.ResponseWriter, r *http.Request) {
 
 // usbciCheckout retrieves a device from the serialized device database as a
 // JSON object and returns it to the caller.
-func v1usbciCheckout(w http.ResponseWriter, r *http.Request) {
+func usbciCheckoutV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -159,6 +159,147 @@ func v1usbciCheckout(w http.ResponseWriter, r *http.Request) {
 		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
 		if _, err = w.Write(j); err != nil {
+			elog.Panic(err)
+		}
+	}
+}
+
+// usbMetaVendor returns the USB vendor name associated with a vendor ID.
+func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var vid = vars[`vid`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	errh := func(e error) {
+		elog.Print(e)
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+	}
+
+	u := conf.MetaCi.Usb
+
+	if v, err := u.GetVendor(vid); err != nil {
+		errh(err)
+	} else {
+		csv := fmt.Sprintf(`%q`, v)
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(csv); err != nil {
+			elog.Panic(err)
+		}
+	}
+}
+
+// usbMetaProduct returns the USB vendor and product names associated with
+// a vendor and product ID.
+func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var vid, pid = vars[`vid`], vars[`pid`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	errh := func(e error) {
+		elog.Print(e)
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+	}
+
+	u := conf.MetaCi.Usb
+
+	if v, err := u.GetVendor(vid); err != nil {
+		errh(err)
+	} else if p, err := v.GetProduct(pid); err != nil {
+		errh(err)
+	} else {
+		csv := fmt.Sprintf(`%q,%q`, v, p)
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(csv); err != nil {
+			elog.Panic(err)
+		}
+	}
+}
+
+// usbMetaClass returns the USB class description associated with a class ID.
+func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var cid = vars[`cid`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	errh := func(e error) {
+		elog.Print(e)
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+	}
+
+	u := conf.MetaCi.Usb
+
+	if c, err := u.GetClass(cid); err != nil {
+		errh(err)
+	} else {
+		csv := fmt.Sprintf(`%q`, c)
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(csv); err != nil {
+			elog.Panic(err)
+		}
+	}
+}
+
+// usbMetaSubclass returns the USB class and subclass descriptions associated
+// with a class and subclass ID.
+func usbMetaSubclassV1(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var cid, sid = vars[`cid`], vars[`sid`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	errh := func(e error) {
+		elog.Print(e)
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+	}
+
+	u := conf.MetaCi.Usb
+
+	if c, err := u.GetVendor(cid); err != nil {
+		errh(err)
+	} else if s, err := c.GetSubclass(sid); err != nil {
+		errh(err)
+	} else {
+		csv := fmt.Sprintf(`%q,%q`, c, s)
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(csv); err != nil {
+			elog.Panic(err)
+		}
+	}
+}
+
+// usbMetaProtocol returns the USB class, subclass, and protocol descriptions
+// associated with a class, subclass, and protocol ID.
+func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	var cid, sid, pid = vars[`cid`], vars[`sid`], vars[`pid`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	errh := func(e error) {
+		elog.Print(e)
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+	}
+
+	u := conf.MetaCi.Usb
+
+	if c, err := u.GetVendor(cid); err != nil {
+		errh(err)
+	} else if s, err := c.GetSubclass(sid); err != nil {
+		errh(err)
+	} else if p, err := s.GetProtocol(pid); err != nil {
+		errh(err)
+	} else {
+		csv := fmt.Sprintf(`%q,%q,%q`, c, s, p)
+		w.WriteHeader(http.StatusOK)
+		if _, err = w.Write(csv); err != nil {
 			elog.Panic(err)
 		}
 	}

@@ -25,69 +25,71 @@ type Route struct {
 
 type Routes []Route
 
-var routes = Routes {
+var usbciRoutes = Routes {
 
 	Route {
 		Name:		"USBCI Checkin Handler",
 		Method:		"POST",
 		Pattern:	"/v1/usbci/checkin/{host}/{vid}/{pid}",
-		HandlerFunc:	v1usbciCheckin,
+		HandlerFunc:	usbciCheckinV1,
 	},
 
 	Route {
 		Name:		"USBCI Checkout Handler",
 		Method:		"GET",
 		Pattern:	"/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}",
-		HandlerFunc:	v1usbciCheckout,
+		HandlerFunc:	usbciCheckoutV1,
 	},
 
 	Route {
 		Name:		"USBCI NewSN Handler",
 		Method:		"POST",
 		Pattern:	"/v1/usbci/newsn/{host}/{vid}/{pid}",
-		HandlerFunc:	v1usbciNewSN,
+		HandlerFunc:	usbciNewSNV1,
 	},
 
 	Route {
 		Name:		"USBCI Audit Handler",
 		Method:		"POST",
 		Pattern:	"/v1/usbci/audit/{host}/{vid}/{pid}/{sn}",
-		HandlerFunc:	v1usbciAudit,
+		HandlerFunc:	usbciAuditV1,
 	},
-/*
+}
+
+var metaRoutes = Routes {
+
 	Route {
 		Name:		"Metadata USB Vendor Handler",
 		Method:		"GET",
 		Pattern:	"/v1/meta/usb/{vid}",
-		HandlerFunc:	v1usbMetaVendorName
+		HandlerFunc:	usbMetaVendorV1
 	},
 
 	Route {
 		Name:		"Metadata USB Product Handler",
 		Method:		"GET",
 		Pattern:	"/v1/meta/usb/{vid}/{pid}",
-		HandlerFunc:	v1usbMetaProductName
+		HandlerFunc:	usbMetaProductV1
 	},
 
 	Route {
 		Name:		"Metadata USB Class Handler",
 		Method:		"GET",
 		Pattern:	"/v1/meta/usb/{cid}",
-		HandlerFunc:	v1usbMetaClassDesc
+		HandlerFunc:	usbMetaClassV1
 	},
 
 	Route {
 		Name:		"Metadata USB Subclass Handler",
 		Method:		"GET",
 		Pattern:	"/v1/meta/usb/{cid}/{sid}",
-		HandlerFunc:	v1usbMetaSubclassDesc
+		HandlerFunc:	usbMetaSubclassV1
 	},
 
 	Route {
 		Name:		"Metadata USB Protocol Handler",
 		Method:		"GET",
 		Pattern:	"/v1/meta/usb/{cid}/{sid}/{pid}",
-		HandlerFunc:	v1usbMetaProtocolDesc
+		HandlerFunc:	usbMetaProtocolV1
 	},
-*/
 }

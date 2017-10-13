@@ -1,0 +1,37 @@
+{
+	"LogDir": "/var/log/cmdbd",
+
+	"Stdout": false,
+	"Stderr": false,
+	"Syslog": false,
+	"RecoveryStack": false,
+
+	"Logs": {
+		"system": {
+			"MLogger": {},
+			"LogFile": "system.log",
+			"LogFlags": ["date","time","shortfile"],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false
+		},
+	
+		"access": {
+			"MLogger": {},
+			"LogFile": "access.log",
+			"LogFlags": [],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": true
+		},
+	
+		"error": {
+			"MLogger": {},
+			"LogFile": "error.log",
+			"LogFlags": ["date","time","shortfile"],
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false
+		}
+	}
+}

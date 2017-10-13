@@ -122,46 +122,36 @@ func SaveUsbMeta() error {
 	protocolStmt := tx.Stmt(db.Statements[`metaReplaceUsbProtocol`])
 
 	VendorLoop:
-	for vid, v := range conf.Data.UsbMeta.Vendors {
+	for vid, v := range conf.MetaCi.Usb.Vendors {
 
-		svid, sv := vid.String(), v.String()
-
-		if _, err = vendorStmt.Exec(svid, sv); err != nil {
+		if _, err = vendorStmt.Exec(vid, v.String()); err != nil {
 			break VendorLoop
 		}
 
 		for pid, p := range v.Product {
 
-			spid, sp := pid.String(), p.String()
-
-			if _, err = productStmt.Exec(svid, spid, sp); err != nil {
+			if _, err = productStmt.Exec(vid, pid, p.String()); err != nil {
 				break VendorLoop
 			}
 		}
 	}
 
 	ClassLoop:
-	for cid, c := range conf.Data.UsbMeta.Classes {
+	for cid, c := range conf.MetaCi.Usb.Classes {
 
-		scid, sc := fmt.Sprintf(`%02x`, uint8(cid)), c.String()
-
-		if _, err = classStmt.Exec(scid, sc); err != nil {
+		if _, err = classStmt.Exec(cid, c.String()); err != nil {
 			break ClassLoop
 		}
 
 		for sid, s := range c.Subclass {
 
-			ssid, ss := fmt.Sprintf(`%02x`, uint8(sid)), s.String()
-
-			if _, err = subclassStmt.Exec(scid, ssid, ss); err != nil {
+			if _, err = subclassStmt.Exec(cid, sid, s.String()); err != nil {
 				break ClassLoop
 			}
 
 			for pid, p := range s.Protocol {
 
-				spid, sp := fmt.Sprintf(`%02x`, uint8(pid)), p.String()
-
-				if _, err = protocolStmt.Exec(scid, ssid, spid, sp); err != nil {
+				if _, err = protocolStmt.Exec(cid, sid, pid, p.String()); err != nil {
 					break ClassLoop
 				}
 			}

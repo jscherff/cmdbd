@@ -1,0 +1,15 @@
+{
+	"ConfigDir": "/etc/cmdbd",
+	"SerialFormat": "24F%04X",
+
+	"Configs": {
+		"Server": "server.json",
+		"Database": "database.json",
+		"Queries": "queries.json",
+		"Logger": "logger.json",
+		"Syslog": "syslog.json",
+		"MetaCi": {
+			"Usb": "usbmeta.json"
+		}
+	}
+}

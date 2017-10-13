@@ -16,15 +16,13 @@ package main
 
 import `flag`
 
-const (
-	configDefault = `/etc/cmdbd/config.json`
-)
+const confDefault = `/etc/cmdbd.d`
 
 var (
-	FConfig = flag.String(`config`, configDefault, "System configuration `file`")
+	FConfig = flag.String(`confdir`, confDefault, "Configuration `directory`")
 	FStdout = flag.Bool(`stdout`, false, "Enable logging to stdout")
 	FStderr = flag.Bool(`stderr`, false, "Enable logging to stderr")
 	FSyslog = flag.Bool(`syslog`, false, "Enable logging to syslog")
 	FRefresh = flag.Bool(`refresh`, false, "Refresh application metadata")
-	FRefreshDb = flag.Bool(`refreshdb`, false, "Refresh database metadata")
+	FRefreshDb = flag.Bool(`reload`, false, "Reload database metadata")
 )

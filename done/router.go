@@ -20,11 +20,24 @@ import (
 	`github.com/gorilla/handlers`
 )
 
-// NewRouter creates a new Gorilla Mux router and adds routes contained
-// in the routes struct.
-func NewRouter() *mux.Router {
+// Router is a Gorilla Mux router with additional methods.
+type Router struct {
+	*mux.Router
+}
 
-	router := mux.NewRouter().StrictSlash(true)
+// NewRouter instantiates a new Router.
+func NewRouter() *Router {
+	return &Router{mux.NewRouter().StrictSlash(true)}
+}
+
+// AddRoutes adds a collection of one or more routes to the Router.
+func (this *Router) AddRoutes(routes Routes) *Router {
+
+	var (
+		accessLog = conf.Logger.Logs[`access`]
+		recoveryLog = conf.Logger.Logs[`error`]
+		recoveryStack = conf.Logger.RecoveryStack
+	)
 
 	for _, route := range routes {
 
@@ -32,16 +45,18 @@ func NewRouter() *mux.Router {
 
 		handler = route.HandlerFunc
 
-		handler = handlers.RecoveryHandler(handlers.PrintRecoveryStack(
-			conf.Options.RecoveryStack), handlers.RecoveryLogger(elog))(handler)
+		handler = handlers.RecoveryHandler(
+			handlers.PrintRecoveryStack(recoveryStack),
+			handlers.RecoveryLogger(recoveryLog))(handler)
 
-		handler = handlers.CombinedLoggingHandler(alog, handler)
+		handler = handlers.CombinedLoggingHandler(
+			accessLog, handler)
 
-		router. Methods(route.Method).
+		this.	Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)
 	}
 
-	return router
+	return this
 }

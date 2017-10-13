@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.meta_usb_class
-DROP TABLE IF EXISTS `meta_usb_class`;
-CREATE TABLE IF NOT EXISTS `meta_usb_class` (
+-- Dumping structure for table gocmdb.usbmeta_class
+DROP TABLE IF EXISTS `usbmeta_class`;
+CREATE TABLE IF NOT EXISTS `usbmeta_class` (
   `class_id` varchar(2) NOT NULL,
   `class_desc` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -36,9 +36,9 @@ CREATE TABLE IF NOT EXISTS `meta_usb_class` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.meta_usb_product
-DROP TABLE IF EXISTS `meta_usb_product`;
-CREATE TABLE IF NOT EXISTS `meta_usb_product` (
+-- Dumping structure for table gocmdb.usbmeta_product
+DROP TABLE IF EXISTS `usbmeta_product`;
+CREATE TABLE IF NOT EXISTS `usbmeta_product` (
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `product_name` varchar(255) NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE IF NOT EXISTS `meta_usb_product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.meta_usb_protocol
-DROP TABLE IF EXISTS `meta_usb_protocol`;
-CREATE TABLE IF NOT EXISTS `meta_usb_protocol` (
+-- Dumping structure for table gocmdb.usbmeta_protocol
+DROP TABLE IF EXISTS `usbmeta_protocol`;
+CREATE TABLE IF NOT EXISTS `usbmeta_protocol` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_id` varchar(2) NOT NULL DEFAULT '0',
@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS `meta_usb_protocol` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.meta_usb_subclass
-DROP TABLE IF EXISTS `meta_usb_subclass`;
-CREATE TABLE IF NOT EXISTS `meta_usb_subclass` (
+-- Dumping structure for table gocmdb.usbmeta_subclass
+DROP TABLE IF EXISTS `usbmeta_subclass`;
+CREATE TABLE IF NOT EXISTS `usbmeta_subclass` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_desc` varchar(255) NOT NULL DEFAULT '0',
@@ -70,9 +70,9 @@ CREATE TABLE IF NOT EXISTS `meta_usb_subclass` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for table gocmdb.meta_usb_vendor
-DROP TABLE IF EXISTS `meta_usb_vendor`;
-CREATE TABLE IF NOT EXISTS `meta_usb_vendor` (
+-- Dumping structure for table gocmdb.usbmeta_vendor
+DROP TABLE IF EXISTS `usbmeta_vendor`;
+CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
   `vendor_id` varchar(4) NOT NULL,
   `vendor_name` varchar(255) NOT NULL,
   `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -80,21 +80,6 @@ CREATE TABLE IF NOT EXISTS `meta_usb_vendor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
--- Dumping structure for procedure gocmdb.proc_usbci_columns_for_table
-DROP PROCEDURE IF EXISTS `proc_usbci_columns_for_table`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_columns_for_table`(
-	IN `table_name_in` VARCHAR(64)
-)
-    DETERMINISTIC
-BEGIN
-	SELECT column_name
-	FROM information_schema.columns
-	WHERE table_name = table_name_in
-	AND table_schema = 'gocmdb';
-END//
-DELIMITER ;
-
 -- Dumping structure for procedure gocmdb.proc_usbci_insert_checkins
 DROP PROCEDURE IF EXISTS `proc_usbci_insert_checkins`;
 DELIMITER //
@@ -441,6 +426,34 @@ BEGIN
 		remote_addr = remote_addr_in,
 		last_seen = checkin_date_in,
 		checkins = checkins + 1;
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure gocmdb.proc_usbci_list_columns
+DROP PROCEDURE IF EXISTS `proc_usbci_list_columns`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_columns`(
+	IN `table_name_in` VARCHAR(64)
+
+)
+    DETERMINISTIC
+BEGIN
+	SELECT column_name
+	FROM information_schema.columns
+	WHERE table_name = table_name_in
+	AND table_schema = 'gocmdb';
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure gocmdb.proc_usbci_list_tables
+DROP PROCEDURE IF EXISTS `proc_usbci_list_tables`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_tables`()
+    DETERMINISTIC
+BEGIN
+	SELECT table_name
+	FROM information_schema.tables
+	WHERE table_schema = 'gocmdb';
 END//
 DELIMITER ;
 
