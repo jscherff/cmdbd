@@ -28,12 +28,18 @@ type Queries struct {
 	Stmt map[string]*sql.Stmt
 }
 
-// Init connects to the database and prepares the prepared statements.
-func (this *Queries) Init() (err error) {
+// NewQueries creates and initializes a new Queries instance.
+func NewQueries(cf string, db *sql.DB) (this *Queries, err error) {
+
+	this = &Queries{}
+
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
 
 	for key, query := range this.Query {
 
-		rows, err := conf.Database.DB.Query(`CALL proc_usbci_list_columns(?)`, query[1])
+		rows, err := db.Query(`CALL proc_usbCi_list_columns(?)`, query[1])
 
 		if err != nil {
 			return err
@@ -49,14 +55,17 @@ func (this *Queries) Init() (err error) {
 				return err
 			}
 
-			this.Columns[key] = append(this.Columns[key], col)
+			this.Cols[key] = append(this.Cols[key], col)
 		}
 
 		if err = rows.Err(); err != nil {
 			return err
 		}
 
-		var sql string
+		var (
+			sql string
+			params = strings.Repeat(`?,`, len(this.Cols[key])-1) + `?`
+		)
 
 		switch query[0] {
 
@@ -70,7 +79,7 @@ func (this *Queries) Init() (err error) {
 
 			sql = fmt.Sprintf(`INSERT INTO %s VALUES (%s)`,
 				query[1],
-				strings.Repeat(`?, `, len(this.Columns[key]) - 1) + `?`,
+				params,
 			)
 
 		case `UPDATE_LIST`:
@@ -98,7 +107,7 @@ func (this *Queries) Init() (err error) {
 			)
 		}
 
-		if this.Stmts[key], err = conf.Database.DB.Prepare(sql); err != nil {
+		if this.Stmts[key], err = db.Prepare(sql); err != nil {
 			return err
 		}
 	}

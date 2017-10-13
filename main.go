@@ -19,13 +19,7 @@ import (
 	`log`
 )
 
-// Systemwide configuration.
-var (
-	conf *Config
-	db *Database
-	ws *Server
-	slog, alog, elog *Logger
-)
+var conf *Config
 
 // Systemwide initialization.
 func init() {
@@ -35,55 +29,30 @@ func init() {
 	flag.Parse()
 
 	if conf, err = NewConfig(*FConfig); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
-	if conf.Logger.Syslog || *FSyslog {
-		if err = conf.Syslog.Init(); err != nil {
-			log.Println(err)
-		}
-	}
-
-	conf.Logger.Init()
-
-	slog = conf.Logger.Logs[`system`]
-	alog = conf.Logger.Logs[`access`]
-	elog = conf.Logger.Logs[`error`]
-
-	if err = conf.Database.Init(); err != nil {
-		elog.Fatal(err)
-	}
-
-	db = conf.Database
-
-	if conf.MetaCi.Usb, err = NewMetaCi(conf.Configs. **************
 
 	if *FRefresh {
-		if err = conf.MetaCi.Usb.Init(conf.URLs.UsbMeta); err != nil {
-			elog.Fatal(err)
-		} else if err = conf.MetaCi.Usb.Save(conf.Files.UsbMeta); err != nil {
-			elog.Fatal(err)
+		if err = conf.MetaUsb.LoadUrl(conf.MetaUsbUrl); err != nil {
+			el.Print(err)
+		} else if err = conf.MetaUsb.Save(conf.Configs[`UsbMeta`]); err != nil {
+			el.Print(err)
 		}
-	} else if err = conf.MetaCi.Usb.Load(conf.Files.UsbMeta); err != nil {
-		elog.Fatal(err)
 	}
 
 	if *FRefreshDb {
 		if err = SaveUsbMeta(); err != nil {
-			elog.Print(err)
+			el.Print(err)
 		}
 	}
 
-	conf.Server.Init()
-	ws = conf.Server
-
-	slog.Print(db.Info())
-	slog.Print(ws.Info())
+	sl.Print(conf.Database.Info())
+	sl.Print(conf.Server.Info())
 }
 
 func main() {
 	log.Fatal(conf.Server.ListenAndServe())
-	slog.Print("shutting down")
 	conf.Queries.Close()
 	conf.Database.Close()
 	conf.Logger.Close()

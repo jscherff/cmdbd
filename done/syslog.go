@@ -69,9 +69,14 @@ type Syslog struct {
 	Severity	string
 }
 
-// Init performs initialization tasks for each logger in the systemwide
-// configuration file.
-func (this *Syslog) Init() (err error) {
+// NewSyslog creates and initializes a new Syslog instance.
+func NewSyslog(cf string) (this *Syslog, err error) {
+
+	this = &Syslog{}
+
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
 
 	var (
 		ok bool
@@ -93,5 +98,5 @@ func (this *Syslog) Init() (err error) {
 		this.Tag,
 	)
 
-	return err
+	return this, nil
 }

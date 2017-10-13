@@ -27,12 +27,19 @@ type Server struct {
 	HttpBodySizeLimit int64
 }
 
-// NewConfig creates a new Config object and reads its configuration from
-// the provided JSON configuration file.
-func (this *Server) Init() {
+// NewServer creates and initializes a new Server instance.
+func NewServer(cf string) (this *Server, err error) {
+
+	this = &Server{}
+
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
+
 	this.ReadTimeout *= time.Second
 	this.WriteTimeout *= time.Second
-	this.Handler = NewRouter()
+
+	return this, nil
 }
 
 // Info provides identifying information about the server.

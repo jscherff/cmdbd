@@ -21,12 +21,12 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 
 	var vals []interface{}
 
-	for _, col := range db.Columns[`usbciInsertCheckin`] {
+	for _, col := range qy.Cols[`usbCiInsertCheckin`] {
 		vals = append(vals, dev[col])
 	}
 
-	if _, err = db.Statements[`usbciInsertCheckin`].Exec(vals...); err != nil {
-		elog.Print(err)
+	if _, err = qy.Stmt[`usbCiInsertCheckin`].Exec(vals...); err != nil {
+		el.Print(err)
 	}
 
 	return err
@@ -48,36 +48,36 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		return sn, err
 	}
 
-	for _, col := range db.Columns[`usbciInsertSnRequest`] {
+	for _, col := range qy.Cols[`usbCiInsertSnRequest`] {
 		vals = append(vals, dev[col])
 	}
 
-	if res, err := db.Statements[`usbciInsertSnRequest`].Exec(vals...); err != nil {
-		elog.Print(err)
+	if res, err := qy.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
+		el.Print(err)
 		return sn, err
 	} else if id, err = res.LastInsertId(); err != nil {
-		elog.Print(err)
+		el.Print(err)
 		return sn, err
 	}
 
-	if res, err := db.Statements[`cmdbInsertSequence`].Exec(); err != nil {
-		elog.Print(err)
+	if res, err := qy.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
+		el.Print(err)
 		return sn, err
 	} else if sq, err := res.LastInsertId(); err != nil {
-		elog.Print(err)
+		el.Print(err)
 		return sn, err
 	} else {
 		sn = fmt.Sprintf(conf.Options.SerialFormat, sq)
 	}
 
-	if _, err = db.Statements[`usbciUpdateSnRequest`].Exec(sn, id); err != nil {
-		elog.Print(err)
+	if _, err = qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
+		el.Print(err)
 	}
 
 	if err != nil {
-		elog.Print(err)
+		el.Print(err)
 	} else if err := tx.Commit(); err != nil {
-		elog.Print(err)
+		el.Print(err)
 	}
 
 	return sn, err
@@ -87,8 +87,8 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	if _, err = db.Statements[`usbciInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
-		elog.Print(err)
+	if _, err = qy.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
+		el.Print(err)
 	}
 
 	return err
@@ -98,8 +98,8 @@ func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 // table and returns them to the caller in JSON format.
 func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 
-	if err = db.Statements[`usbciSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
-		elog.Print(err)
+	if err = qy.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
+		el.Print(err)
 	}
 
 	return j, err
@@ -111,15 +111,15 @@ func SaveUsbMeta() error {
 	tx, err := db.Begin()
 
 	if err != nil {
-		elog.Print(err)
+		el.Print(err)
 		return err
 	}
 
-	vendorStmt := tx.Stmt(db.Statements[`metaReplaceUsbVendor`])
-	productStmt := tx.Stmt(db.Statements[`metaReplaceUsbProduct`])
-	classStmt := tx.Stmt(db.Statements[`metaReplaceUsbClass`])
-	subclassStmt := tx.Stmt(db.Statements[`metaReplaceUsbSubclass`])
-	protocolStmt := tx.Stmt(db.Statements[`metaReplaceUsbProtocol`])
+	vendorStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceVendor`])
+	productStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProduct`])
+	classStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceClass`])
+	subclassStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceSubclass`])
+	protocolStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProtocol`])
 
 	VendorLoop:
 	for vid, v := range conf.MetaCi.Usb.Vendors {
@@ -159,9 +159,9 @@ func SaveUsbMeta() error {
 	}
 
 	if err != nil {
-		elog.Print(err)
+		el.Print(err)
 	} else if err := tx.Commit(); err != nil {
-		elog.Print(err)
+		el.Print(err)
 	}
 
 	return err

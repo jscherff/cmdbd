@@ -1,15 +1,15 @@
 {
 	"ConfigDir": "/etc/cmdbd",
-	"SerialFormat": "24F%04X",
+	"SerialFmt": "24F%04X",
+	"MetaUsbUrl": "http://www.linux-usb.org/usb.ids",
 
 	"Configs": {
-		"Server": "server.json",
 		"Database": "database.json",
 		"Queries": "queries.json",
 		"Logger": "logger.json",
 		"Syslog": "syslog.json",
-		"MetaCi": {
-			"Usb": "usbmeta.json"
-		}
+		"Router": "router.json",
+		"Server": "server.json",
+		"MetaUsb": "usbmeta.json"
 	}
 }

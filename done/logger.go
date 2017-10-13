@@ -25,7 +25,6 @@ type Logger struct {
 	Stdout bool
 	Stderr bool
 	Syslog bool
-	RecoveryStack bool
 	Logs map[string]*Log
 }
 
@@ -39,29 +38,37 @@ type Log struct {
 	Syslog bool
 }
 
-// Init performs initialization tasks for each log.
-func (this *Logger) Init() {
+// NewLogger creates and initializes a new Logger instance.
+func NewLogger(cf string, sl *Syslog) (this *Logger, err error) {
 
-	for tag, l := range this.Logs {
+	this = &Logger{}
 
-		flags := l.LoggerFlags(l.LogFlags...)
-		file := filepath.Join(this.LogDir, l.LogFile)
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
 
-		stdout := l.Stdout || this.Stdout || *FStdout
-		stderr := l.Stderr || this.Stderr || *FStderr
-		syslog := l.Syslog || this.Syslog || *FSyslog
+	for tag, lg := range this.Logs {
 
-		l.MLogger = log.NewMLogger(tag, flags, stdout, stderr, file)
+		flags := lg.LoggerFlags(lg.LogFlags...)
+		file := filepath.Join(this.LogDir, lg.LogFile)
 
-		if syslog && conf.Syslog.Writer != nil {
-			l.AddWriter(conf.Syslog.Writer)
+		stdout := lg.Stdout || this.Stdout || *FStdout
+		stderr := lg.Stderr || this.Stderr || *FStderr
+		syslog := lg.Syslog || this.Syslog || *FSyslog
+
+		lg.MLogger = log.NewMLogger(tag, flags, stdout, stderr, file)
+
+		if syslog && sl.Writer != nil {
+			lg.AddWriter(sl.Writer)
 		}
 	}
+
+	return this, nil
 }
 
 // Sync and/or close writers within each logger as necessary.
 func (this *Logger) Close() {
-	for _, l := range this.Logs {
-		l.Close()
+	for _, lg := range this.Logs {
+		lg.Close()
 	}
 }

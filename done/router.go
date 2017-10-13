@@ -23,21 +23,29 @@ import (
 // Router is a Gorilla Mux router with additional methods.
 type Router struct {
 	*mux.Router
+	AccessLog *Logger
+	RecoveryLog *Logger
+	RecoveryStack bool
 }
 
-// NewRouter instantiates a new Router.
-func NewRouter() *Router {
-	return &Router{mux.NewRouter().StrictSlash(true)}
+// NewRouter creates and initializes a new Router instance.
+func NewRouter(cf string, al, rl *Logger) (this *Router, err error) {
+
+	this = &Router{
+		Router: mux.NewRouter().StrictSlash(true),
+		AccessLog: al,
+		RecoveryLog: rl,
+	}
+
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
+
+	return this, nil
 }
 
 // AddRoutes adds a collection of one or more routes to the Router.
 func (this *Router) AddRoutes(routes Routes) *Router {
-
-	var (
-		accessLog = conf.Logger.Logs[`access`]
-		recoveryLog = conf.Logger.Logs[`error`]
-		recoveryStack = conf.Logger.RecoveryStack
-	)
 
 	for _, route := range routes {
 
@@ -46,11 +54,11 @@ func (this *Router) AddRoutes(routes Routes) *Router {
 		handler = route.HandlerFunc
 
 		handler = handlers.RecoveryHandler(
-			handlers.PrintRecoveryStack(recoveryStack),
-			handlers.RecoveryLogger(recoveryLog))(handler)
+			handlers.PrintRecoveryStack(this.RecoveryStack),
+			handlers.RecoveryLogger(this.RecoveryLog))(handler)
 
 		handler = handlers.CombinedLoggingHandler(
-			accessLog, handler)
+			this.AccessLog, handler)
 
 		this.	Methods(route.Method).
 			Path(route.Pattern).

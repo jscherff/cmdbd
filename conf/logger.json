@@ -4,11 +4,9 @@
 	"Stdout": false,
 	"Stderr": false,
 	"Syslog": false,
-	"RecoveryStack": false,
 
 	"Logs": {
 		"system": {
-			"MLogger": {},
 			"LogFile": "system.log",
 			"LogFlags": ["date","time","shortfile"],
 			"Stdout": false,
@@ -17,7 +15,6 @@
 		},
 	
 		"access": {
-			"MLogger": {},
 			"LogFile": "access.log",
 			"LogFlags": [],
 			"Stdout": false,
@@ -26,7 +23,6 @@
 		},
 	
 		"error": {
-			"MLogger": {},
 			"LogFile": "error.log",
 			"LogFlags": ["date","time","shortfile"],
 			"Stdout": false,

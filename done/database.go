@@ -21,26 +21,31 @@ import (
 	`github.com/go-sql-driver/mysql`
 )
 
-// Database contains the database configuration, handle, and prepared statements.
-// It is part of the systemwide configuration under Config.Database.
+// Database contains the database configuration and handle.
 type Database struct {
 	*sql.DB
 	Driver string
 	Config *mysql.Config
 }
 
-// Init connects to the database and prepares the prepared statements.
-func (this *Database) Init() (err error) {
+// NewDatabase creates and initializes a new Database instance.
+func NewDatabase(cf string) (this *Database, err error) {
+
+	this = &Database{}
+
+	if this, err = loadConfig(this, cf); err != nil {
+		return nil, err
+	}
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err = this.Ping(); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return this, nil
 }
 
 // Info provides identifying information about the database and user.

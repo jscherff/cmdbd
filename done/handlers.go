@@ -22,8 +22,8 @@ import (
 	`github.com/gorilla/mux`
 )
 
-// usbciCheckin records a device checkin.
-func usbciCheckinV1(w http.ResponseWriter, r *http.Request) {
+// usbCiCheckin records a device checkin.
+func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -31,11 +31,11 @@ func usbciCheckinV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -44,11 +44,11 @@ func usbciCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		elog.Print(err)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 
 		return
@@ -58,15 +58,19 @@ func usbciCheckinV1(w http.ResponseWriter, r *http.Request) {
 	dev[`remote_addr`] = r.RemoteAddr
 
 	if err = SaveDeviceCheckin(dev); err != nil {
+
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		slog.Printf(`saved checkin for %q device VID %q PID %q`, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
 
-// usbciNewSN generates a new serial number for an unserialized device.
-func usbciNewSNV1(w http.ResponseWriter, r *http.Request) {
+// usbCiNewSN generates a new serial number for an unserialized device.
+func usbCiNewSNV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -74,11 +78,11 @@ func usbciNewSNV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -87,11 +91,11 @@ func usbciNewSNV1(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-		elog.Print(err)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 
 		return
@@ -107,19 +111,23 @@ func usbciNewSNV1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sn, err = GetNewSerialNumber(dev); err != nil {
+
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		slog.Printf(`generated SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 
 	if err = json.NewEncoder(w).Encode(sn); err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 }
 
-// usbciAudit accepts the results of a device self-audit and stores the results.
-func usbciAuditV1(w http.ResponseWriter, r *http.Request) {
+// usbCiAudit accepts the results of a device self-audit and stores the results.
+func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -127,26 +135,30 @@ func usbciAuditV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		elog.Panic(err)
+		el.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
+
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		slog.Printf(`recorded audit for %q device VID %q PID %q SN %q`, host, vid, pid, sn)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
 
-// usbciCheckout retrieves a device from the serialized device database as a
+// usbCiCheckout retrieves a device from the serialized device database as a
 // JSON object and returns it to the caller.
-func usbciCheckoutV1(w http.ResponseWriter, r *http.Request) {
+func usbCiCheckoutV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -154,12 +166,17 @@ func usbciCheckoutV1(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	if j, err := GetDeviceJSONObject(vid, pid, sn); err != nil {
+
+		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(j); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }
@@ -172,20 +189,20 @@ func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	errh := func(e error) {
-		elog.Print(e)
-		http.Error(w, e.Error(), http.StatusInternalServerError)
-	}
-
-	u := conf.MetaCi.Usb
+	u := conf.MetaUsb
 
 	if v, err := u.GetVendor(vid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		csv := fmt.Sprintf(`%q`, v)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(csv); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }
@@ -199,22 +216,25 @@ func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	errh := func(e error) {
-		elog.Print(e)
-		http.Error(w, e.Error(), http.StatusInternalServerError)
-	}
-
-	u := conf.MetaCi.Usb
+	u := conf.MetaUsb
 
 	if v, err := u.GetVendor(vid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if p, err := v.GetProduct(pid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		csv := fmt.Sprintf(`%q,%q`, v, p)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(csv); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }
@@ -227,20 +247,20 @@ func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	errh := func(e error) {
-		elog.Print(e)
-		http.Error(w, e.Error(), http.StatusInternalServerError)
-	}
-
-	u := conf.MetaCi.Usb
+	u := conf.MetaUsb
 
 	if c, err := u.GetClass(cid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		csv := fmt.Sprintf(`%q`, c)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(csv); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }
@@ -254,22 +274,25 @@ func usbMetaSubclassV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	errh := func(e error) {
-		elog.Print(e)
-		http.Error(w, e.Error(), http.StatusInternalServerError)
-	}
-
-	u := conf.MetaCi.Usb
+	u := conf.MetaUsb
 
 	if c, err := u.GetVendor(cid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if s, err := c.GetSubclass(sid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		csv := fmt.Sprintf(`%q,%q`, c, s)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(csv); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }
@@ -283,24 +306,30 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	errh := func(e error) {
-		elog.Print(e)
-		http.Error(w, e.Error(), http.StatusInternalServerError)
-	}
-
-	u := conf.MetaCi.Usb
+	u := conf.MetaUsb
 
 	if c, err := u.GetVendor(cid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if s, err := c.GetSubclass(sid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if p, err := s.GetProtocol(pid); err != nil {
-		errh(err)
+
+		el.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		csv := fmt.Sprintf(`%q,%q,%q`, c, s, p)
 		w.WriteHeader(http.StatusOK)
+
 		if _, err = w.Write(csv); err != nil {
-			elog.Panic(err)
+			el.Panic(err)
 		}
 	}
 }

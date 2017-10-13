@@ -16,6 +16,7 @@ package main
 
 import "net/http"
 
+// Route contains information about a REST API enpoint.
 type Route struct {
 	Name		string
 	Method		string
@@ -23,40 +24,43 @@ type Route struct {
 	HandlerFunc	http.HandlerFunc
 }
 
+// Routes contains a collection of Route instances.
 type Routes []Route
 
-var usbciRoutes = Routes {
+// usbCiRoutes is a collection of REST API enpoints supporting USB CIs.
+var usbCiRoutes = Routes {
 
 	Route {
 		Name:		"USBCI Checkin Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbci/checkin/{host}/{vid}/{pid}",
-		HandlerFunc:	usbciCheckinV1,
+		Pattern:	"/v1/usbCi/checkin/{host}/{vid}/{pid}",
+		HandlerFunc:	usbCiCheckinV1,
 	},
 
 	Route {
 		Name:		"USBCI Checkout Handler",
 		Method:		"GET",
-		Pattern:	"/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}",
-		HandlerFunc:	usbciCheckoutV1,
+		Pattern:	"/v1/usbCi/checkout/{host}/{vid}/{pid}/{sn}",
+		HandlerFunc:	usbCiCheckoutV1,
 	},
 
 	Route {
 		Name:		"USBCI NewSN Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbci/newsn/{host}/{vid}/{pid}",
-		HandlerFunc:	usbciNewSNV1,
+		Pattern:	"/v1/usbCi/newsn/{host}/{vid}/{pid}",
+		HandlerFunc:	usbCiNewSNV1,
 	},
 
 	Route {
 		Name:		"USBCI Audit Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbci/audit/{host}/{vid}/{pid}/{sn}",
-		HandlerFunc:	usbciAuditV1,
+		Pattern:	"/v1/usbCi/audit/{host}/{vid}/{pid}/{sn}",
+		HandlerFunc:	usbCiAuditV1,
 	},
 }
 
-var metaRoutes = Routes {
+// usbMetaRoutes is a collection of REST API enpoints providing USB metadata.
+var usbMetaRoutes = Routes {
 
 	Route {
 		Name:		"Metadata USB Vendor Handler",

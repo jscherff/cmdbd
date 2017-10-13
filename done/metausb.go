@@ -16,17 +16,17 @@ package main
 
 import `github.com/jscherff/cmdb/metaci/peripheral`
 
-// MetaCi contains metatata for various classes of CIs.
-type MetaCi struct {
-	Usb *peripheral.Usb
+// MetaUsb contains metatata for USB devices.
+type MetaUsb struct {
+	*peripheral.Usb
 }
 
-// NewMetaCi creates and initializes a new instance of MetaCI.
-func NewMetaCi(uf string) (*MetaCi, error) {
+// NewMetaUsb creates and initializes a new MetaUsb instance.
+func NewMetaUsb (cf string) (*MetaUsb, error) {
 
-	if usb, err := NewUsb(uf); err != nil {
+	if usb, err := peripheral.NewUsb(cf); err != nil {
 		return nil, err
 	} else {
-		return &MetaCi{usb}, nil
+		return &MetaUsb{usb}, nil
 	}
 }
