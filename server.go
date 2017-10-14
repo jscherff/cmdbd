@@ -32,7 +32,7 @@ func NewServer(cf string) (this *Server, err error) {
 
 	this = &Server{}
 
-	if this, err = loadConfig(this, cf); err != nil {
+	if err = loadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

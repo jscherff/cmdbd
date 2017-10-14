@@ -17,7 +17,6 @@ package main
 import (
 	`database/sql`
 	`fmt`
-	`strings`
 	`github.com/go-sql-driver/mysql`
 )
 
@@ -33,7 +32,7 @@ func NewDatabase(cf string) (this *Database, err error) {
 
 	this = &Database{}
 
-	if this, err = loadConfig(this, cf); err != nil {
+	if err = loadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
@@ -53,9 +52,9 @@ func (this *Database) Info() (string) {
 
 	var ver string
 
-	this.QueryRow(`SELECT VERSION()`).Scan(&version)
+	this.QueryRow(`SELECT VERSION()`).Scan(&ver)
 
-	return fmt.Sprintf(`Database %q (%s@%s/%s) using %q driver`, ver
+	return fmt.Sprintf(`Database %q (%s@%s/%s) using %q driver`, ver,
 		this.Config.User,
 		this.Config.Addr,
 		this.Config.DBName,

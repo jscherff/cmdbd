@@ -33,28 +33,28 @@ var usbCiRoutes = Routes {
 	Route {
 		Name:		"USBCI Checkin Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbCi/checkin/{host}/{vid}/{pid}",
+		Pattern:	"/v1/usbci/checkin/{host}/{vid}/{pid}",
 		HandlerFunc:	usbCiCheckinV1,
 	},
 
 	Route {
 		Name:		"USBCI Checkout Handler",
 		Method:		"GET",
-		Pattern:	"/v1/usbCi/checkout/{host}/{vid}/{pid}/{sn}",
+		Pattern:	"/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}",
 		HandlerFunc:	usbCiCheckoutV1,
 	},
 
 	Route {
 		Name:		"USBCI NewSN Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbCi/newsn/{host}/{vid}/{pid}",
+		Pattern:	"/v1/usbci/newsn/{host}/{vid}/{pid}",
 		HandlerFunc:	usbCiNewSNV1,
 	},
 
 	Route {
 		Name:		"USBCI Audit Handler",
 		Method:		"POST",
-		Pattern:	"/v1/usbCi/audit/{host}/{vid}/{pid}/{sn}",
+		Pattern:	"/v1/usbci/audit/{host}/{vid}/{pid}/{sn}",
 		HandlerFunc:	usbCiAuditV1,
 	},
 }
@@ -65,35 +65,35 @@ var usbMetaRoutes = Routes {
 	Route {
 		Name:		"Metadata USB Vendor Handler",
 		Method:		"GET",
-		Pattern:	"/v1/meta/usb/{vid}",
-		HandlerFunc:	usbMetaVendorV1
+		Pattern:	"/v1/usbmeta/vendor/{vid}",
+		HandlerFunc:	usbMetaVendorV1,
 	},
 
 	Route {
 		Name:		"Metadata USB Product Handler",
 		Method:		"GET",
-		Pattern:	"/v1/meta/usb/{vid}/{pid}",
-		HandlerFunc:	usbMetaProductV1
+		Pattern:	"/v1/usbmeta/product/{vid}/{pid}",
+		HandlerFunc:	usbMetaProductV1,
 	},
 
 	Route {
 		Name:		"Metadata USB Class Handler",
 		Method:		"GET",
-		Pattern:	"/v1/meta/usb/{cid}",
-		HandlerFunc:	usbMetaClassV1
+		Pattern:	"/v1/usbmeta/class/{cid}",
+		HandlerFunc:	usbMetaClassV1,
 	},
 
 	Route {
-		Name:		"Metadata USB Subclass Handler",
+		Name:		"Metadata USB SubClass Handler",
 		Method:		"GET",
-		Pattern:	"/v1/meta/usb/{cid}/{sid}",
-		HandlerFunc:	usbMetaSubclassV1
+		Pattern:	"/v1/usbmeta/subclass/{cid}/{sid}",
+		HandlerFunc:	usbMetaSubClassV1,
 	},
 
 	Route {
 		Name:		"Metadata USB Protocol Handler",
 		Method:		"GET",
-		Pattern:	"/v1/meta/usb/{cid}/{sid}/{pid}",
-		HandlerFunc:	usbMetaProtocolV1
+		Pattern:	"/v1/usbmeta/protocol/{cid}/{sid}/{pid}",
+		HandlerFunc:	usbMetaProtocolV1,
 	},
 }

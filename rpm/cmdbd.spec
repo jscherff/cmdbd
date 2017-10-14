@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	1.0.1
-%define		release	5
+%define		version	1.0.2
+%define		release	1
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
@@ -56,10 +56,10 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{confdir},%{syslib},%{logdir},%{docdir}}
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
-  install -m 640 go/src/%{package}/config.json %{buildroot}%{confdir}/
-  install -m 644 go/src/%{package}/svc/%{name}.service %{buildroot}%{syslib}/
+  install -m 640 go/src/%{package}/ddl/*.sql %{buildroot}%{docdir}/
+  install -m 640 go/src/%{package}/cnf/*.json %{buildroot}%{confdir}/
+  install -m 644 go/src/%{package}/svc/*.service %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
-  install -m 640 go/src/%{package}/ddl/{%{name}.sql,users.sql} %{buildroot}%{docdir}/
 
 %clean
 
@@ -70,14 +70,13 @@ the audit to the server for later analysis.
 
   %defattr(-,root,root)
   %{_sbindir}/%{name}
-  %{syslib}/%{name}.service
-  %{docdir}/%{name}.sql
+  %{docdir}/*.sql
+  %{syslib}/*.service
   %{docdir}/README.md
-  %{docdir}/users.sql
   %license %{docdir}/LICENSE
   
   %defattr(-,%{name},%{name})
-  %config %{confdir}/config.json
+  %config %{confdir}/*.json
   %{logdir}
 
 %pre
@@ -155,6 +154,9 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Fri Oct 13 2017 - jscherff@gmail.com
+- Refactored and streamlined
+- Added API endpoints for device information lookups
 * Mon Oct 9 2017 - jscherff@gmail.com
 - Modified table, view, and stored procedure names
 - Added column to each table for the JSON object

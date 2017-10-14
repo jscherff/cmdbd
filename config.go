@@ -25,14 +25,13 @@ var (
 	db *Database
 	qy *Queries
 	ws *Server
-	sl *Syslog
-	sl, al, el *Logger
+	sy *Syslog
+	sl, al, el *Log
 )
 
 // Config contains infomation about the server process and log writers.
 type Config struct {
 
-	ConfigDir string
 	SerialFmt string
 	MetaUsbUrl string
 	Configs   map[string]string
@@ -42,7 +41,7 @@ type Config struct {
 	Syslog   *Syslog
 	Logger   *Logger
 	Router   *Router
-	MetaUsb	 *MetaUsb
+	MetaUsb  *MetaUsb
 	Server   *Server
 }
 
@@ -50,31 +49,33 @@ type Config struct {
 // from the provided JSON configuration file.
 func NewConfig(cf string) (this *Config, err error) {
 
-	// Load the base configuration needed to load remaining configs.
+	// Load the base config needed to load remaining configs.
 
-	if this, err := loadConfig(cf); err != nil {
+	this = &Config{}
+
+	if err := loadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
-	// Prepend configuration directory to configuration filenames.
+	// Prepend the base config directory to other config filenames.
 
-	for _, fn := range this.Configs {
-		fn = filepath.Join(this.ConfigDir, fn)
+	for key, fn := range this.Configs {
+		this.Configs[key] = filepath.Join(filepath.Dir(cf), fn)
 	}
 
 	// Create and initialize Database object.
 
-	if database, err := NewDatabase(this.Configs[Database]); err != nil {
+	if database, err := NewDatabase(this.Configs[`Database`]); err != nil {
 		return nil, err
 	} else {
 		this.Database = database
 	}
 
-	db = this.Database.DB
+	db = this.Database
 
 	// Create and initialize Queries object.
 
-	if queries, err := NewQueries(this.Configs[Queries], db); err != nil {
+	if queries, err := NewQueries(this.Configs[`Queries`], db); err != nil {
 		return nil, err
 	} else {
 		this.Queries = queries
@@ -84,17 +85,17 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Syslog object.
 
-	if syslog, err := NewSyslog(this.Configs[syslog]); err != nil {
+	if syslog, err := NewSyslog(this.Configs[`Syslog`]); err != nil {
 		return nil, err
 	} else {
 		this.Syslog = syslog
 	}
 
-	sl = this.Syslog
+	sy = this.Syslog
 
 	// Create and initialize Logger object.
 
-	if logger, err := NewLogger(this.Configs[Logger], sl); err != nil {
+	if logger, err := NewLogger(this.Configs[`Logger`], sy); err != nil {
 		return nil, err
 	} else {
 		this.Logger = logger
@@ -106,7 +107,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Router object.
 
-	if router, err := NewRouter(this.Configs[Router], al, el); err != nil {
+	if router, err := NewRouter(this.Configs[`Router`], al, el); err != nil {
 		return nil, err
 	} else {
 		router.AddRoutes(usbCiRoutes).AddRoutes(usbMetaRoutes)
@@ -115,15 +116,15 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize MetaUsb object.
 
-	if metausb, err := NewMetaUsb(this.Configs[MetaUsb]); err != nil {
+	if metausb, err := NewMetaUsb(this.Configs[`MetaUsb`]); err != nil {
 		return nil, err
 	} else {
 		this.MetaUsb = metausb
 	}
 
-	// Create and initialize Server, Router, and Routes objects.
+	// Create and initialize Server object.
 
-	if server, err := NewServer(this.Configs[Server]); err != nil {
+	if server, err := NewServer(this.Configs[`Server`]); err != nil {
 		return nil, err
 	} else {
 		server.Handler = this.Router
@@ -136,14 +137,14 @@ func NewConfig(cf string) (this *Config, err error) {
 }
 
 // loadConfig loads a JSON configuration file into an object.
-func loadConfig(t interface{}, cf string) (interface{}, error) {
+func loadConfig(t interface{}, cf string) (error) {
 
 	if fh, err := os.Open(cf); err != nil {
-		return nil, err
+		return err
 	} else {
 		defer fh.Close()
 		jd := json.NewDecoder(fh)
 		err = jd.Decode(&t)
-		return t, err
+		return err
 	}
 }

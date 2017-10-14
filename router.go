@@ -15,29 +15,37 @@
 package main
 
 import (
+	`io`
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
 )
 
+// HandlerLogger is a convenience interface to simplify method signatures.
+type HandlerLogger interface {
+	io.Writer
+	handlers.RecoveryHandlerLogger
+}
+
 // Router is a Gorilla Mux router with additional methods.
 type Router struct {
 	*mux.Router
-	AccessLog *Logger
-	RecoveryLog *Logger
+	AccessLog HandlerLogger
+	RecoveryLog HandlerLogger
 	RecoveryStack bool
 }
 
 // NewRouter creates and initializes a new Router instance.
-func NewRouter(cf string, al, rl *Logger) (this *Router, err error) {
+func NewRouter(cf string, alog, rlog HandlerLogger) (this *Router, err error) {
 
 	this = &Router{
 		Router: mux.NewRouter().StrictSlash(true),
-		AccessLog: al,
-		RecoveryLog: rl,
+		AccessLog: alog,
+		RecoveryLog: rlog,
+		RecoveryStack: false,
 	}
 
-	if this, err = loadConfig(this, cf); err != nil {
+	if err = loadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

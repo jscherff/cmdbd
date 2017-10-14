@@ -67,7 +67,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		el.Print(err)
 		return sn, err
 	} else {
-		sn = fmt.Sprintf(conf.Options.SerialFormat, sq)
+		sn = fmt.Sprintf(conf.SerialFmt, sq)
 	}
 
 	if _, err = qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
@@ -118,11 +118,11 @@ func SaveUsbMeta() error {
 	vendorStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceVendor`])
 	productStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProduct`])
 	classStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceClass`])
-	subclassStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceSubclass`])
+	subclassStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceSubClass`])
 	protocolStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProtocol`])
 
 	VendorLoop:
-	for vid, v := range conf.MetaCi.Usb.Vendors {
+	for vid, v := range conf.MetaUsb.Vendors {
 
 		if _, err = vendorStmt.Exec(vid, v.String()); err != nil {
 			break VendorLoop
@@ -137,13 +137,13 @@ func SaveUsbMeta() error {
 	}
 
 	ClassLoop:
-	for cid, c := range conf.MetaCi.Usb.Classes {
+	for cid, c := range conf.MetaUsb.Classes {
 
 		if _, err = classStmt.Exec(cid, c.String()); err != nil {
 			break ClassLoop
 		}
 
-		for sid, s := range c.Subclass {
+		for sid, s := range c.SubClass {
 
 			if _, err = subclassStmt.Exec(cid, sid, s.String()); err != nil {
 				break ClassLoop

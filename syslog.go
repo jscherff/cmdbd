@@ -74,7 +74,7 @@ func NewSyslog(cf string) (this *Syslog, err error) {
 
 	this = &Syslog{}
 
-	if this, err = loadConfig(this, cf); err != nil {
+	if err = loadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

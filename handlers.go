@@ -64,7 +64,7 @@ func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		slog.Printf(`saved checkin for %q device VID %q PID %q`, host, vid, pid)
+		sl.Printf(`saved checkin for %q device VID %q PID %q`, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
@@ -107,7 +107,7 @@ func usbCiNewSNV1(w http.ResponseWriter, r *http.Request) {
 	var sn string = dev[`serial_number`].(string)
 
 	if len(sn) > 0 {
-		slog.Printf(`serial number was already set to SN %q`, sn)
+		sl.Printf(`serial number was already set to SN %q`, sn)
 	}
 
 	if sn, err = GetNewSerialNumber(dev); err != nil {
@@ -117,7 +117,7 @@ func usbCiNewSNV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		slog.Printf(`generated SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
+		sl.Printf(`generated SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 
@@ -151,7 +151,7 @@ func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		slog.Printf(`recorded audit for %q device VID %q PID %q SN %q`, host, vid, pid, sn)
+		sl.Printf(`recorded audit for %q device VID %q PID %q SN %q`, host, vid, pid, sn)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
@@ -172,7 +172,7 @@ func usbCiCheckoutV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		slog.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
+		sl.Printf(`found SN %q for %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
 
 		if _, err = w.Write(j); err != nil {
@@ -198,10 +198,10 @@ func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		csv := fmt.Sprintf(`%q`, v)
+		resp := []string{v.String()}
 		w.WriteHeader(http.StatusOK)
 
-		if _, err = w.Write(csv); err != nil {
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
 			el.Panic(err)
 		}
 	}
@@ -230,10 +230,10 @@ func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		csv := fmt.Sprintf(`%q,%q`, v, p)
+		resp := []string{v.String(), p.String()}
 		w.WriteHeader(http.StatusOK)
 
-		if _, err = w.Write(csv); err != nil {
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
 			el.Panic(err)
 		}
 	}
@@ -256,18 +256,18 @@ func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		csv := fmt.Sprintf(`%q`, c)
+		resp := []string{c.String()}
 		w.WriteHeader(http.StatusOK)
 
-		if _, err = w.Write(csv); err != nil {
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
 			el.Panic(err)
 		}
 	}
 }
 
-// usbMetaSubclass returns the USB class and subclass descriptions associated
+// usbMetaSubClass returns the USB class and subclass descriptions associated
 // with a class and subclass ID.
-func usbMetaSubclassV1(w http.ResponseWriter, r *http.Request) {
+func usbMetaSubClassV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var cid, sid = vars[`cid`], vars[`sid`]
@@ -276,22 +276,22 @@ func usbMetaSubclassV1(w http.ResponseWriter, r *http.Request) {
 
 	u := conf.MetaUsb
 
-	if c, err := u.GetVendor(cid); err != nil {
+	if c, err := u.GetClass(cid); err != nil {
 
 		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if s, err := c.GetSubclass(sid); err != nil {
+	} else if s, err := c.GetSubClass(sid); err != nil {
 
 		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		csv := fmt.Sprintf(`%q,%q`, c, s)
+		resp := []string{c.String(), s.String()}
 		w.WriteHeader(http.StatusOK)
 
-		if _, err = w.Write(csv); err != nil {
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
 			el.Panic(err)
 		}
 	}
@@ -308,12 +308,12 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	u := conf.MetaUsb
 
-	if c, err := u.GetVendor(cid); err != nil {
+	if c, err := u.GetClass(cid); err != nil {
 
 		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if s, err := c.GetSubclass(sid); err != nil {
+	} else if s, err := c.GetSubClass(sid); err != nil {
 
 		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -325,10 +325,10 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		csv := fmt.Sprintf(`%q,%q,%q`, c, s, p)
+		resp := []string{c.String(), s.String(), p.String()}
 		w.WriteHeader(http.StatusOK)
 
-		if _, err = w.Write(csv); err != nil {
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
 			el.Panic(err)
 		}
 	}
