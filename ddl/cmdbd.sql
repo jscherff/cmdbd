@@ -13,12 +13,10 @@
 
 
 -- Dumping database structure for gocmdb
-DROP DATABASE IF EXISTS `gocmdb`;
 CREATE DATABASE IF NOT EXISTS `gocmdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `gocmdb`;
 
 -- Dumping structure for table gocmdb.cmdb_sequence
-DROP TABLE IF EXISTS `cmdb_sequence`;
 CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
   `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `issued` datetime NOT NULL DEFAULT current_timestamp(),
@@ -27,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
 
 -- Data exporting was unselected.
 -- Dumping structure for procedure gocmdb.proc_usbci_insert_checkins
-DROP PROCEDURE IF EXISTS `proc_usbci_insert_checkins`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_checkins`(
 	IN `host_name_in` VARCHAR(255),
@@ -120,7 +117,6 @@ END//
 DELIMITER ;
 
 -- Dumping structure for procedure gocmdb.proc_usbci_insert_serialized
-DROP PROCEDURE IF EXISTS `proc_usbci_insert_serialized`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_serialized`(
 	IN `host_name_in` VARCHAR(255),
@@ -248,7 +244,6 @@ END//
 DELIMITER ;
 
 -- Dumping structure for procedure gocmdb.proc_usbci_insert_unserialized
-DROP PROCEDURE IF EXISTS `proc_usbci_insert_unserialized`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_unserialized`(
 	IN `host_name_in` VARCHAR(255),
@@ -376,7 +371,6 @@ END//
 DELIMITER ;
 
 -- Dumping structure for procedure gocmdb.proc_usbci_list_columns
-DROP PROCEDURE IF EXISTS `proc_usbci_list_columns`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_columns`(
 	IN `table_name_in` VARCHAR(64)
@@ -392,7 +386,6 @@ END//
 DELIMITER ;
 
 -- Dumping structure for procedure gocmdb.proc_usbci_list_tables
-DROP PROCEDURE IF EXISTS `proc_usbci_list_tables`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_tables`()
     DETERMINISTIC
@@ -404,7 +397,6 @@ END//
 DELIMITER ;
 
 -- Dumping structure for table gocmdb.usbci_changes
-DROP TABLE IF EXISTS `usbci_changes`;
 CREATE TABLE IF NOT EXISTS `usbci_changes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -423,7 +415,6 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_checkins
-DROP TABLE IF EXISTS `usbci_checkins`;
 CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -468,7 +459,6 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
-DROP TABLE IF EXISTS `usbci_serialized`;
 CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -513,7 +503,6 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
-DROP TABLE IF EXISTS `usbci_snrequests`;
 CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -558,7 +547,6 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
-DROP TABLE IF EXISTS `usbci_unserialized`;
 CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) NOT NULL,
@@ -602,7 +590,6 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_class
-DROP TABLE IF EXISTS `usbmeta_class`;
 CREATE TABLE IF NOT EXISTS `usbmeta_class` (
   `class_id` varchar(2) NOT NULL,
   `class_desc` varchar(255) NOT NULL,
@@ -612,7 +599,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_class` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_product
-DROP TABLE IF EXISTS `usbmeta_product`;
 CREATE TABLE IF NOT EXISTS `usbmeta_product` (
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
@@ -623,7 +609,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_product` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_protocol
-DROP TABLE IF EXISTS `usbmeta_protocol`;
 CREATE TABLE IF NOT EXISTS `usbmeta_protocol` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
@@ -635,7 +620,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_protocol` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_subclass
-DROP TABLE IF EXISTS `usbmeta_subclass`;
 CREATE TABLE IF NOT EXISTS `usbmeta_subclass` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
@@ -646,7 +630,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_subclass` (
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_vendor
-DROP TABLE IF EXISTS `usbmeta_vendor`;
 CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
   `vendor_id` varchar(4) NOT NULL,
   `vendor_name` varchar(255) NOT NULL,
@@ -656,7 +639,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
 
 -- Data exporting was unselected.
 -- Dumping structure for view gocmdb.view_usbci_changes
-DROP VIEW IF EXISTS `view_usbci_changes`;
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `view_usbci_changes` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -667,7 +649,6 @@ CREATE TABLE `view_usbci_changes` (
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_checkins
-DROP VIEW IF EXISTS `view_usbci_checkins`;
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `view_usbci_checkins` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -699,7 +680,6 @@ CREATE TABLE `view_usbci_checkins` (
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized
-DROP VIEW IF EXISTS `view_usbci_serialized`;
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `view_usbci_serialized` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -731,7 +711,6 @@ CREATE TABLE `view_usbci_serialized` (
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_snrequests
-DROP VIEW IF EXISTS `view_usbci_snrequests`;
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `view_usbci_snrequests` (
 	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -763,7 +742,6 @@ CREATE TABLE `view_usbci_snrequests` (
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view gocmdb.view_usbci_unique_devices
-DROP VIEW IF EXISTS `view_usbci_unique_devices`;
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `view_usbci_unique_devices` (
 	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
@@ -773,7 +751,6 @@ CREATE TABLE `view_usbci_unique_devices` (
 ) ENGINE=MyISAM;
 
 -- Dumping structure for trigger gocmdb.trig_insert_after_usbci_checkins
-DROP TRIGGER IF EXISTS `trig_insert_after_usbci_checkins`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `trig_insert_after_usbci_checkins` AFTER INSERT ON `usbci_checkins` FOR EACH ROW BEGIN
@@ -843,7 +820,6 @@ DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
 
 -- Dumping structure for view gocmdb.view_usbci_changes
-DROP VIEW IF EXISTS `view_usbci_changes`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_changes`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_changes` AS SELECT
@@ -856,7 +832,6 @@ FROM
 	usbci_changes ;
 
 -- Dumping structure for view gocmdb.view_usbci_checkins
-DROP VIEW IF EXISTS `view_usbci_checkins`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_checkins`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_checkins` AS SELECT
@@ -890,7 +865,6 @@ FROM
 	usbci_checkins ;
 
 -- Dumping structure for view gocmdb.view_usbci_serialized
-DROP VIEW IF EXISTS `view_usbci_serialized`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_serialized`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_serialized` AS SELECT
@@ -924,7 +898,6 @@ FROM
 	usbci_serialized ;
 
 -- Dumping structure for view gocmdb.view_usbci_snrequests
-DROP VIEW IF EXISTS `view_usbci_snrequests`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_snrequests`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_snrequests` AS SELECT
@@ -958,7 +931,6 @@ FROM
 	usbci_snrequests ;
 
 -- Dumping structure for view gocmdb.view_usbci_unique_devices
-DROP VIEW IF EXISTS `view_usbci_unique_devices`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_unique_devices`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_unique_devices` AS SELECT DISTINCT
