@@ -29,21 +29,12 @@ func init() {
 	log.SetFlags(log.Flags() | log.Lshortfile)
 
 	flag.Parse()
-	conf, err = NewConfig(*FConfig)
 
-	if err != nil {
+	if conf, err = NewConfig(*FConfig); err != nil {
 		log.Fatal(err)
 	}
 
 	if *FRefresh {
-		if err := conf.MetaUsb.LoadUrl(conf.MetaUsbUrl); err != nil {
-			el.Print(err)
-		} else if err := conf.MetaUsb.Save(conf.Configs[`UsbMeta`]); err != nil {
-			el.Print(err)
-		}
-	}
-
-	if *FRefreshDb {
 		if err := SaveUsbMeta(); err != nil {
 			el.Print(err)
 		}

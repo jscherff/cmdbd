@@ -22,11 +22,21 @@ type MetaUsb struct {
 }
 
 // NewMetaUsb creates and initializes a new MetaUsb instance.
-func NewMetaUsb (cf string) (*MetaUsb, error) {
+func NewMetaUsb (cf string, refresh bool) (this *MetaUsb, err error) {
 
 	if usb, err := peripheral.NewUsb(cf); err != nil {
 		return nil, err
 	} else {
-		return &MetaUsb{usb}, nil
+		this = &MetaUsb{usb}
 	}
+
+	if refresh {
+		if err := this.Refresh(); err != nil {
+			return this, err
+		} else if err := this.Save(cf); err != nil {
+			return this, err
+		}
+	}
+
+	return this, nil
 }

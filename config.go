@@ -25,7 +25,6 @@ var (
 	db *Database
 	qy *Queries
 	ws *Server
-	sy *Syslog
 	sl, al, el *Log
 )
 
@@ -33,7 +32,6 @@ var (
 type Config struct {
 
 	SerialFmt string
-	MetaUsbUrl string
 	Configs   map[string]string
 
 	Database *Database
@@ -91,11 +89,9 @@ func NewConfig(cf string) (this *Config, err error) {
 		this.Syslog = syslog
 	}
 
-	sy = this.Syslog
-
 	// Create and initialize Logger object.
 
-	if logger, err := NewLogger(this.Configs[`Logger`], sy); err != nil {
+	if logger, err := NewLogger(this.Configs[`Logger`], this.Syslog, *FConsole); err != nil {
 		return nil, err
 	} else {
 		this.Logger = logger
@@ -116,7 +112,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize MetaUsb object.
 
-	if metausb, err := NewMetaUsb(this.Configs[`MetaUsb`]); err != nil {
+	if metausb, err := NewMetaUsb(this.Configs[`MetaUsb`], *FRefresh); err != nil {
 		return nil, err
 	} else {
 		this.MetaUsb = metausb
@@ -137,7 +133,7 @@ func NewConfig(cf string) (this *Config, err error) {
 }
 
 // loadConfig loads a JSON configuration file into an object.
-func loadConfig(t interface{}, cf string) (error) {
+func loadConfig(t interface{}, cf string) error {
 
 	if fh, err := os.Open(cf); err != nil {
 		return err

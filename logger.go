@@ -39,7 +39,7 @@ type Log struct {
 }
 
 // NewLogger creates and initializes a new Logger instance.
-func NewLogger(cf string, sy *Syslog) (this *Logger, err error) {
+func NewLogger(cf string, syslog *Syslog, fConsole bool) (this *Logger, err error) {
 
 	this = &Logger{}
 
@@ -47,19 +47,19 @@ func NewLogger(cf string, sy *Syslog) (this *Logger, err error) {
 		return nil, err
 	}
 
-	for tag, lg := range this.Logs {
+	for tag, mlog := range this.Logs {
 
-		flags := log.LoggerFlags(lg.LogFlags...)
-		file := filepath.Join(this.LogDir, lg.LogFile)
+		flags := log.LoggerFlags(mlog.LogFlags...)
+		file := filepath.Join(this.LogDir, mlog.LogFile)
 
-		stdout := lg.Stdout || this.Stdout || *FStdout
-		stderr := lg.Stderr || this.Stderr || *FStderr
-		syslog := lg.Syslog || this.Syslog || *FSyslog
+		fStdout := mlog.Stdout || this.Stdout || fConsole
+		fStderr := mlog.Stderr || this.Stderr
+		fSyslog := mlog.Syslog || this.Syslog
 
-		lg.MLogger = log.NewMLogger(tag, flags, stdout, stderr, file)
+		mlog.MLogger = log.NewMLogger(tag, flags, fStdout, fStderr, file)
 
-		if syslog && sy.Writer != nil {
-			lg.AddWriter(sy.Writer)
+		if fSyslog && syslog.Writer != nil {
+			mlog.AddWriter(syslog.Writer)
 		}
 	}
 
@@ -68,7 +68,7 @@ func NewLogger(cf string, sy *Syslog) (this *Logger, err error) {
 
 // Sync and/or close writers within each logger as necessary.
 func (this *Logger) Close() {
-	for _, lg := range this.Logs {
-		lg.Close()
+	for _, mlog := range this.Logs {
+		mlog.Close()
 	}
 }

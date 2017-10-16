@@ -1,6 +1,5 @@
 {
 	"SerialFmt": "24F%04X",
-	"MetaUsbUrl": "http://www.linux-usb.org/usb.ids",
 
 	"Configs": {
 		"Database": "database.json",

@@ -21,9 +21,6 @@ const logdirDefault = `/var/log/cmdbd`
 
 var (
 	FConfig = flag.String(`config`, configDefault, "Master config `<file>`")
-	FStdout = flag.Bool(`stdout`, false, "Enable logging to stdout")
-	FStderr = flag.Bool(`stderr`, false, "Enable logging to stderr")
-	FSyslog = flag.Bool(`syslog`, false, "Enable logging to syslog")
+	FConsole = flag.Bool(`console`, false, "Enable logging to console")
 	FRefresh = flag.Bool(`refresh`, false, "Refresh application metadata")
-	FRefreshDb = flag.Bool(`reload`, false, "Reload database metadata")
 )
