@@ -16,10 +16,11 @@ package main
 
 import `flag`
 
-const confDefault = `/etc/cmdbd/config.json`
+const configDefault = `/etc/cmdbd/config.json`
+const logdirDefault = `/var/log/cmdbd`
 
 var (
-	FConfig = flag.String(`config`, confDefault, "Master config `<file>`")
+	FConfig = flag.String(`config`, configDefault, "Master config `<file>`")
 	FStdout = flag.Bool(`stdout`, false, "Enable logging to stdout")
 	FStderr = flag.Bool(`stderr`, false, "Enable logging to stderr")
 	FSyslog = flag.Bool(`syslog`, false, "Enable logging to syslog")

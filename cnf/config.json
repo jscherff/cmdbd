@@ -9,6 +9,6 @@
 		"Syslog": "syslog.json",
 		"Router": "router.json",
 		"Server": "server.json",
-		"MetaUsb": "usbmeta.json"
+		"MetaUsb": "metausb.json"
 	}
 }
