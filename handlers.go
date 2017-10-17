@@ -198,7 +198,10 @@ func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		resp := []string{v.String()}
+		resp := map[string]string{
+			`vendor_name`: v.String(),
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(resp); err != nil {
@@ -230,7 +233,11 @@ func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		resp := []string{v.String(), p.String()}
+		resp := map[string]string{
+			`vendor_name`: v.String(),
+			`product_name`: p.String(),
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(resp); err != nil {
@@ -256,7 +263,10 @@ func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		resp := []string{c.String()}
+		resp := map[string]string{
+			`usb_class`: c.String(),
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(resp); err != nil {
@@ -288,7 +298,11 @@ func usbMetaSubClassV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		resp := []string{c.String(), s.String()}
+		resp := map[string]string{
+			`usb_class`: c.String(),
+			`usb_subclass`: s.String(),
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(resp); err != nil {
@@ -325,7 +339,12 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		resp := []string{c.String(), s.String(), p.String()}
+		resp := map[string]string{
+			`usb_class`: c.String(),
+			`usb_subclass`: s.String(),
+			`usb_protocol`: p.String(),
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(resp); err != nil {

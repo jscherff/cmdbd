@@ -17,6 +17,7 @@ package main
 import (
 	`flag`
 	`log`
+	`os`
 )
 
 var conf *Config
@@ -36,7 +37,10 @@ func init() {
 
 	if *FRefresh {
 		if err := SaveUsbMeta(); err != nil {
-			el.Print(err)
+			el.Fatal(err)
+		} else {
+			sl.Println(`USB Metadata refreshed.`)
+			os.Exit(0)
 		}
 	}
 
