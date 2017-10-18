@@ -45,10 +45,10 @@ var usbCiRoutes = Routes {
 	},
 
 	Route {
-		Name:		"USBCI NewSN Handler",
+		Name:		"USBCI NewSn Handler",
 		Method:		"POST",
 		Pattern:	"/v1/usbci/newsn/{host}/{vid}/{pid}",
-		HandlerFunc:	usbCiNewSNV1,
+		HandlerFunc:	usbCiNewSnV1,
 	},
 
 	Route {

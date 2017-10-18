@@ -69,8 +69,8 @@ func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// usbCiNewSN generates a new serial number for an unserialized device.
-func usbCiNewSNV1(w http.ResponseWriter, r *http.Request) {
+// usbCiNewSn generates a new serial number for an unserialized device.
+func usbCiNewSnV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
