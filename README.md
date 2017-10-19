@@ -16,7 +16,7 @@ rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
 If you're upgrading the package to a newer version, use the `-U` (upgrade) flag to upgrade the package:
 ```sh
-rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
+rpm -U ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
 In the above examples, `{arch}` is the system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). 
 
