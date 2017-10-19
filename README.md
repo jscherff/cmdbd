@@ -61,12 +61,6 @@ Contains global parameters and file names of other configuration files in the sa
     * **`Router`** names the file that contains settings for the HTTP mux router.
     * **`Server`** names the file that contains settings for the HTTP server.
     * **`MetaUsb`** names the file that contains information about all known USB devices.
-* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
-* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
-* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
-* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
-* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
-* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
 #### Database Settings (`database.json`)
 Contains parameters for communicating with the database server:
@@ -90,6 +84,8 @@ Contains parameters for communicating with the database server:
 * **`Addr`** is the database hostname or IP address.
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
+
+#### Query Settings (`queries.json`)
 
 #### Syslog Settings (`syslog.json`)
 Contains parameters for communicating with a local or remote syslog server:
@@ -190,30 +186,37 @@ Contains parameters that determine log file names and logging behavior:
 
 
 
-##### Log Directory Settings
+#### Log Directory Settings
 Directory where log files are written:
 ```json
-"LogDir": {
-    "Windows": "log",
-    "Linux": "/var/log/cmdbd"
-}
+* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
+* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
+* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
+* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
+* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
+* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 ```
 * **`Windows`** is the log directory to use for Windows installations.
 * **`Linux`** is the log directory to use for Linux installations.
 
-#### Global Settings
-System-wide parameters:
+#### Server Settings (`server.json`)
+Contains parameters for the HTTP server:
 ```json
-"Options": {
-    "Stdout": false,
-    "Stderr": false,
-    "Syslog": false,
-    "RecoveryStack": false
+{
+        "Addr": ":8080",
+        "ReadTimeout": 10,
+        "WriteTimeout": 10,
+        "MaxHeaderBytes": 1048576,
+        "HttpBodySizeLimit": 1048576,
+        "AllowedContentTypes": ["application/json"]
 }
 ```
-* **`Stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **`Stderr`** causes all logs to be written to standard error; it overrides `Stderr` setting for individual logs.
-* **`Syslog`** causes all logs to be written to the configured syslog daemon; it overrides `Syslog` settings for individual logs.
+* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
+* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
+* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
+* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
+* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
+* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
 ### Startup
