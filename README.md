@@ -2,7 +2,7 @@
 The _**Configuration Management Database Daemon**_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The _**Configuration Management Database Client**_ or [**CMDBc**](https://github.com/jscherff/cmdbc/blob/master/README.md) is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register or _"check-in"_ attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database.
 
 ### System Requirements
-**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 -- or an equivalent operating system that supports **RPM** package management and the **SystemD** initialization system. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
+**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS Release 7** -- or an equivalent operating system that supports **RPM** package management and uses **SystemD** initialization. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
 
 ### Installation
 You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
@@ -10,34 +10,41 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with this command:
+You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with the RPM command. If you're installing the package for the first time, use the `-i` (install) flag to install the package:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
-Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
-* **`/usr/sbin/cmdbd`** is the CMDBd HTTP daemon.
+If you're upgrading the package to a newer version, use the `-U` (upgrade) flag to upgrade the package:
+```sh
+rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
+```
+In the above examples, `{arch}` is the system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). 
+
+The package will install the following files:
+* **`/usr/sbin/cmdbd`** is the **CMDBd** daemon.
 * **`/etc/cmdbd/config.json`** is the master configuration file.
 * **`/etc/cmdbd/database.json`** contains settings for the database.
-* **`/etc/cmdbd/queries.json`** contains SQL queries used by the server.
+* **`/etc/cmdbd/queries.json`** contains SQL queries used by the model.
 * **`/etc/cmdbd/syslog.json`** contains settings for the syslog daemon.
 * **`/etc/cmdbd/logger.json`** contains settings for the HTTP server logs.
-* **`/etc/cmdbd/router.json`** contains settings for the HTTP mux router.
+* **`/etc/cmdbd/router.json`** contains settings for the HTTP handlers.
 * **`/etc/cmdbd/server.json`** contains settings for the HTTP server.
-* **`/etc/cmdbd/metausb.json`** contains information about all known USB devices.
+* **`/etc/cmdbd/metausb.json`** contains information about known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
 * **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** is the database creation SQL.
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
+* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** resets (truncates) all database tables.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary (see below). By default, the config files are owned by the daemon user account and are not world-readable as they contain potentially sensitive information. You should not relax the permissions mode of these files.
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
 ### Configuration
 The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
 #### Master Config (`config.json`)
-Contains global parameters and file names of other configuration files in the same directory.
+The master configuration file contains global parameters and file names of other configuration files.
 ```json
 {
     "SerialFmt": "24F%04X",
@@ -52,18 +59,18 @@ Contains global parameters and file names of other configuration files in the sa
     }
 }
 ```
-* **`SerialFmt`** is the C `printf` format string for generating serial numbers from a seed integer.
-* **`Configs`** is a collection of configuration sections and their associated file names. The files are located in the same directory as the master configuration file, above. Each section is covered in more detail  below.
+* **`SerialFmt`** is the C _printf-style_ format string for generating serial numbers from a seed integer.
+* **`Configs`** is a collection of configurations for different components of the server along with their associated file names. The files **must** be located in the same directory as the master configuration file, above, or the server will fail to start. These components and their configuration settings are covered in more detail  later in this document.
     * **`Database`** names the file that contains database settings.
     * **`Queries`** names the file that contains SQL queries used by the server.
     * **`Syslog`** names the file that contains settings for the syslog daemon.
     * **`Logger`** names the file that contains settings for the HTTP server logs.
-    * **`Router`** names the file that contains settings for the HTTP mux router.
+    * **`Router`** names the file that contains settings for the HTTP handlers.
     * **`Server`** names the file that contains settings for the HTTP server.
-    * **`MetaUsb`** names the file that contains information about all known USB devices.
+    * **`MetaUsb`** names the file that contains information about known USB devices.
 
 #### Database Settings (`database.json`)
-Contains parameters for communicating with the database server:
+The database configuration file contains parameters required for the server to authenticate and communicate with the database:
 ```json
 {
     "Driver": "mysql",
@@ -77,19 +84,19 @@ Contains parameters for communicating with the database server:
     }
 }
 ```
-* **`Driver`** is the database driver. Only `mysql` is supported.
+* **`Driver`** is the database driver. Only _'mysql'_ is supported.
 * **`User`** is the database user the daemon uses to access the database.
-* **`Passwd`** is the database user password. The default, shown, should be changed in production.
+* **`Passwd`** is the database user password. Change this to a new, unique value in production.
 * **`Net`** is the port on which the database is listening. If blank, the daemon will use the MySQL default port, 3306.
 * **`Addr`** is the database hostname or IP address.
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
 #### Query Settings (`queries.json`)
-Contains SQL queries used by the server to communicate with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
+The query configuration file contains SQL queries used by the server to interact with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
 #### Syslog Settings (`syslog.json`)
-Contains parameters for communicating with a local or remote syslog server:
+The syslog configuration file contains parameters for communicating with an optional local or remote syslog server:
 ```json
 {
     "Protocol": "tcp",
@@ -136,7 +143,7 @@ Contains parameters for communicating with a local or remote syslog server:
     * **`LOG_DEBUG`** -- debug-level messages
 
 #### Logger Settings (`logger.json`)
-Contains parameters that determine log file names and logging behavior:
+The logger configuration file contains parameters that determine log file names and logging behavior:
 ```json
 {
     "LogDir": "/var/log/cmdbd",
@@ -174,7 +181,7 @@ Contains parameters that determine log file names and logging behavior:
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs, below.
 * **`Logs`** describes each log used by the application. Each log has the following settings:
     * **`LogFile`** is the filename of the log file.
-    * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
+    * **`LogFlags`** is a comma-separated list of attributes to include in the prefix of each log entry. If it is empty, log entries will have no prefix. (This is appropriate for the HTTP access log which is written in the Apache combined log format and already includes relevent attributes in the prefix.) The following [case-sensitive] flags are supported:
         * **`date`** includes date of the event in `YYYY/MM/DD` format.
         * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
         * **`utc`** includes time in UTC rather than local time.
@@ -195,7 +202,7 @@ Contains parameters for the HTTP mux router recovery handler:
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
 #### Server Settings (`server.json`)
-Contains parameters for the HTTP server:
+The server configuration file contains parameters for the HTTP server:
 ```json
 {
         "Addr": ":8080",
@@ -206,7 +213,7 @@ Contains parameters for the HTTP server:
         "AllowedContentTypes": ["application/json"]
 }
 ```
-* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
+* **`Addr`** is the hostname (or IP address) and port of the listener, separated by a colon. If the hostname/address component is blank, the daemon will listen on all network interfaces.
 * **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
 * **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
@@ -214,17 +221,24 @@ Contains parameters for the HTTP server:
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
 #### USB Metadata Settings (`metausb.json`)
-Contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for all known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days.
-
+The USB metadata configuration file contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days. You can force a refresh of this file in two ways:
+1. Execute the daemon binary, `cmdbd`, with the `-refresh` flag (preferred). This will download a fresh copy of the metadata, store it in the configuration file, and update relevant metadata tables in the database.
+2. Modify the `"Updated":` parameter in the configuration file to a date more than 30 days prior.
+```json
+    "Updated": "2017-10-17T16:54:09.4910059-07:00"
+```
 ### Startup
-Once all configuration tasks are complete, the daemon can be started with the following command:
+The installation package configures the daemon to start automatically when on system startup. On initial package installation, you will have to start the daemon manually because there are post-installation steps required (e.g., configuration and database setup) for the daemon to start successfully. On subssequent package upgrades, the RPM package will shutdown and restart the daemon automatically.
+
+To start the daemon manually, use the `systemctl` utilty with the `start` command:
 ```sh
 systemctl start cmdbd
 ```
-Service access, system events, and errors are written to the following log files:
-* **`system.log`** records significant, non-error events.
-* **`access.log`** records client activity in Apache Combined Log Format.
-* **`error.log`** records service and database errors.
+To shut down the daemon, use the `stop` command:
+```sh
+systemctl stop cmdbd
+```
+Refer to the `systemctl` man page for other options, such as `restart` and `reload`.
 
 The daemon can also be started from the command line. The following command-line options are available:
 * **`-config`** specifies the master configuration file, `config.json`. It is located in  `/etc/cmdbd` by default. All other configuration files will be loaded from the same location.
@@ -235,7 +249,6 @@ The daemon can also be started from the command line. The following command-line
     * **`m`** = MINOR version with backwards-compatible new functionality
     * **`p`** = PATCH version with backward-compatible bug fixes.
     * **`R`** = RELEASE number and optional metadata (e.g., `1.beta`)
-
 * **`-help`** displays the above options with a short description.
 
 Starting the daemon manually with console logging (using the `console` _option flag_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
@@ -263,67 +276,116 @@ Usage of /usr/sbin/cmdbd:
 system 2017/10/18 19:43:39 main.go:52: Database version 10.2.9-MariaDB (cmdbd@localhost/gocmdb)
 system 2017/10/18 19:43:39 main.go:53: Server version 1.1.0-6.el7.centos started and listening on ":8080"
 ```
+### Logging
+Service access, system events, and errors are written to the following log files:
+* **`system.log`** records significant, non-error events.
+* **`access.log`** records client activity in Apache Combined Log Format.
+* **`error.log`** records service and database errors.
 
 ### Database Structure
 #### Tables
-The following tables comprise the database:
-* **Device Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
-* **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
-* **Unserialized Devices** contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Bus Number_, _Bus Address_, and _Port Number_, and strives to have as few records as possible per unserialized device, though this cannot be guaranteed if a device is move to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
-* **Serial Number Requests** contains all requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
-* **Device Changes** contains configuration changes detected during device audits. Each device configuration attribute change detected during an audit creates one record.
+The following tables contain USB CI (configuration item) objects and supporting elements:
+* **CMDB Sequence** (`cmdb_sequence`) minics a database sequence object using an auto-incremented integer column. The value of this column forms the _'seed'_ for dynamically-generated, unique serial numbers issued to devices without preconfigured serial numbers. The `SerialFmt` configuraiton setting in the master configuration file controls how the serial number is generated with this integer value. It is extremely important that this table is never altered or truncated, as it provides a guarantee against duplicate serial numbers. Even if the data in all the other tables is lost or corrupted, preserving this table preserves the unique serial number guarantee.
+* **Device Checkins** (`usbci_checkins`) contains device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
+* **Serialized Devices** (`usbci_serialized`) contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Unserialized Devices** (`usbci_unserialized`) contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Port Number_, and _Bus Number_. It strives to have as few duplicate records as possible per unserialized device, though this cannot be guaranteed if a device is moved to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Serial Number Requests** (`usbci_snrequests`) contains requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. There is, however, no guarantee that the serial number configuration on the device will be successful and thus no guarantee that the device will appear in the _Serialized Devices_ table. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
+* **Device Changes** (`usbci_changes`) contains configuration changes detected during device audits. Each audit that detects configuration changes creates one record, and each record contains one or more changes (see below).
+
+The following tables contain USB device metadata:
+* **USB Vendor** (`usbmeta_vendor`) contains USB vendor names associated with specific vendor IDs.
+* **USB Product** (`usbmeta_product`) contains USB product names associated with specific vendor and product IDs.
+* **USB Class** (`usbmeta_class`) contains USB class descriptions associated with specific class IDs.
+* **USB SubClass** (`usbmeta_subclass`) contains USB subclass descriptions associated with specific class and subclass IDs.
+* **USB Protocol** (`usbmeta_protocol`) contains USB protocol descriptions associated with specific class, subclass, and protocol IDs.
 
 #### Columns
-The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and **Serial Number Requests** tables have the following columns:
+The **CMDB Sequence** table has the following columns:
+* Ordinal Value (`ord`)
+* Issue Date (`issue_date`)
 
-* Hostname
-* Vendor ID
-* Product ID
-* Serial Number
-* Vendor Name
-* Product Name
-* Product Version
-* Firmware Version
-* Software ID
-* Port Number
-* Bus Number
-* Bus Address
-* Buffer Size
-* Max Packet Size
-* USB Specification
-* USB Class
-* USB Subclass
-* USB Protocol
-* Device Speed
-* Device Version
-* Factory Serial Number
-* Object Type
-* Object JSON
-* Remote Address
+The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and **Serial Number Requests** tables have the following columns:
+* ID (`id`)
+* Hostname (`host_name`)
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Serial Number (`serial_number`)
+* Vendor Name (`vendor_name`)
+* Product Name (`product_name`)
+* Product Version (`product_ver`)
+* Firmware Version (`firmware_ver`)
+* Software ID (`software_id`)
+* Port Number (`port_number`)
+* Bus Number (`bus_number`)
+* Bus Address (`bus_address`)
+* Buffer Size (`buffer_size`)
+* Max Packet Size (`max_pkt_size`)
+* USB Specification (`usb_spec`)
+* USB Class (`usb_class`)
+* USB Subclass (`usb_subclass`)
+* USB Protocol (`usb_protocol`)
+* Device Speed (`device_speed`)
+* Device Version (`device_ver`)
+* Device Serial Number (`device_sn`)
+* Factory Serial Number (`factory_sn`)
+* Descriptor Serial Number (`descriptor_sn`)
+* Object Type (`object_type`)
+* Object JSON (`object_json`)
+* Remote Address (`remote_addr`)
 
 The **Device Checkins** table includes the following additional column:
-* Checkin Date
+* Checkin Date (`checkin_date`)
 
 The **Serial Number Requests** table includes the following additional column:
-* Request Date
+* Request Date (`request_date`)
 
 The **Serialized Devices** and **Unserialized Devices** tables both include the following additional columns:
-* First Seen
-* Last Seen
-* Checkins
+* First Seen (`first_seen`)
+* Last Seen (`last_seen`)
+* Checkins (`checkins`)
 
 The **Device Changes** table has the following columns:
-* Host Name
-* Vendor ID
-* Product ID
-* Serial Number
-* Changes
-* Audit Date
+* ID (`id`)
+* Host Name (`host_name`)
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Serial Number (`serial_number`)
+* Changes (`changes`)
+* Audit Date (`audit_date`)
 
 For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
-* Property Name
-* Old Value
-* New Value
+* Property Name (`property_name`)
+* Old Value (`old_value`)
+* New Value (`new_value`)
+
+The **USB Vendor** table has the following columns:
+* Vendor ID (`vendor_id`)
+* Vendor Name (`vendor_name`)
+* Last Update (`last_update`)
+ 
+The **USB Product** table has the following columns:
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Product Name (`product_name`)
+* Last Update (`last_update`)
+
+The **USB Class** table has the following columns:
+* Class ID (`class_id`)
+* Class Description (`class_desc`)
+* Last Update (`last_update`)
+
+The **USB SubClass** table has the following columns:
+* Class ID (`class_id`)
+* SubClass ID (`subclass_id`)
+* SubClass Description (`subclass_desc`)
+* Last Update (`last_update`)
+
+The **USB Protocol** table has the following columns:
+* Class ID (`class_id`)
+* SubClass ID (`subclass_id`)
+* Protocol ID (`protocol_id`)
+* Protocol Description (`protocol_desc`)
+* Last Update (`last_update`)
 
 ### API Endpoints
 | Endpoint | Method | Purpose
