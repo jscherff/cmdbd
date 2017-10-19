@@ -228,10 +228,18 @@ The USB metadata configuration file contains vendor names, product names, class 
     "Updated": "2017-10-17T16:54:09.4910059-07:00"
 ```
 ### Startup
-Once all configuration tasks are complete, the daemon can be started with the following command:
+The installation package configures the daemon to start automatically when on system startup. On initial package installation, you will have to start the daemon manually because there are post-installation steps required (e.g., configuration and database setup) for the daemon to start successfully. On subssequent package upgrades, the RPM package will shutdown and restart the daemon automatically.
+
+To start the daemon manually, use the `systemctl` utilty with the `start` command:
 ```sh
 systemctl start cmdbd
 ```
+To shut down the daemon, use the `stop` command:
+```sh
+systemctl stop cmdbd
+```
+Refer to the `systemctl` man page for other options, such as `restart` and `reload`.
+
 Service access, system events, and errors are written to the following log files:
 * **`system.log`** records significant, non-error events.
 * **`access.log`** records client activity in Apache Combined Log Format.
