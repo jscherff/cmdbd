@@ -21,7 +21,7 @@ USE `gocmdb`;
 DROP TABLE IF EXISTS `cmdb_sequence`;
 CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
   `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `issued` datetime NOT NULL DEFAULT current_timestamp(),
+  `issue_date` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`ord`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

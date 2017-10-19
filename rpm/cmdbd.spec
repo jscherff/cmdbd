@@ -154,6 +154,8 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Thu Oct 19 2017 - jscherff@gmail.com
+- Added SQL script to truncate all tables
 * Fri Oct 13 2017 - jscherff@gmail.com
 - Refactored and streamlined
 - Added API endpoints for device information lookups
