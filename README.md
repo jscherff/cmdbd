@@ -86,6 +86,7 @@ Contains parameters for communicating with the database server:
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
 #### Query Settings (`queries.json`)
+Contains SQL queries used by the server to communicate with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
 #### Syslog Settings (`syslog.json`)
 Contains parameters for communicating with a local or remote syslog server:
@@ -184,16 +185,15 @@ Contains parameters that determine log file names and logging behavior:
     * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
     * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above.
 
-
-
 #### Router/Handler Settings (`router.json`)
-Contains parameters for the HTTP mux router:
+Contains parameters for the HTTP mux router recovery handler:
 ```json
 {
         "RecoveryStack": true
 }
 ```
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+
 #### Server Settings (`server.json`)
 Contains parameters for the HTTP server:
 ```json
@@ -213,6 +213,8 @@ Contains parameters for the HTTP server:
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
+#### USB Metadata Settings (`metausb.json`)
+Contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for all known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days.
 
 ### Startup
 Once all configuration tasks are complete, the daemon can be started with the following command:
@@ -225,10 +227,15 @@ Service access, system events, and errors are written to the following log files
 * **`error.log`** records service and database errors.
 
 The daemon can also be started from the command line. The following command-line options are available:
-* **`-config`** specifies an alternate JSON configuration file; the default is `/etc/cmdbd/config.json`.
-* **`-stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **`-stderr`** causes _all logs_ to be written to standard error; it overrides `Stderr` setting for individual logs.
-* **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
+* **`-config`** specifies the master configuration file, `config.json`. It is located in  `/etc/cmdbd` by default. All other configuration files will be loaded from the same location.
+* **`-console`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
+* **`-refresh`** metadata files to be refreshed from source URLs. It overwrites both local configuration files and corresponding database tables.
+* **`-version`** displays the server version, `M.m.p-R`, where:
+    * **`M`** = MAJOR version with incompatible API changes
+    * m = MINOR version with backwards-compatible new functionality
+    * p = PATCH version with backward-compatible bug fixes.
+    * R = RELEASE number and optional metadata (e.g., `1.beta`)
+
 * **`-help`** displays the above options with a short description.
 
 Starting the daemon manually with console logging (using the `stdout` or `stderr` _option flags_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
