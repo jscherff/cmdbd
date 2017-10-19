@@ -2,7 +2,7 @@
 The _**Configuration Management Database Daemon**_ is a lightweight HTTP server that provides a RESTful JSON API for workstations to register and manage information about attached devices. The _**Configuration Management Database Client**_ or [**CMDBc**](https://github.com/jscherff/cmdbc/blob/master/README.md) is the complementary component that collects configuration information for attached devices and reports that information to the server for storage in the database. **CMDBc** can register or _"check-in"_ attached devices with the server, obtain unique serial numbers from the server for devices that support serial number configuration, perform audits against previous device configurations, and report configuration changes found during the audit to the server for logging and analysis. **CMDBd** stores the information in a back-end database.
 
 ### System Requirements
-**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS** release 7 -- or an equivalent operating system that supports **RPM** package management and the **SystemD** initialization system. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
+**CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS Release 7** -- or an equivalent operating system that supports **RPM** package management and uses **SystemD** initialization. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
 
 ### Installation
 You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
@@ -15,20 +15,21 @@ You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `r
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
 Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
-* **`/usr/sbin/cmdbd`** is the CMDBd HTTP daemon.
+* **`/usr/sbin/cmdbd`** is the **CMDBd** daemon.
 * **`/etc/cmdbd/config.json`** is the master configuration file.
 * **`/etc/cmdbd/database.json`** contains settings for the database.
-* **`/etc/cmdbd/queries.json`** contains SQL queries used by the server.
+* **`/etc/cmdbd/queries.json`** contains SQL queries used by the model.
 * **`/etc/cmdbd/syslog.json`** contains settings for the syslog daemon.
 * **`/etc/cmdbd/logger.json`** contains settings for the HTTP server logs.
-* **`/etc/cmdbd/router.json`** contains settings for the HTTP mux router.
+* **`/etc/cmdbd/router.json`** contains settings for the HTTP handlers.
 * **`/etc/cmdbd/server.json`** contains settings for the HTTP server.
-* **`/etc/cmdbd/metausb.json`** contains information about all known USB devices.
+* **`/etc/cmdbd/metausb.json`** contains information about known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
 * **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** is the database creation SQL.
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
+* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** resets (truncates) all database tables.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary (see below). By default, the config files are owned by the daemon user account and are not world-readable as they contain potentially sensitive information. You should not relax the permissions mode of these files.
