@@ -135,7 +135,7 @@ Contains parameters for communicating with a local or remote syslog server:
     * **`LOG_INFO`** -- informational messages
     * **`LOG_DEBUG`** -- debug-level messages
 
-#### Logger Settings
+#### Logger Settings (`logger.json`)
 Contains parameters that determine log file names and logging behavior:
 ```json
 {
