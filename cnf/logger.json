@@ -19,7 +19,7 @@
 			"LogFlags": [],
 			"Stdout": false,
 			"Stderr": false,
-			"Syslog": true
+			"Syslog": false 
 		},
 	
 		"error": {

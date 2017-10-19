@@ -4,8 +4,8 @@
 	"Configs": {
 		"Database": "database.json",
 		"Queries": "queries.json",
-		"Logger": "logger.json",
 		"Syslog": "syslog.json",
+		"Logger": "logger.json",
 		"Router": "router.json",
 		"Server": "server.json",
 		"MetaUsb": "metausb.json"
