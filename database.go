@@ -50,15 +50,14 @@ func NewDatabase(cf string) (this *Database, err error) {
 // Info provides identifying information about the database and user.
 func (this *Database) Info() (string) {
 
-	var ver string
+	var v string
 
-	this.QueryRow(`SELECT VERSION()`).Scan(&ver)
+	this.QueryRow(`SELECT VERSION()`).Scan(&v)
 
-	return fmt.Sprintf(`Database %q (%s@%s/%s) using %q driver`, ver,
+	return fmt.Sprintf(`Database version %s (%s@%s/%s)`, v,
 		this.Config.User,
 		this.Config.Addr,
 		this.Config.DBName,
-		this.Driver,
 	)
 }
 
