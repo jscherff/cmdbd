@@ -328,15 +328,15 @@ For a given **Device Changes** record, the _Changes_ column contains a JSON obje
 ### API Endpoints
 | Endpoint | Method | Purpose
 | :------ | :------ | :------ |
-| **`/v1/usbci/checkin/{host}/{vid}/{pid}`** | POST | Submit configuration information for a new device or update information for an existing device. |
-| **`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
-| **`/v1/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
-| **`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
-| /v1/usbmeta/vendor/{vid} | GET | Obtain the USB vendor name given the vendor ID |
-| /v1/usbmeta/product/{vid}/{pid} | GET | Obtain the USB vendor and product names given the vendor and product IDs | 
-| /v1/usbmeta/class/{cid} | GET | Obtain the USB class description given the class ID | 
-| /v1/usbmeta/subclass/{cid}/{sid} | GET | Obtain the USB class and subclass descriptions given the class and subclass IDs |
-| /v1/usbmeta/protocol/{cid}/{sid}/{pid} | GET | Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs |
+| /v1/usbci/checkin/`host`/`vid`/`pid` | `POST` | Submit configuration information for a new device or update information for an existing device. |
+| /v1/usbci/checkout/`host`/`vid`/`pid`/`sn` | `GET` | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
+| /v1/usbci/newsn/`host`/`vid`/`pid` | `POST` | Obtain a new unique serial number from the server for assignment to the attached device. |
+| /v1/usbci/audit/`host`/`vid`/`pid`/`sn` | `POST` | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
+| /v1/usbmeta/vendor/`vid` | `GET` | Obtain the USB vendor name given the vendor ID |
+| /v1/usbmeta/product/`vid`/`pid` | `GET` | Obtain the USB vendor and product names given the vendor and product IDs | 
+| /v1/usbmeta/class/`cid` | `GET` | Obtain the USB class description given the class ID | 
+| /v1/usbmeta/subclass/`cid`/`sid` | `GET` | Obtain the USB class and subclass descriptions given the class and subclass IDs |
+| /v1/usbmeta/protocol/`cid`/`sid`/`pid` | `GET` | Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs |
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
