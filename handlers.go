@@ -189,7 +189,7 @@ func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	u := config.MetaUsb
+	u := conf.MetaUsb
 
 	if v, err := u.GetVendor(vid); err != nil {
 
@@ -219,7 +219,7 @@ func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	u := config.MetaUsb
+	u := conf.MetaUsb
 
 	if v, err := u.GetVendor(vid); err != nil {
 
@@ -254,7 +254,7 @@ func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	u := config.MetaUsb
+	u := conf.MetaUsb
 
 	if c, err := u.GetClass(cid); err != nil {
 
@@ -284,7 +284,7 @@ func usbMetaSubClassV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	u := config.MetaUsb
+	u := conf.MetaUsb
 
 	if c, err := u.GetClass(cid); err != nil {
 
@@ -320,7 +320,7 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	u := config.MetaUsb
+	u := conf.MetaUsb
 
 	if c, err := u.GetClass(cid); err != nil {
 

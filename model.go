@@ -67,7 +67,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		el.Print(err)
 		return sn, err
 	} else {
-		sn = fmt.Sprintf(config.SerialFmt, sq)
+		sn = fmt.Sprintf(conf.SerialFmt, sq)
 	}
 
 	if _, err = qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
@@ -122,7 +122,7 @@ func SaveUsbMeta() error {
 	protocolStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProtocol`])
 
 	VendorLoop:
-	for vid, v := range config.MetaUsb.Vendors {
+	for vid, v := range conf.MetaUsb.Vendors {
 
 		if _, err = vendorStmt.Exec(vid, v.String()); err != nil {
 			break VendorLoop
@@ -137,7 +137,7 @@ func SaveUsbMeta() error {
 	}
 
 	ClassLoop:
-	for cid, c := range config.MetaUsb.Classes {
+	for cid, c := range conf.MetaUsb.Classes {
 
 		if _, err = classStmt.Exec(cid, c.String()); err != nil {
 			break ClassLoop

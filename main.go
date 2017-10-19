@@ -21,7 +21,7 @@ import (
 )
 
 // Systemwide configuration.
-var config *Config
+var conf *Config
 
 // Systemwide initialization.
 func init() {
@@ -36,7 +36,7 @@ func init() {
 		os.Exit(0)
 	}
 
-	if config, err = NewConfig(*FConfig); err != nil {
+	if conf, err = NewConfig(*FConfig); err != nil {
 		log.Fatal(err)
 	}
 
@@ -49,13 +49,13 @@ func init() {
 		}
 	}
 
-	sl.Print(config.Database.Info())
-	sl.Print(config.Server.Info())
+	sl.Print(conf.Database.Info())
+	sl.Print(conf.Server.Info())
 }
 
 func main() {
-	log.Fatal(config.Server.ListenAndServe())
-	config.Queries.Close()
-	config.Database.Close()
-	config.Logger.Close()
+	log.Fatal(conf.Server.ListenAndServe())
+	conf.Queries.Close()
+	conf.Database.Close()
+	conf.Logger.Close()
 }

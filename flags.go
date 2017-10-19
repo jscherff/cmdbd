@@ -16,7 +16,7 @@ package main
 
 import `flag`
 
-const configDefault = `/etc/cmdbd/config.json`
+const configDefault = `/etc/cmdbd/conf.json`
 const logdirDefault = `/var/log/cmdbd`
 
 var (
