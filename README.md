@@ -155,16 +155,16 @@ Contains parameters that determine log file names and logging behavior:
             "LogFlags": [],
             "Stdout": false,
             "Stderr": false,
-            "Syslog": true
+            "Syslog": false
         },
         "error": {
             "LogFile": "error.log",
             "LogFlags": ["date","time","shortfile"],
             "Stdout": false,
-                        "Stderr": false,
-                        "Syslog": false
-                }
+            "Stderr": false,
+            "Syslog": false
         }
+    }
 }
 ```
 * **`LogDir`** is the directory where all log files are written.
@@ -186,19 +186,14 @@ Contains parameters that determine log file names and logging behavior:
 
 
 
-#### Log Directory Settings
-Directory where log files are written:
+#### Router/Handler Settings (`router.json`)
+Contains parameters for the HTTP mux router:
 ```json
-* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
-* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
-* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
-* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
-* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
-* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
+{
+        "RecoveryStack": true
+}
 ```
-* **`Windows`** is the log directory to use for Windows installations.
-* **`Linux`** is the log directory to use for Linux installations.
-
+* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 #### Server Settings (`server.json`)
 Contains parameters for the HTTP server:
 ```json
@@ -217,7 +212,7 @@ Contains parameters for the HTTP server:
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
-* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+
 
 ### Startup
 Once all configuration tasks are complete, the daemon can be started with the following command:
