@@ -332,18 +332,19 @@ For a given **Device Changes** record, the _Changes_ column contains a JSON obje
 | **`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
 | **`/v1/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
 | **`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
-| /v1/usbmeta/vendor/{vid} | GET | Obtain the vendor name given the vendor ID |
-| /v1/usbmeta/product/{vid}/{pid} | GET | Obtain the vendor and product names given the vendor and product IDs | 
-| /v1/usbmeta/class/{cid} | GET | Returns 
-| /v1/usbmeta/subclass/{cid}/{sid} | GET |
-| /v1/usbmeta/protocol/{cid}/{sid}/{pid} | GET |
-                HandlerFunc:    usbMetaProtocolV1,
-        },
-
-
+| /v1/usbmeta/vendor/{vid} | GET | Obtain the USB vendor name given the vendor ID |
+| /v1/usbmeta/product/{vid}/{pid} | GET | Obtain the USB vendor and product names given the vendor and product IDs | 
+| /v1/usbmeta/class/{cid} | GET | Obtain the USB class description given the class ID | 
+| /v1/usbmeta/subclass/{cid}/{sid} | GET | Obtain the USB class and subclass descriptions given the class and subclass IDs |
+| /v1/usbmeta/protocol/{cid}/{sid}/{pid} | GET | Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs |
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
 * **`vid`** is the _vendor ID_ of the device.
 * **`pid`** is the _product ID_ of the device.
 * **`sn`** is the _serial number_ of the device.
+* **`vid`** is the _vendor ID_ of the device.
+* **`pid`** is the _product ID_ of the device.
+* **`cid`** is the _class ID_ of the device.
+* **`sid`** is the _subclass ID_ of the device.
+* **`pid`** is the _protocol ID_ of the device.
