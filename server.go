@@ -44,5 +44,5 @@ func NewServer(cf string) (this *Server, err error) {
 
 // Info provides identifying information about the server.
 func (this *Server) Info() (string) {
-	return fmt.Sprintf(`Server started and listening on %q`, this.Addr)
+	return fmt.Sprintf(`Server version %s started and listening on %q`, version, this.Addr)
 }

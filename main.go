@@ -20,18 +20,23 @@ import (
 	`os`
 )
 
-var conf *Config
+// Systemwide configuration.
+var config *Config
 
 // Systemwide initialization.
 func init() {
 
 	var err error
 
+	flag.Parse()
 	log.SetFlags(log.Flags() | log.Lshortfile)
 
-	flag.Parse()
+	if *FVersion {
+		displayVersion()
+		os.Exit(0)
+	}
 
-	if conf, err = NewConfig(*FConfig); err != nil {
+	if config, err = NewConfig(*FConfig); err != nil {
 		log.Fatal(err)
 	}
 
@@ -44,13 +49,13 @@ func init() {
 		}
 	}
 
-	sl.Print(conf.Database.Info())
-	sl.Print(conf.Server.Info())
+	sl.Print(config.Database.Info())
+	sl.Print(config.Server.Info())
 }
 
 func main() {
-	log.Fatal(conf.Server.ListenAndServe())
-	conf.Queries.Close()
-	conf.Database.Close()
-	conf.Logger.Close()
+	log.Fatal(config.Server.ListenAndServe())
+	config.Queries.Close()
+	config.Database.Close()
+	config.Logger.Close()
 }

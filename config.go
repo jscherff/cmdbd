@@ -16,12 +16,19 @@ package main
 
 import (
 	`encoding/json`
+	`fmt`
 	`path/filepath`
 	`os`
 )
 
-// Configuration aliases.
 var (
+	// Program name and version.
+
+	program = filepath.Base(os.Args[0])
+	version = `undefined`
+
+	// Configuration aliases.
+
 	db *Database
 	qy *Queries
 	ws *Server
@@ -143,4 +150,9 @@ func loadConfig(t interface{}, cf string) error {
 		err = jd.Decode(&t)
 		return err
 	}
+}
+
+// displayVersion displays the program version.
+func displayVersion() {
+	fmt.Fprintf(os.Stderr, "%s version %s\n", program, version)
 }

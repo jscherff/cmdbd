@@ -23,4 +23,5 @@ var (
 	FConfig = flag.String(`config`, configDefault, "Master config `<file>`")
 	FConsole = flag.Bool(`console`, false, "Enable logging to console")
 	FRefresh = flag.Bool(`refresh`, false, "Refresh application metadata")
+	FVersion = flag.Bool(`version`, false, "Display application version")
 )
