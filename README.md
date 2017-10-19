@@ -10,13 +10,20 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, and `rpm-build` packages and their dependencies in order to perform the build. Once you've built the RPM, you can install it with this command:
+You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with this command:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
 Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
-* **`/usr/sbin/cmdbd`** is the CMDBd daemon.
-* **`/etc/cmdbd/config.json`** is the CMDBd configuration file.
+* **`/usr/sbin/cmdbd`** is the CMDBd HTTP daemon.
+* **`/etc/cmdbd/config.json`** is the master configuration file.
+* **`/etc/cmdbd/database.json`** contains settings for the database.
+* **`/etc/cmdbd/queries.json`** contains SQL queries used by the server.
+* **`/etc/cmdbd/syslog.json`** contains settings for the syslog daemon.
+* **`/etc/cmdbd/logger.json`** contains settings for the HTTP server logs.
+* **`/etc/cmdbd/router.json`** contains settings for the HTTP mux router.
+* **`/etc/cmdbd/server.json`** contains settings for the HTTP server.
+* **`/etc/cmdbd/metausb.json`** contains information about all known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
@@ -24,16 +31,10 @@ Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the p
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdb.sql` and `users.sql`. You must also modify `config.json` configuration file to reflect the correct database server hostname and port, database user and password, application listener port, and other preferences (see below). By default, the `config.json` file is owned by the daemon user account and is not world-readable. You should not relax the permissions mode of this file as it contains the database password.
-
-Pre-compiled binaries are also available for both 32- and 64-bit Windows systems and can be installed in any folder along with the required JSON configuration file:
-
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/i686/cmdbd.exe) (32-bit Windows Server 2008 or higher)
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/x86_64/cmdbd.exe) (64-bit Windows Server 2008 or higher)
-* [**`config.json`**](https://github.com/jscherff/cmdbd/raw/master/config.json) (Configuration file)
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary (see below). By default, the config files are owned by the daemon user account and are not world-readable as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
 ### Configuration
-The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
+The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
 #### Server Settings
 Parameters that affect the behavior of the HTTP server:
