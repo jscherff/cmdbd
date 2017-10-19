@@ -172,9 +172,9 @@ Contains parameters that determine log file names and logging behavior:
 }
 ```
 * **`LogDir`** is the directory where all log files are written.
-* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs.
-* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs.
-* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs.
+* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs, below.
+* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs, below.
+* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs, below.
 * **`Logs`** describes each log used by the application. Each log has the following settings:
     * **`LogFile`** is the filename of the log file.
     * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
@@ -184,9 +184,9 @@ Contains parameters that determine log file names and logging behavior:
         * **`standard`** is shorthand for `date` and `time`.
         * **`longfile`** includes the long filename of the source file of the code that generated the event.
         * **`shortfile`** includes the short filename of the source file of the code that generated the event.
-    * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs.
-    * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs.
-    * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs.
+    * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
+    * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
+    * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above.
 
 
 
