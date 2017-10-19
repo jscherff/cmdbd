@@ -240,11 +240,6 @@ systemctl stop cmdbd
 ```
 Refer to the `systemctl` man page for other options, such as `restart` and `reload`.
 
-Service access, system events, and errors are written to the following log files:
-* **`system.log`** records significant, non-error events.
-* **`access.log`** records client activity in Apache Combined Log Format.
-* **`error.log`** records service and database errors.
-
 The daemon can also be started from the command line. The following command-line options are available:
 * **`-config`** specifies the master configuration file, `config.json`. It is located in  `/etc/cmdbd` by default. All other configuration files will be loaded from the same location.
 * **`-console`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
@@ -254,7 +249,6 @@ The daemon can also be started from the command line. The following command-line
     * **`m`** = MINOR version with backwards-compatible new functionality
     * **`p`** = PATCH version with backward-compatible bug fixes.
     * **`R`** = RELEASE number and optional metadata (e.g., `1.beta`)
-
 * **`-help`** displays the above options with a short description.
 
 Starting the daemon manually with console logging (using the `console` _option flag_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
@@ -282,6 +276,12 @@ Usage of /usr/sbin/cmdbd:
 system 2017/10/18 19:43:39 main.go:52: Database version 10.2.9-MariaDB (cmdbd@localhost/gocmdb)
 system 2017/10/18 19:43:39 main.go:53: Server version 1.1.0-6.el7.centos started and listening on ":8080"
 ```
+### Logging
+Service access, system events, and errors are written to the following log files:
+* **`system.log`** records significant, non-error events.
+* **`access.log`** records client activity in Apache Combined Log Format.
+* **`error.log`** records service and database errors.
+
 
 ### Database Structure
 #### Tables
