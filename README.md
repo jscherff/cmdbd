@@ -282,67 +282,110 @@ Service access, system events, and errors are written to the following log files
 * **`access.log`** records client activity in Apache Combined Log Format.
 * **`error.log`** records service and database errors.
 
-
 ### Database Structure
 #### Tables
-The following tables comprise the database:
-* **Device Checkins** contains all device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
-* **Serialized Devices** contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
-* **Unserialized Devices** contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Bus Number_, _Bus Address_, and _Port Number_, and strives to have as few records as possible per unserialized device, though this cannot be guaranteed if a device is move to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
-* **Serial Number Requests** contains all requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
-* **Device Changes** contains configuration changes detected during device audits. Each device configuration attribute change detected during an audit creates one record.
+The following tables contain USB CI (configuration item) objects and supporting elements:
+* **CMDB Sequence** (`cmdb_sequence`) minics a database sequence object using an auto-incremented integer column. The value of this column forms the _'seed'_ for dynamically-generated, unique serial numbers issued to devices without preconfigured serial numbers. The `SerialFmt` configuraiton setting in the master configuration file controls how the serial number is generated with this integer value. It is extremely important that this table is never altered or truncated, as it provides a guarantee against duplicate serial numbers. Even if the data in all the other tables is lost or corrupted, preserving this table preserves the unique serial number guarantee.
+* **Device Checkins** (`usbci_checkins`) contains device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
+* **Serialized Devices** (`usbci_serialized`) contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Unserialized Devices** (`usbci_unserialized`) contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Port Number_, and _Bus Number_. It strives to have as few duplicate records as possible per unserialized device, though this cannot be guaranteed if a device is moved to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
+* **Serial Number Requests** (`usbci_snrequests`) contains requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. There is, however, no guarantee that the serial number configuration on the device will be successful and thus no guarantee that the device will appear in the _Serialized Devices_ table. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
+* **Device Changes** (`usbci_changes`) contains configuration changes detected during device audits. Each audit that detects configuration changes creates one record, and each record contains one or more changes (see below).
+
+The following tables contain USB device metadata:
+* **USB Vendor** (`usbmeta_vendor`) contains USB vendor names associated with specific vendor IDs.
+* **USB Product** (`usbmeta_product`) contains USB product names associated with specific vendor and product IDs.
+* **USB Class** (`usbmeta_class`) contains USB class descriptions associated with specific class IDs.
+* **USB SubClass** (`usbmeta_subclass`) contains USB subclass descriptions associated with specific class and subclass IDs.
+* **USB Protocol** (`usbmeta_protocol`) contains USB protocol descriptions associated with specific class, subclass, and protocol IDs.
 
 #### Columns
-The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and **Serial Number Requests** tables have the following columns:
+The **CMDB Sequence** table has the following columns:
+* Ordinal Value (`ord`)
+* Issue Date (`issue_date`)
 
-* Hostname
-* Vendor ID
-* Product ID
-* Serial Number
-* Vendor Name
-* Product Name
-* Product Version
-* Firmware Version
-* Software ID
-* Port Number
-* Bus Number
-* Bus Address
-* Buffer Size
-* Max Packet Size
-* USB Specification
-* USB Class
-* USB Subclass
-* USB Protocol
-* Device Speed
-* Device Version
-* Factory Serial Number
-* Object Type
-* Object JSON
-* Remote Address
+The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and **Serial Number Requests** tables have the following columns:
+* ID (`id`)
+* Hostname (`host_name`)
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Serial Number (`serial_number`)
+* Vendor Name (`vendor_name`)
+* Product Name (`product_name`)
+* Product Version (`product_ver`)
+* Firmware Version (`firmware_ver`)
+* Software ID (`software_id`)
+* Port Number (`port_number`)
+* Bus Number (`bus_number`)
+* Bus Address (`bus_address`)
+* Buffer Size (`buffer_size`)
+* Max Packet Size (`max_pkt_size`)
+* USB Specification (`usb_spec`)
+* USB Class (`usb_class`)
+* USB Subclass (`usb_subclass`)
+* USB Protocol (`usb_protocol`)
+* Device Speed (`device_speed`)
+* Device Version (`device_ver`)
+* Device Serial Number (`device_sn`)
+* Factory Serial Number (`factory_sn`)
+* Descriptor Serial Number (`descriptor_sn`)
+* Object Type (`object_type`)
+* Object JSON (`object_json`)
+* Remote Address (`remote_addr`)
 
 The **Device Checkins** table includes the following additional column:
-* Checkin Date
+* Checkin Date (`checkin_date`)
 
 The **Serial Number Requests** table includes the following additional column:
-* Request Date
+* Request Date (`request_date`)
 
 The **Serialized Devices** and **Unserialized Devices** tables both include the following additional columns:
-* First Seen
-* Last Seen
-* Checkins
+* First Seen (`first_seen`)
+* Last Seen (`last_seen`)
+* Checkins (`checkins`)
 
 The **Device Changes** table has the following columns:
-* Host Name
-* Vendor ID
-* Product ID
-* Serial Number
-* Changes
-* Audit Date
+* ID (`id`)
+* Host Name (`host_name`)
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Serial Number (`serial_number`)
+* Changes (`changes`)
+* Audit Date (`audit_date`)
 
 For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
-* Property Name
-* Old Value
-* New Value
+* Property Name (`property_name`)
+* Old Value (`old_value`)
+* New Value (`new_value`)
+
+The **USB Vendor** table has the following columns:
+* Vendor ID (`vendor_id`)
+* Vendor Name (`vendor_name`)
+* Last Update (`last_update`)
+ 
+The **USB Product** table has the following columns:
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Product Name (`product_name`)
+* Last Update (`last_update`)
+
+The **USB Class** table has the following columns:
+* Class ID (`class_id`)
+* Class Description (`class_desc`)
+* Last Update (`last_update`)
+
+The **USB SubClass** table has the following columns:
+* Class ID (`class_id`)
+* SubClass ID (`subclass_id`)
+* SubClass Description (`subclass_desc`)
+* Last Update (`last_update`)
+
+The **USB Protocol** table has the following columns:
+* Class ID (`class_id`)
+* SubClass ID (`subclass_id`)
+* Protocol ID (`protocol_id`)
+* Protocol Description (`protocol_desc`)
+* Last Update (`last_update`)
 
 ### API Endpoints
 | Endpoint | Method | Purpose
