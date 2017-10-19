@@ -47,10 +47,7 @@ the audit to the server for later analysis.
 
   export GOPATH=%{gopath}
   go get %{package}
-
-  VERSION="$(git describe %{gopath}/src/%{package} 2>/dev/null)"
-  LDFLAGS="${VERSION:+-ldflags='-X main.version=${VERSION:1}'}"
-  go build ${LDFLAGS} %{package}
+  go build -ldflags='-X main.version=%{version}-%{release}' %{package}
 
 %install
 
