@@ -171,17 +171,20 @@ Contains parameters that determine log file names and logging behavior:
         }
 }
 ```
-* **`LogFile`** is the filename of the log file.
-* **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
-    * **`date`** includes date of the event in `YYYY/MM/DD` format.
-    * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
-    * **`utc`** includes time in UTC rather than local time.
-    * **`standard`** is shorthand for `date` and `time`.
-    * **`longfile`** includes the long filename of the source file of the code that generated the event.
-    * **`shortfile`** includes the short filename of the source file of the code that generated the event.
-* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
-* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
-* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
+* **`LogDir`** is the directory where all log files are written.
+* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs.
+* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs.
+* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, above. This overrides the same setting for individual logs.
+* * **`Logs`**
+    * **`LogFile`** is the filename of the log file.
+    * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
+        * **`date`** includes date of the event in `YYYY/MM/DD` format.
+        * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
+        * **`utc`** includes time in UTC rather than local time.
+        * **`standard`** is shorthand for `date` and `time`.
+        * **`longfile`** includes the long filename of the source file of the code that generated the event.
+        * **`shortfile`** includes the short filename of the source file of the code that generated the event.
+
 
 
 ##### Log Directory Settings
