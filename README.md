@@ -36,18 +36,31 @@ Once the package is installed, you must create the database schema, objects, and
 ### Configuration
 The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
-#### Server Settings
-Parameters that affect the behavior of the HTTP server:
+#### Master Config (`config.json`)
+Contains global parameters and file names of other configuration files in the same directory.
 ```json
-"Server": {
-    "Addr": ":8080",
-    "ReadTimeout": 10,
-    "WriteTimeout": 10,
-    "MaxHeaderBytes": 1048576,
-    "HttpBodySizeLimit": 1048576,
-    "AllowedContentTypes": ["application/json"]
+{
+    "SerialFmt": "24F%04X",
+    "Configs": {
+        "Database": "database.json",
+        "Queries": "queries.json",
+        "Syslog": "syslog.json",
+        "Logger": "logger.json",
+        "Router": "router.json",
+        "Server": "server.json",
+        "MetaUsb": "metausb.json"
+    }
 }
 ```
+* **`SerialFmt`** is the C `printf` format string for generating serial numbers from a seed integer.
+* **`Configs`** is a collection of configuration sections and their associated file names. The files are located in the same directory as the master configuration file, above. Each section is covered in more detail  below.
+    * **`Database`** names the file that contains database settings.
+    * **`Queries`** names the file that contains SQL queries used by the server.
+    * **`Syslog`** names the file that contains settings for the syslog daemon.
+    * **`Logger`** names the file that contains settings for the HTTP server logs.
+    * **`Router`** names the file that contains settings for the HTTP mux router.
+    * **`Server`** names the file that contains settings for the HTTP server.
+    * **`MetaUsb`** names the file that contains information about all known USB devices.
 * **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
 * **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
 * **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
@@ -55,10 +68,10 @@ Parameters that affect the behavior of the HTTP server:
 * **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
-#### Database Settings
-Parameters for communicating with the database server:
+#### Database Settings (`database.json`)
+Contains parameters for communicating with the database server:
 ```json
-"Database": {
+{
     "Driver": "mysql",
     "Config": {
         "User": "cmdbd",
@@ -78,49 +91,10 @@ Parameters for communicating with the database server:
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-#### Logger Settings
-Parameters that determine log file names and logging behavior:
+#### Syslog Settings (`syslog.json`)
+Contains parameters for communicating with a local or remote syslog server:
 ```json
-"Loggers": {
-    "system": {
-        "LogFile": "system.log",
-        "LogFlags": ["date","time","shortfile"],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": false
-    },
-    "access": {
-        "LogFile": "access.log",
-        "LogFlags": [],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": true
-    },
-    "error": {
-        "LogFile": "error.log",
-        "LogFlags": ["date","time","shortfile"],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": false
-    }
-}
-```
-* **`LogFile`** is the filename of the log file.
-* **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
-    * **`date`** includes date of the event in `YYYY/MM/DD` format.
-    * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
-    * **`utc`** includes time in UTC rather than local time.
-    * **`standard`** is shorthand for `date` and `time`.
-    * **`longfile`** includes the long filename of the source file of the code that generated the event.
-    * **`shortfile`** includes the short filename of the source file of the code that generated the event.
-* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
-* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
-* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
-
-#### Syslog Settings
-Parameters for communicating with a local or remote syslog server:
-```json
-"Syslog": {
+{
     "Protocol": "tcp",
     "Port": "1468",
     "Host": "localhost",
@@ -163,6 +137,52 @@ Parameters for communicating with a local or remote syslog server:
     * **`LOG_NOTICE`** -- normal but significant conditions
     * **`LOG_INFO`** -- informational messages
     * **`LOG_DEBUG`** -- debug-level messages
+
+#### Logger Settings
+Contains parameters that determine log file names and logging behavior:
+```json
+{
+    "LogDir": "/var/log/cmdbd",
+    "Stdout": false,
+    "Stderr": false,
+    "Syslog": false,
+    "Logs": {
+        "system": {
+            "LogFile": "system.log",
+            "LogFlags": ["date","time","shortfile"],
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": false
+        },
+        "access": {
+            "LogFile": "access.log",
+            "LogFlags": [],
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": true
+        },
+        "error": {
+            "LogFile": "error.log",
+            "LogFlags": ["date","time","shortfile"],
+            "Stdout": false,
+                        "Stderr": false,
+                        "Syslog": false
+                }
+        }
+}
+```
+* **`LogFile`** is the filename of the log file.
+* **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
+    * **`date`** includes date of the event in `YYYY/MM/DD` format.
+    * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
+    * **`utc`** includes time in UTC rather than local time.
+    * **`standard`** is shorthand for `date` and `time`.
+    * **`longfile`** includes the long filename of the source file of the code that generated the event.
+    * **`shortfile`** includes the short filename of the source file of the code that generated the event.
+* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
+* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
+* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
+
 
 ##### Log Directory Settings
 Directory where log files are written:
