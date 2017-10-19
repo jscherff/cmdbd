@@ -10,13 +10,20 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, and `rpm-build` packages and their dependencies in order to perform the build. Once you've built the RPM, you can install it with this command:
+You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with this command:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
 Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
-* **`/usr/sbin/cmdbd`** is the CMDBd daemon.
-* **`/etc/cmdbd/config.json`** is the CMDBd configuration file.
+* **`/usr/sbin/cmdbd`** is the CMDBd HTTP daemon.
+* **`/etc/cmdbd/config.json`** is the master configuration file.
+* **`/etc/cmdbd/database.json`** contains settings for the database.
+* **`/etc/cmdbd/queries.json`** contains SQL queries used by the server.
+* **`/etc/cmdbd/syslog.json`** contains settings for the syslog daemon.
+* **`/etc/cmdbd/logger.json`** contains settings for the HTTP server logs.
+* **`/etc/cmdbd/router.json`** contains settings for the HTTP mux router.
+* **`/etc/cmdbd/server.json`** contains settings for the HTTP server.
+* **`/etc/cmdbd/metausb.json`** contains information about all known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
@@ -24,40 +31,41 @@ Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the p
 * **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdb.sql` and `users.sql`. You must also modify `config.json` configuration file to reflect the correct database server hostname and port, database user and password, application listener port, and other preferences (see below). By default, the `config.json` file is owned by the daemon user account and is not world-readable. You should not relax the permissions mode of this file as it contains the database password.
-
-Pre-compiled binaries are also available for both 32- and 64-bit Windows systems and can be installed in any folder along with the required JSON configuration file:
-
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/i686/cmdbd.exe) (32-bit Windows Server 2008 or higher)
-* [**`cmdbd.exe`**](https://github.com/jscherff/cmdbd/raw/master/x86_64/cmdbd.exe) (64-bit Windows Server 2008 or higher)
-* [**`config.json`**](https://github.com/jscherff/cmdbd/raw/master/config.json) (Configuration file)
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary (see below). By default, the config files are owned by the daemon user account and are not world-readable as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
 ### Configuration
-The JSON configuration file, [`config.json`](https://github.com/jscherff/cmdbd/blob/master/config.json), is mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
+The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
-#### Server Settings
-Parameters that affect the behavior of the HTTP server:
+#### Master Config (`config.json`)
+Contains global parameters and file names of other configuration files in the same directory.
 ```json
-"Server": {
-    "Addr": ":8080",
-    "ReadTimeout": 10,
-    "WriteTimeout": 10,
-    "MaxHeaderBytes": 1048576,
-    "HttpBodySizeLimit": 1048576,
-    "AllowedContentTypes": ["application/json"]
+{
+    "SerialFmt": "24F%04X",
+    "Configs": {
+        "Database": "database.json",
+        "Queries": "queries.json",
+        "Syslog": "syslog.json",
+        "Logger": "logger.json",
+        "Router": "router.json",
+        "Server": "server.json",
+        "MetaUsb": "metausb.json"
+    }
 }
 ```
-* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
-* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
-* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
-* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
-* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
-* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
+* **`SerialFmt`** is the C `printf` format string for generating serial numbers from a seed integer.
+* **`Configs`** is a collection of configuration sections and their associated file names. The files are located in the same directory as the master configuration file, above. Each section is covered in more detail  below.
+    * **`Database`** names the file that contains database settings.
+    * **`Queries`** names the file that contains SQL queries used by the server.
+    * **`Syslog`** names the file that contains settings for the syslog daemon.
+    * **`Logger`** names the file that contains settings for the HTTP server logs.
+    * **`Router`** names the file that contains settings for the HTTP mux router.
+    * **`Server`** names the file that contains settings for the HTTP server.
+    * **`MetaUsb`** names the file that contains information about all known USB devices.
 
-#### Database Settings
-Parameters for communicating with the database server:
+#### Database Settings (`database.json`)
+Contains parameters for communicating with the database server:
 ```json
-"Database": {
+{
     "Driver": "mysql",
     "Config": {
         "User": "cmdbd",
@@ -77,49 +85,13 @@ Parameters for communicating with the database server:
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-#### Logger Settings
-Parameters that determine log file names and logging behavior:
-```json
-"Loggers": {
-    "system": {
-        "LogFile": "system.log",
-        "LogFlags": ["date","time","shortfile"],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": false
-    },
-    "access": {
-        "LogFile": "access.log",
-        "LogFlags": [],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": true
-    },
-    "error": {
-        "LogFile": "error.log",
-        "LogFlags": ["date","time","shortfile"],
-        "Stdout": false,
-        "Stderr": false,
-        "Syslog": false
-    }
-}
-```
-* **`LogFile`** is the filename of the log file.
-* **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
-    * **`date`** includes date of the event in `YYYY/MM/DD` format.
-    * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
-    * **`utc`** includes time in UTC rather than local time.
-    * **`standard`** is shorthand for `date` and `time`.
-    * **`longfile`** includes the long filename of the source file of the code that generated the event.
-    * **`shortfile`** includes the short filename of the source file of the code that generated the event.
-* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
-* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
-* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the `Syslog` configuration settings, below.
+#### Query Settings (`queries.json`)
+Contains SQL queries used by the server to communicate with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
-#### Syslog Settings
-Parameters for communicating with a local or remote syslog server:
+#### Syslog Settings (`syslog.json`)
+Contains parameters for communicating with a local or remote syslog server:
 ```json
-"Syslog": {
+{
     "Protocol": "tcp",
     "Port": "1468",
     "Host": "localhost",
@@ -163,31 +135,86 @@ Parameters for communicating with a local or remote syslog server:
     * **`LOG_INFO`** -- informational messages
     * **`LOG_DEBUG`** -- debug-level messages
 
-##### Log Directory Settings
-Directory where log files are written:
+#### Logger Settings
+Contains parameters that determine log file names and logging behavior:
 ```json
-"LogDir": {
-    "Windows": "log",
-    "Linux": "/var/log/cmdbd"
-}
-```
-* **`Windows`** is the log directory to use for Windows installations.
-* **`Linux`** is the log directory to use for Linux installations.
-
-#### Global Settings
-System-wide parameters:
-```json
-"Options": {
+{
+    "LogDir": "/var/log/cmdbd",
     "Stdout": false,
     "Stderr": false,
     "Syslog": false,
-    "RecoveryStack": false
+    "Logs": {
+        "system": {
+            "LogFile": "system.log",
+            "LogFlags": ["date","time","shortfile"],
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": false
+        },
+        "access": {
+            "LogFile": "access.log",
+            "LogFlags": [],
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": false
+        },
+        "error": {
+            "LogFile": "error.log",
+            "LogFlags": ["date","time","shortfile"],
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": false
+        }
+    }
 }
 ```
-* **`Stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **`Stderr`** causes all logs to be written to standard error; it overrides `Stderr` setting for individual logs.
-* **`Syslog`** causes all logs to be written to the configured syslog daemon; it overrides `Syslog` settings for individual logs.
+* **`LogDir`** is the directory where all log files are written.
+* **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs, below.
+* **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs, below.
+* **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs, below.
+* **`Logs`** describes each log used by the application. Each log has the following settings:
+    * **`LogFile`** is the filename of the log file.
+    * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
+        * **`date`** includes date of the event in `YYYY/MM/DD` format.
+        * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
+        * **`utc`** includes time in UTC rather than local time.
+        * **`standard`** is shorthand for `date` and `time`.
+        * **`longfile`** includes the long filename of the source file of the code that generated the event.
+        * **`shortfile`** includes the short filename of the source file of the code that generated the event.
+    * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
+    * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
+    * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above.
+
+#### Router/Handler Settings (`router.json`)
+Contains parameters for the HTTP mux router recovery handler:
+```json
+{
+        "RecoveryStack": true
+}
+```
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+
+#### Server Settings (`server.json`)
+Contains parameters for the HTTP server:
+```json
+{
+        "Addr": ":8080",
+        "ReadTimeout": 10,
+        "WriteTimeout": 10,
+        "MaxHeaderBytes": 1048576,
+        "HttpBodySizeLimit": 1048576,
+        "AllowedContentTypes": ["application/json"]
+}
+```
+* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
+* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
+* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
+* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
+* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
+* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
+
+#### USB Metadata Settings (`metausb.json`)
+Contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for all known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days.
 
 ### Startup
 Once all configuration tasks are complete, the daemon can be started with the following command:
@@ -200,36 +227,41 @@ Service access, system events, and errors are written to the following log files
 * **`error.log`** records service and database errors.
 
 The daemon can also be started from the command line. The following command-line options are available:
-* **`-config`** specifies an alternate JSON configuration file; the default is `/etc/cmdbd/config.json`.
-* **`-stdout`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **`-stderr`** causes _all logs_ to be written to standard error; it overrides `Stderr` setting for individual logs.
-* **`-syslog`** causes _all logs_ to be written to the configured syslog daemon; it overrides `Syslog` setting for individual logs.
+* **`-config`** specifies the master configuration file, `config.json`. It is located in  `/etc/cmdbd` by default. All other configuration files will be loaded from the same location.
+* **`-console`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
+* **`-refresh`** causes metadata files to be refreshed from source URLs. It overwrites both local configuration files and corresponding database tables.
+* **`-version`** displays the server version, `M.m.p-R`, where:
+    * **`M`** = MAJOR version with incompatible API changes
+    * **`m`** = MINOR version with backwards-compatible new functionality
+    * **`p`** = PATCH version with backward-compatible bug fixes.
+    * **`R`** = RELEASE number and optional metadata (e.g., `1.beta`)
+
 * **`-help`** displays the above options with a short description.
 
-Starting the daemon manually with console logging (using the `stdout` or `stderr` _option flags_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
+Starting the daemon manually with console logging (using the `console` _option flag_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
 ```sh
-sudo -u cmdbd /usr/sbin/cmdbd -stdout
+sudo -u cmdbd /usr/sbin/cmdbd -console
 ```
 You can also start the daemon directly as `root`:
 ```sh
-/usr/sbin/cmdbd -stdout
+/usr/sbin/cmdbd -console
 ```
 However, doing so can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
 ```sh
 [root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -help
 Usage of /usr/sbin/cmdbd:
-  -config file
-        Web server configuration file (default "/etc/cmdbd/config.json")
-  -stderr
-        Enable logging to stderr
-  -stdout
-        Enable logging to stdout
-  -syslog
-        Enable logging to syslog
+  -config <file>
+        Master config <file> (default "/etc/cmdbd/conf.json")
+  -console
+        Enable logging to console
+  -refresh
+        Refresh application metadata
+  -version
+        Display application version
 
-[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -stdout
-system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
-system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
+[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -console
+system 2017/10/18 19:43:39 main.go:52: Database version 10.2.9-MariaDB (cmdbd@localhost/gocmdb)
+system 2017/10/18 19:43:39 main.go:53: Server version 1.1.0-6.el7.centos started and listening on ":8080"
 ```
 
 ### Database Structure
@@ -251,10 +283,11 @@ The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and *
 * Vendor Name
 * Product Name
 * Product Version
+* Firmware Version
 * Software ID
+* Port Number
 * Bus Number
 * Bus Address
-* Port Number
 * Buffer Size
 * Max Packet Size
 * USB Specification
@@ -264,6 +297,9 @@ The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and *
 * Device Speed
 * Device Version
 * Factory Serial Number
+* Object Type
+* Object JSON
+* Remote Address
 
 The **Device Checkins** table includes the following additional column:
 * Checkin Date
@@ -282,6 +318,7 @@ The **Device Changes** table has the following columns:
 * Product ID
 * Serial Number
 * Changes
+* Audit Date
 
 For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
 * Property Name
@@ -291,13 +328,23 @@ For a given **Device Changes** record, the _Changes_ column contains a JSON obje
 ### API Endpoints
 | Endpoint | Method | Purpose
 | :------ | :------ | :------ |
-| **`/usbci/checkin/{host}/{vid}/{pid}`** | POST | Submit configuration information for a new device or update information for an existing device. |
-| **`/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
-| **`/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.
-| **`/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
+| /v1/usbci/checkin/`host`/`vid`/`pid` | `POST` | Submit configuration information for a new device or update information for an existing device. |
+| /v1/usbci/checkout/`host`/`vid`/`pid`/`sn` | `GET` | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
+| /v1/usbci/newsn/`host`/`vid`/`pid` | `POST` | Obtain a new unique serial number from the server for assignment to the attached device. |
+| /v1/usbci/audit/`host`/`vid`/`pid`/`sn` | `POST` | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
+| /v1/usbmeta/vendor/`vid` | `GET` | Obtain the USB vendor name given the vendor ID |
+| /v1/usbmeta/product/`vid`/`pid` | `GET` | Obtain the USB vendor and product names given the vendor and product IDs | 
+| /v1/usbmeta/class/`cid` | `GET` | Obtain the USB class description given the class ID | 
+| /v1/usbmeta/subclass/`cid`/`sid` | `GET` | Obtain the USB class and subclass descriptions given the class and subclass IDs |
+| /v1/usbmeta/protocol/`cid`/`sid`/`pid` | `GET` | Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs |
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
 * **`vid`** is the _vendor ID_ of the device.
 * **`pid`** is the _product ID_ of the device.
 * **`sn`** is the _serial number_ of the device.
+* **`vid`** is the _vendor ID_ of the device.
+* **`pid`** is the _product ID_ of the device.
+* **`cid`** is the _class ID_ of the device.
+* **`sid`** is the _subclass ID_ of the device.
+* **`pid`** is the _protocol ID_ of the device.
