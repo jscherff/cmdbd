@@ -10,11 +10,17 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with this command:
+You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with the RPM command. If you're installing the package for the first time, use the `-i` (install) flag to install the package:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
-Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). The package will install the following files:
+If you're upgrading the package to a newer version, use the `-U` (upgrade) flag to upgrade the package:
+```sh
+rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
+```
+In the above examples, `{arch}` is the system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). 
+
+The package will install the following files:
 * **`/usr/sbin/cmdbd`** is the **CMDBd** daemon.
 * **`/etc/cmdbd/config.json`** is the master configuration file.
 * **`/etc/cmdbd/database.json`** contains settings for the database.
@@ -32,13 +38,13 @@ Where `{arch}` is your system architecture (e.g. `x86_64`), `{version}` is the p
 * **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** resets (truncates) all database tables.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary (see below). By default, the config files are owned by the daemon user account and are not world-readable as they contain potentially sensitive information. You should not relax the permissions mode of these files.
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
 ### Configuration
 The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
 
 #### Master Config (`config.json`)
-Contains global parameters and file names of other configuration files in the same directory.
+The master configuration file contains global parameters and file names of other configuration files.
 ```json
 {
     "SerialFmt": "24F%04X",
@@ -53,18 +59,18 @@ Contains global parameters and file names of other configuration files in the sa
     }
 }
 ```
-* **`SerialFmt`** is the C `printf` format string for generating serial numbers from a seed integer.
-* **`Configs`** is a collection of configuration sections and their associated file names. The files are located in the same directory as the master configuration file, above. Each section is covered in more detail  below.
+* **`SerialFmt`** is the C _printf-style_ format string for generating serial numbers from a seed integer.
+* **`Configs`** is a collection of configurations for different components of the server along with their associated file names. The files **must** be located in the same directory as the master configuration file, above, or the server will fail to start. These components and their configuration settings are covered in more detail  later in this document.
     * **`Database`** names the file that contains database settings.
     * **`Queries`** names the file that contains SQL queries used by the server.
     * **`Syslog`** names the file that contains settings for the syslog daemon.
     * **`Logger`** names the file that contains settings for the HTTP server logs.
-    * **`Router`** names the file that contains settings for the HTTP mux router.
+    * **`Router`** names the file that contains settings for the HTTP handlers.
     * **`Server`** names the file that contains settings for the HTTP server.
-    * **`MetaUsb`** names the file that contains information about all known USB devices.
+    * **`MetaUsb`** names the file that contains information about known USB devices.
 
 #### Database Settings (`database.json`)
-Contains parameters for communicating with the database server:
+The database configuration file contains parameters required for the server to authenticate and communicate with the database:
 ```json
 {
     "Driver": "mysql",
@@ -78,19 +84,19 @@ Contains parameters for communicating with the database server:
     }
 }
 ```
-* **`Driver`** is the database driver. Only `mysql` is supported.
+* **`Driver`** is the database driver. Only _'mysql'_ is supported.
 * **`User`** is the database user the daemon uses to access the database.
-* **`Passwd`** is the database user password. The default, shown, should be changed in production.
+* **`Passwd`** is the database user password. Change this to a new, unique value in production.
 * **`Net`** is the port on which the database is listening. If blank, the daemon will use the MySQL default port, 3306.
 * **`Addr`** is the database hostname or IP address.
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
 #### Query Settings (`queries.json`)
-Contains SQL queries used by the server to communicate with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
+The query configuration file contains SQL queries used by the server to interact with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
 #### Syslog Settings (`syslog.json`)
-Contains parameters for communicating with a local or remote syslog server:
+The syslog configuration file contains parameters for communicating with an optional local or remote syslog server:
 ```json
 {
     "Protocol": "tcp",
@@ -137,7 +143,7 @@ Contains parameters for communicating with a local or remote syslog server:
     * **`LOG_DEBUG`** -- debug-level messages
 
 #### Logger Settings (`logger.json`)
-Contains parameters that determine log file names and logging behavior:
+The logger configuration file contains parameters that determine log file names and logging behavior:
 ```json
 {
     "LogDir": "/var/log/cmdbd",
@@ -175,7 +181,7 @@ Contains parameters that determine log file names and logging behavior:
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs, below.
 * **`Logs`** describes each log used by the application. Each log has the following settings:
     * **`LogFile`** is the filename of the log file.
-    * **`LogFlags`** specifies information to include in the prefix of each log entry. The following [case-sensitive] flags are supported:
+    * **`LogFlags`** is a comma-separated list of attributes to include in the prefix of each log entry. If it is empty, log entries will have no prefix. (This is appropriate for the HTTP access log which is written in the Apache combined log format and already includes relevent attributes in the prefix.) The following [case-sensitive] flags are supported:
         * **`date`** includes date of the event in `YYYY/MM/DD` format.
         * **`time`** includes local time of the event in `HH:MM:SS` 24-hour clock format.
         * **`utc`** includes time in UTC rather than local time.
@@ -196,7 +202,7 @@ Contains parameters for the HTTP mux router recovery handler:
 * **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
 #### Server Settings (`server.json`)
-Contains parameters for the HTTP server:
+The server configuration file contains parameters for the HTTP server:
 ```json
 {
         "Addr": ":8080",
@@ -207,7 +213,7 @@ Contains parameters for the HTTP server:
         "AllowedContentTypes": ["application/json"]
 }
 ```
-* **`Addr`** is the hostname or IP address and port of the listener, separated by a colon. If blank, the daemon will listen on all network interfaces.
+* **`Addr`** is the hostname (or IP address) and port of the listener, separated by a colon. If the hostname/address component is blank, the daemon will listen on all network interfaces.
 * **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
 * **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
@@ -215,8 +221,12 @@ Contains parameters for the HTTP server:
 * **`AllowedContentTypes`** is a comma-separated list of allowed media types.
 
 #### USB Metadata Settings (`metausb.json`)
-Contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for all known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days.
-
+The USB metadata configuration file contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days. You can force a refresh of this file in two ways:
+1. Execute the daemon binary, `cmdbd`, with the `-refresh` flag (preferred). This will download a fresh copy of the metadata, store it in the configuration file, and update relevant metadata tables in the database.
+2. Modify the `"Updated":` parameter in the configuration file to a date more than 30 days prior.
+```json
+    "Updated": "2017-10-17T16:54:09.4910059-07:00"
+```
 ### Startup
 Once all configuration tasks are complete, the daemon can be started with the following command:
 ```sh
