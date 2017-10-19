@@ -238,30 +238,30 @@ The daemon can also be started from the command line. The following command-line
 
 * **`-help`** displays the above options with a short description.
 
-Starting the daemon manually with console logging (using the `stdout` or `stderr` _option flags_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
+Starting the daemon manually with console logging (using the `console` _option flag_) is good for troubleshooting. You must start the daemon in the context of the `cmdbd` user account or it will not be able to write to its log files:
 ```sh
-sudo -u cmdbd /usr/sbin/cmdbd -stdout
+sudo -u cmdbd /usr/sbin/cmdbd -console
 ```
 You can also start the daemon directly as `root`:
 ```sh
-/usr/sbin/cmdbd -stdout
+/usr/sbin/cmdbd -console
 ```
 However, doing so can hide permissions-base issues when troubleshooting. (_For security reasons, the daemon should never run as `root` in production; it should always run in the context of a nonprivileged account._) Manual startup example:
 ```sh
 [root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -help
 Usage of /usr/sbin/cmdbd:
-  -config file
-        Web server configuration file (default "/etc/cmdbd/config.json")
-  -stderr
-        Enable logging to stderr
-  -stdout
-        Enable logging to stdout
-  -syslog
-        Enable logging to syslog
+  -config <file>
+        Master config <file> (default "/etc/cmdbd/conf.json")
+  -console
+        Enable logging to console
+  -refresh
+        Refresh application metadata
+  -version
+        Display application version
 
-[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -stdout
-system 2017/09/30 09:55:38 main.go:62: Database "10.2.9-MariaDB" (cmdbd@localhost/gocmdb) using "mysql" driver
-system 2017/09/30 09:55:38 main.go:63: Server started and listening on ":8080"
+[root@sysadm-dev-01 ~]# sudo -u cmdbd /usr/sbin/cmdbd -console
+system 2017/10/18 19:43:39 main.go:52: Database version 10.2.9-MariaDB (cmdbd@localhost/gocmdb)
+system 2017/10/18 19:43:39 main.go:53: Server version 1.1.0-6.el7.centos started and listening on ":8080"
 ```
 
 ### Database Structure
@@ -283,10 +283,11 @@ The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and *
 * Vendor Name
 * Product Name
 * Product Version
+* Firmware Version
 * Software ID
+* Port Number
 * Bus Number
 * Bus Address
-* Port Number
 * Buffer Size
 * Max Packet Size
 * USB Specification
@@ -296,6 +297,9 @@ The **Device Checkins**, **Serialized Devices**, **Unserialized Devices**, and *
 * Device Speed
 * Device Version
 * Factory Serial Number
+* Object Type
+* Object JSON
+* Remote Address
 
 The **Device Checkins** table includes the following additional column:
 * Checkin Date
@@ -314,6 +318,7 @@ The **Device Changes** table has the following columns:
 * Product ID
 * Serial Number
 * Changes
+* Audit Date
 
 For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
 * Property Name
@@ -323,10 +328,19 @@ For a given **Device Changes** record, the _Changes_ column contains a JSON obje
 ### API Endpoints
 | Endpoint | Method | Purpose
 | :------ | :------ | :------ |
-| **`/usbci/checkin/{host}/{vid}/{pid}`** | POST | Submit configuration information for a new device or update information for an existing device. |
-| **`/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
-| **`/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.
-| **`/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
+| **`/v1/usbci/checkin/{host}/{vid}/{pid}`** | POST | Submit configuration information for a new device or update information for an existing device. |
+| **`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`** | GET | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
+| **`/v1/usbci/newsn/{host}/{vid}/{pid}`** | POST | Obtain a new unique serial number from the server for assignment to the attached device. |
+| **`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`** | POST | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
+| /v1/usbmeta/vendor/{vid} | GET | Obtain the vendor name given the vendor ID |
+| /v1/usbmeta/product/{vid}/{pid} | GET | Obtain the vendor and product names given the vendor and product IDs | 
+| /v1/usbmeta/class/{cid} | GET | Returns 
+| /v1/usbmeta/subclass/{cid}/{sid} | GET |
+| /v1/usbmeta/protocol/{cid}/{sid}/{pid} | GET |
+                HandlerFunc:    usbMetaProtocolV1,
+        },
+
+
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
