@@ -229,12 +229,12 @@ Service access, system events, and errors are written to the following log files
 The daemon can also be started from the command line. The following command-line options are available:
 * **`-config`** specifies the master configuration file, `config.json`. It is located in  `/etc/cmdbd` by default. All other configuration files will be loaded from the same location.
 * **`-console`** causes _all logs_ to be written to standard output; it overrides `Stdout` setting for individual logs.
-* **`-refresh`** metadata files to be refreshed from source URLs. It overwrites both local configuration files and corresponding database tables.
+* **`-refresh`** causes metadata files to be refreshed from source URLs. It overwrites both local configuration files and corresponding database tables.
 * **`-version`** displays the server version, `M.m.p-R`, where:
     * **`M`** = MAJOR version with incompatible API changes
-    * m = MINOR version with backwards-compatible new functionality
-    * p = PATCH version with backward-compatible bug fixes.
-    * R = RELEASE number and optional metadata (e.g., `1.beta`)
+    * **`m`** = MINOR version with backwards-compatible new functionality
+    * **`p`** = PATCH version with backward-compatible bug fixes.
+    * **`R`** = RELEASE number and optional metadata (e.g., `1.beta`)
 
 * **`-help`** displays the above options with a short description.
 
