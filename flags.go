@@ -16,8 +16,10 @@ package main
 
 import `flag`
 
-const configDefault = `/etc/cmdbd/conf.json`
-const logdirDefault = `/var/log/cmdbd`
+const (
+	configDefault = `/etc/cmdbd/config.json`
+	logdirDefault = `/var/log/cmdbd`
+)
 
 var (
 	FConfig = flag.String(`config`, configDefault, "Master config `<file>`")
