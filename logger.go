@@ -39,7 +39,7 @@ type Log struct {
 }
 
 // NewLogger creates and initializes a new Logger instance.
-func NewLogger(cf string, syslog *Syslog, fConsole bool) (this *Logger, err error) {
+func NewLogger(cf string, console bool, syslog *Syslog) (this *Logger, err error) {
 
 	this = &Logger{}
 
@@ -52,7 +52,7 @@ func NewLogger(cf string, syslog *Syslog, fConsole bool) (this *Logger, err erro
 		flags := log.LoggerFlags(mlog.LogFlags...)
 		file := filepath.Join(this.LogDir, mlog.LogFile)
 
-		fStdout := mlog.Stdout || this.Stdout || fConsole
+		fStdout := mlog.Stdout || this.Stdout || console
 		fStderr := mlog.Stderr || this.Stderr
 		fSyslog := mlog.Syslog || this.Syslog
 

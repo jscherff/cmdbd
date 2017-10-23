@@ -98,7 +98,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Logger object.
 
-	if logger, err := NewLogger(this.Configs[`Logger`], this.Syslog, *FConsole); err != nil {
+	if logger, err := NewLogger(this.Configs[`Logger`], *FConsole, this.Syslog); err != nil {
 		return nil, err
 	} else {
 		this.Logger = logger
