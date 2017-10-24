@@ -25,7 +25,6 @@ var (
 	// Program name, path, and version.
 
 	progName = filepath.Base(os.Args[0])
-	protPath = filepath.Dir(os.Args[0])
 	version = `undefined`
 
 	// Configuration aliases.
