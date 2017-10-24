@@ -1,5 +1,9 @@
 {
-	"SerialFmt": "24F%04X",
+	"SerialFmt": {
+		"*usb.Magtek": "24HF%04XMT",
+		"*usbci.Magtek": "24HF%04XMT",
+		"Default": "24HF%06X"
+	},
 
 	"Configs": {
 		"Database": "database.json",

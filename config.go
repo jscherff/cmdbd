@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	// Program name and version.
+	// Program name, path, and version.
 
 	progName = filepath.Base(os.Args[0])
 	protPath = filepath.Dir(os.Args[0])
@@ -39,7 +39,7 @@ var (
 // Config contains infomation about the server process and log writers.
 type Config struct {
 
-	SerialFmt string
+	SerialFmt map[string]string
 	Configs   map[string]string
 
 	Database *Database
@@ -105,9 +105,19 @@ func NewConfig(cf string) (this *Config, err error) {
 		this.Logger = logger
 	}
 
-	sl = this.Logger.Logs[`system`]
-	al = this.Logger.Logs[`access`]
-	el = this.Logger.Logs[`error`]
+	// Ensure required loggers are present and create aliases.
+
+	var ok bool
+
+	if sl, ok = this.Logger.Logs[`system`]; !ok {
+		return nil, fmt.Errorf(`missing "system" log config`)
+	}
+	if al, ok = this.Logger.Logs[`access`]; !ok {
+		return nil, fmt.Errorf(`missing "access" log config`)
+	}
+	if el, ok = this.Logger.Logs[`error`]; !ok {
+		return nil, fmt.Errorf(`missing "error" log config`)
+	}
 
 	// Create and initialize Router object.
 

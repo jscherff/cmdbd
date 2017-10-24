@@ -26,6 +26,24 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
+-- Dumping structure for function gocmdb.func_usbci_serial_exists
+DROP FUNCTION IF EXISTS `func_usbci_serial_exists`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` FUNCTION `func_usbci_serial_exists`(
+	`serial_number_in` VARCHAR(127)
+
+
+) RETURNS tinyint(4)
+    SQL SECURITY INVOKER
+BEGIN
+	IF EXISTS (SELECT * FROM usbci_serialized WHERE serial_number = serial_number_in) THEN
+		RETURN TRUE;
+	ELSE
+		RETURN FALSE;
+	END IF;
+END//
+DELIMITER ;
+
 -- Dumping structure for procedure gocmdb.proc_usbci_insert_checkins
 DROP PROCEDURE IF EXISTS `proc_usbci_insert_checkins`;
 DELIMITER //

@@ -25,9 +25,7 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 		vals = append(vals, dev[col])
 	}
 
-	if _, err = qy.Stmt[`usbCiInsertCheckin`].Exec(vals...); err != nil {
-		el.Print(err)
-	}
+	_, err = qy.Stmt[`usbCiInsertCheckin`].Exec(vals...)
 
 	return err
 }
@@ -39,8 +37,15 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 
 	var (
 		id int64
+		serialFmt string
 		vals []interface{}
 	)
+
+	if objectType, ok := dev[`object_type`].(string); !ok {
+		return sn, fmt.Errorf(`cannot determine device type`)
+	} else if serialFmt, ok = conf.SerialFmt[objectType]; !ok {
+		return sn, fmt.Errorf(`missing SN format for device %q`, objectType)
+	}
 
 	tx, err := db.Begin()
 
@@ -53,33 +58,24 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 	}
 
 	if res, err := qy.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
-		el.Print(err)
 		return sn, err
 	} else if id, err = res.LastInsertId(); err != nil {
-		el.Print(err)
 		return sn, err
 	}
 
 	if res, err := qy.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
-		el.Print(err)
 		return sn, err
-	} else if sq, err := res.LastInsertId(); err != nil {
-		el.Print(err)
+	} else if seq, err := res.LastInsertId(); err != nil {
 		return sn, err
 	} else {
-		sn = fmt.Sprintf(conf.SerialFmt, sq)
+		sn = fmt.Sprintf(serialFmt, seq)
 	}
 
-	if _, err = qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
-		el.Print(err)
+	if _, err := qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
+		return sn, err
 	}
 
-	if err != nil {
-		el.Print(err)
-	} else if err := tx.Commit(); err != nil {
-		el.Print(err)
-	}
-
+	err = tx.Commit()
 	return sn, err
 }
 
@@ -87,10 +83,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	if _, err = qy.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs); err != nil {
-		el.Print(err)
-	}
-
+	_, err = qy.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs)
 	return err
 }
 
@@ -98,20 +91,16 @@ func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 // table and returns them to the caller in JSON format.
 func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 
-	if err = qy.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j); err != nil {
-		el.Print(err)
-	}
-
+	err = qy.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j)
 	return j, err
 }
 
 // SaveUsbMeta updates the USB meta tables in the database.
-func SaveUsbMeta() error {
+func SaveUsbMeta() (err error) {
 
 	tx, err := db.Begin()
 
 	if err != nil {
-		el.Print(err)
 		return err
 	}
 
@@ -121,48 +110,41 @@ func SaveUsbMeta() error {
 	subclassStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceSubClass`])
 	protocolStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProtocol`])
 
-	VendorLoop:
 	for vid, v := range conf.MetaUsb.Vendors {
 
-		if _, err = vendorStmt.Exec(vid, v.String()); err != nil {
-			break VendorLoop
+		if _, err := vendorStmt.Exec(vid, v.String()); err != nil {
+			return err
 		}
 
 		for pid, p := range v.Product {
 
-			if _, err = productStmt.Exec(vid, pid, p.String()); err != nil {
-				break VendorLoop
+			if _, err := productStmt.Exec(vid, pid, p.String()); err != nil {
+				return err
 			}
 		}
 	}
 
-	ClassLoop:
 	for cid, c := range conf.MetaUsb.Classes {
 
-		if _, err = classStmt.Exec(cid, c.String()); err != nil {
-			break ClassLoop
+		if _, err := classStmt.Exec(cid, c.String()); err != nil {
+			return err
 		}
 
 		for sid, s := range c.SubClass {
 
-			if _, err = subclassStmt.Exec(cid, sid, s.String()); err != nil {
-				break ClassLoop
+			if _, err := subclassStmt.Exec(cid, sid, s.String()); err != nil {
+				return err
 			}
 
 			for pid, p := range s.Protocol {
 
-				if _, err = protocolStmt.Exec(cid, sid, pid, p.String()); err != nil {
-					break ClassLoop
+				if _, err := protocolStmt.Exec(cid, sid, pid, p.String()); err != nil {
+					return err
 				}
 			}
 		}
 	}
 
-	if err != nil {
-		el.Print(err)
-	} else if err := tx.Commit(); err != nil {
-		el.Print(err)
-	}
-
+	err = tx.Commit()
 	return err
 }

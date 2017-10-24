@@ -8,7 +8,7 @@
 	"Logs": {
 		"system": {
 			"LogFile": "system.log",
-			"LogFlags": ["date","time","shortfile"],
+			"LogFlags": ["date","time"],
 			"Stdout": false,
 			"Stderr": false,
 			"Syslog": false
