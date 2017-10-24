@@ -24,7 +24,8 @@ import (
 var (
 	// Program name and version.
 
-	program = filepath.Base(os.Args[0])
+	progName = filepath.Base(os.Args[0])
+	protPath = filepath.Dir(os.Args[0])
 	version = `undefined`
 
 	// Configuration aliases.
@@ -152,7 +153,7 @@ func loadConfig(t interface{}, cf string) error {
 	}
 }
 
-// displayVersion displays the program version.
+// displayVersion displays the progName version.
 func displayVersion() {
-	fmt.Fprintf(os.Stderr, "%s version %s\n", program, version)
+	fmt.Fprintf(os.Stderr, "%s version %s\n", progName, version)
 }
