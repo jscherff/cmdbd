@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	// Program name, path, and version.
+	// Program name and version.
 
 	progName = filepath.Base(os.Args[0])
 	version = `undefined`
