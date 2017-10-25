@@ -33,7 +33,9 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `func_usbci_serial_exists`(
 	`serial_number_in` VARCHAR(127)
 
 
+
 ) RETURNS tinyint(4)
+    DETERMINISTIC
     SQL SECURITY INVOKER
 BEGIN
 	IF EXISTS (SELECT * FROM usbci_serialized WHERE serial_number = serial_number_in) THEN
