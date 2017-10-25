@@ -5,7 +5,7 @@
 		"User": "cmdbd",
 		"Passwd": "K2Cvg3NeyR",
 		"Net": "",
-		"Addr": "localhost",
+		"Addr": "sysadm-dev-01.24hourfit.com",
 		"DBName": "gocmdb",
 		"Params": null
 	}
