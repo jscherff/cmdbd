@@ -4,8 +4,8 @@
 	"Config": {
 		"User": "cmdbd",
 		"Passwd": "K2Cvg3NeyR",
-		"Net": "",
-		"Addr": "sysadm-dev-01.24hourfit.com",
+		"Net": "tcp",
+		"Addr": "localhost:3306",
 		"DBName": "gocmdb",
 		"Params": null
 	}

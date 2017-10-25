@@ -15,7 +15,6 @@
 package main
 
 import (
-	`encoding/json`
 	`database/sql`
 	`fmt`
 	`github.com/go-sql-driver/mysql`
@@ -36,12 +35,7 @@ func NewDatabase(cf string) (this *Database, err error) {
 	if err = loadConfig(this, cf); err != nil {
 		return nil, err
 	}
-if b, err := json.MarshalIndent(this.Config, "", "\t"); err != nil {
-	fmt.Println("Error: ", err)
-} else {
-	fmt.Println(this.Config.FormatDSN())
-	fmt.Println(string(b))
-}
+
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
 		return nil, err
 	}
