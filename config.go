@@ -30,7 +30,7 @@ var (
 	// Configuration aliases.
 
 	db *Database
-	qy *Queries
+	dq *Queries
 	ws *Server
 	sl, al, el *Log
 )
@@ -86,7 +86,7 @@ func NewConfig(cf string) (this *Config, err error) {
 		this.Queries = queries
 	}
 
-	qy = this.Queries
+	dq = this.Queries
 
 	// Create and initialize Syslog object.
 

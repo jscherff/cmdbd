@@ -21,11 +21,11 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 
 	var vals []interface{}
 
-	for _, col := range qy.Cols[`usbCiInsertCheckin`] {
+	for _, col := range dq.Cols[`usbCiInsertCheckin`] {
 		vals = append(vals, dev[col])
 	}
 
-	_, err = qy.Stmt[`usbCiInsertCheckin`].Exec(vals...)
+	_, err = dq.Stmt[`usbCiInsertCheckin`].Exec(vals...)
 
 	return err
 }
@@ -53,17 +53,17 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		return sn, err
 	}
 
-	for _, col := range qy.Cols[`usbCiInsertSnRequest`] {
+	for _, col := range dq.Cols[`usbCiInsertSnRequest`] {
 		vals = append(vals, dev[col])
 	}
 
-	if res, err := qy.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
+	if res, err := dq.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
 		return sn, err
 	} else if id, err = res.LastInsertId(); err != nil {
 		return sn, err
 	}
 
-	if res, err := qy.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
+	if res, err := dq.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
 		return sn, err
 	} else if seq, err := res.LastInsertId(); err != nil {
 		return sn, err
@@ -71,7 +71,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		sn = fmt.Sprintf(serialFmt, seq)
 	}
 
-	if _, err := qy.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
+	if _, err := dq.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
 		return sn, err
 	}
 
@@ -83,7 +83,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	_, err = qy.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs)
+	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs)
 	return err
 }
 
@@ -91,7 +91,7 @@ func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 // table and returns them to the caller in JSON format.
 func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 
-	err = qy.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j)
+	err = dq.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j)
 	return j, err
 }
 
@@ -104,11 +104,11 @@ func SaveUsbMeta() (err error) {
 		return err
 	}
 
-	vendorStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceVendor`])
-	productStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProduct`])
-	classStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceClass`])
-	subclassStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceSubClass`])
-	protocolStmt := tx.Stmt(qy.Stmt[`usbMetaReplaceProtocol`])
+	vendorStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceVendor`])
+	productStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceProduct`])
+	classStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceClass`])
+	subclassStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceSubClass`])
+	protocolStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceProtocol`])
 
 	for vid, v := range conf.MetaUsb.Vendors {
 
