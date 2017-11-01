@@ -626,7 +626,7 @@ DROP TABLE IF EXISTS `usbmeta_class`;
 CREATE TABLE IF NOT EXISTS `usbmeta_class` (
   `class_id` varchar(2) NOT NULL,
   `class_desc` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY `unique_id` (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -637,7 +637,7 @@ CREATE TABLE IF NOT EXISTS `usbmeta_product` (
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `product_name` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY `unique_id` (`vendor_id`,`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
@@ -649,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `usbmeta_protocol` (
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_id` varchar(2) NOT NULL DEFAULT '0',
   `protocol_desc` varchar(255) NOT NULL DEFAULT '0',
-  `last_update` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`,`protocol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -660,7 +660,7 @@ CREATE TABLE IF NOT EXISTS `usbmeta_subclass` (
   `class_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_id` varchar(2) NOT NULL DEFAULT '0',
   `subclass_desc` varchar(255) NOT NULL DEFAULT '0',
-  `last_update` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY `unique_id` (`class_id`,`subclass_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -670,7 +670,7 @@ DROP TABLE IF EXISTS `usbmeta_vendor`;
 CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
   `vendor_id` varchar(4) NOT NULL,
   `vendor_name` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY `unique_id` (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
