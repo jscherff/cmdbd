@@ -17,6 +17,7 @@ package main
 import (
 	`encoding/json`
 	`fmt`
+	`io/ioutil`
 	`path/filepath`
 	`os`
 )
@@ -26,6 +27,10 @@ var (
 
 	progName = filepath.Base(os.Args[0])
 	version = `undefined`
+
+	// Encryption and signing keys.
+
+	keys = make(map[string][]byte)
 
 	// Configuration aliases.
 
@@ -40,6 +45,7 @@ type Config struct {
 
 	SerialFmt map[string]string
 	Configs   map[string]string
+	KeyFiles  map[string]string
 
 	Database *Database
 	Queries  *Queries
@@ -123,8 +129,10 @@ func NewConfig(cf string) (this *Config, err error) {
 	if router, err := NewRouter(this.Configs[`Router`], al, el); err != nil {
 		return nil, err
 	} else {
-		router.AddRoutes(usbCiRoutes).AddRoutes(usbMetaRoutes)
-		this.Router = router
+		this.Router = router.
+			AddRoutes(usbCiRoutes).
+			AddRoutes(usbMetaRoutes).
+			AddRoutes(cmdbAuthRoutes)
 	}
 
 	// Create and initialize MetaUsb object.
@@ -145,6 +153,15 @@ func NewConfig(cf string) (this *Config, err error) {
 	}
 
 	ws = this.Server
+
+	// Read encryption and signing keys.
+
+	for key, fn := range this.KeyFiles {
+		fp := filepath.Join(filepath.Dir(cf), fn)
+		if keys[key], err = ioutil.ReadFile(fp); err != nil {
+			return nil, err
+		}
+	}
 
 	return this, nil
 }

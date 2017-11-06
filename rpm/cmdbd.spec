@@ -56,9 +56,9 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{confdir},%{syslib},%{logdir},%{docdir}}
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
-  install -m 640 go/src/%{package}/ddl/*.sql %{buildroot}%{docdir}/
-  install -m 640 go/src/%{package}/cnf/*.json %{buildroot}%{confdir}/
-  install -m 644 go/src/%{package}/svc/*.service %{buildroot}%{syslib}/
+  install -m 640 go/src/%{package}/cnf/* %{buildroot}%{confdir}/
+  install -m 640 go/src/%{package}/ddl/* %{buildroot}%{docdir}/
+  install -m 644 go/src/%{package}/svc/* %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
 
 %clean
@@ -70,13 +70,13 @@ the audit to the server for later analysis.
 
   %defattr(-,root,root)
   %{_sbindir}/%{name}
-  %{docdir}/*.sql
-  %{syslib}/*.service
+  %{docdir}/*
+  %{syslib}/*
   %{docdir}/README.md
   %license %{docdir}/LICENSE
   
   %defattr(-,%{name},%{name})
-  %config %{confdir}/*.json
+  %config %{confdir}/*
   %{logdir}
 
 %pre

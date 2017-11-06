@@ -14,5 +14,10 @@
 		"Router": "router.json",
 		"Server": "server.json",
 		"MetaUsb": "metausb.json"
+	},
+
+	"KeyFiles": {
+		"Private": "cmdbd.rsa",
+		"Public": "cmdbd.pub"
 	}
 }
