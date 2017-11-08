@@ -1,7 +1,8 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	2.0.0
+%define		version	2.0.1
 %define		release	beta.1
+%define		branch  
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
@@ -47,6 +48,8 @@ the audit to the server for later analysis.
 
   export GOPATH=%{gopath}
   go get %{package}
+  cd %{gopath}/src/%{package}
+  git checkout %{branch}
   go build -ldflags='-X main.version=%{version}-%{release}' %{package}
 
 %install
