@@ -15,9 +15,9 @@
 package main
 
 import (
-	`database/sql`
 	`fmt`
 	`github.com/go-sql-driver/mysql`
+	sql `github.com/jmoiron/sqlx`
 )
 
 // Database contains the database configuration and handle.

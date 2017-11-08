@@ -61,6 +61,10 @@ func (this *Router) AddRoutes(routes Routes) *Router {
 
 		handler = route.HandlerFunc
 
+		if route.Protected {
+			handler = AuthTokenValidator(handler)
+		}
+
 		handler = handlers.RecoveryHandler(
 			handlers.PrintRecoveryStack(this.RecoveryStack),
 			handlers.RecoveryLogger(this.RecoveryLog))(handler)

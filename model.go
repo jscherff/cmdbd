@@ -95,6 +95,13 @@ func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 	return j, err
 }
 
+// GetUserPassword retrieves the password hash for the named user.
+func GetUserPassword(u string) (p string, err error) {
+
+	err = dq.Stmt[`cmdbSelectUserPassword`].QueryRow(u).Scan(&p)
+	return p, err
+}
+
 // SaveUsbMeta updates the USB meta tables in the database.
 func SaveUsbMeta() (err error) {
 

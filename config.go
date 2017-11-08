@@ -15,22 +15,25 @@
 package main
 
 import (
+	`crypto/rsa`
 	`encoding/json`
 	`fmt`
 	`io/ioutil`
 	`path/filepath`
 	`os`
+	jwt `github.com/dgrijalva/jwt-go`
 )
 
 var (
 	// Program name and version.
 
-	progName = filepath.Base(os.Args[0])
+	program = filepath.Base(os.Args[0])
 	version = `undefined`
 
 	// Encryption and signing keys.
 
-	keys = make(map[string][]byte)
+	privateKey *rsa.PrivateKey
+	publicKey *rsa.PublicKey
 
 	// Configuration aliases.
 
@@ -154,13 +157,24 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	ws = this.Server
 
-	// Read encryption and signing keys.
+	// Read and store RSA private key.
 
-	for key, fn := range this.KeyFiles {
-		fp := filepath.Join(filepath.Dir(cf), fn)
-		if keys[key], err = ioutil.ReadFile(fp); err != nil {
-			return nil, err
-		}
+	if pemKey, err := ioutil.ReadFile(filepath.Join(filepath.Dir(cf), this.KeyFiles[`Private`])); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
+		return nil, err
+	} else {
+		privateKey = rsaKey
+	}
+
+	// Read and store RSA public key.
+
+	if pemKey, err := ioutil.ReadFile(filepath.Join(filepath.Dir(cf), this.KeyFiles[`Public`])); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
+		return nil, err
+	} else {
+		publicKey = rsaKey
 	}
 
 	return this, nil
@@ -179,7 +193,7 @@ func loadConfig(t interface{}, cf string) error {
 	}
 }
 
-// displayVersion displays the progName version.
+// displayVersion displays the program version.
 func displayVersion() {
-	fmt.Fprintf(os.Stderr, "%s version %s\n", progName, version)
+	fmt.Fprintf(os.Stderr, "%s version %s\n", program, version)
 }

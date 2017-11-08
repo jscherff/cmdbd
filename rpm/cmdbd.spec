@@ -154,6 +154,11 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Wed Nov 8 2017
+- Added cmdb_users table for authentication
+- Added authentication API to support basic authentication
+- Added authentication JWT support for protected API endpoints
+- Added authentication JWT validation middleware to protect API endpoints
 * Thu Oct 19 2017 - jscherff@gmail.com
 - Added SQL script to truncate all tables
 * Fri Oct 13 2017 - jscherff@gmail.com

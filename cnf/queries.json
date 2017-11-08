@@ -4,6 +4,12 @@
 			"INSERT_EMPTY",
 			"cmdb_sequence"
 		],
+		"cmdbSelectUserPassword": [
+			"SELECT_LIST",
+			"password",
+			"cmdb_users",
+			"username = ?"
+		],
 		"usbCiInsertChanges": [
 			"INSERT_ALL",
 			"view_usbci_changes"

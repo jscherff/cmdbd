@@ -26,14 +26,36 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
+-- Dumping structure for table gocmdb.cmdb_users
+DROP TABLE IF EXISTS `cmdb_users`;
+CREATE TABLE IF NOT EXISTS `cmdb_users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(45) NOT NULL,
+  `password` text DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `locked` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `role` enum('agent','user','admin') NOT NULL DEFAULT 'user',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `username_UNIQUE` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `cmdb_users`
+--
+
+LOCK TABLES `cmdb_users` WRITE;
+/*!40000 ALTER TABLE `cmdb_users` DISABLE KEYS */;
+INSERT INTO `cmdb_users` (username, password, role) VALUES ('clubpc','$2a$10$Rwh9Ix7Q9.5ST49GngEUJu/VOAYdWG4wnMA9ArSv4qVWQ6nRkyPme','agent');
+/*!40000 ALTER TABLE `cmdb_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+-- Data exporting was unselected.
 -- Dumping structure for function gocmdb.func_usbci_serial_exists
 DROP FUNCTION IF EXISTS `func_usbci_serial_exists`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `func_usbci_serial_exists`(
 	`serial_number_in` VARCHAR(127)
-
-
-
 ) RETURNS tinyint(4)
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -298,8 +320,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_unserialized`(
 	IN `object_json_in` JSON,
 	IN `remote_addr_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
-
-
 )
     DETERMINISTIC
     SQL SECURITY INVOKER
@@ -400,7 +420,6 @@ DROP PROCEDURE IF EXISTS `proc_usbci_list_columns`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_columns`(
 	IN `table_name_in` VARCHAR(64)
-
 )
     DETERMINISTIC
 BEGIN

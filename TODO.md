@@ -14,12 +14,13 @@ API Version Control
 Authentication and Authorization
 --------------------------------
 
-- [ ] Implement API security with [JSON web tokens](http://jwt.io/). This will prevent things like vulnerability scans and testing with production URLs from exhausing the supply of serial numbers. 
+- [X] Implement API security with [JSON web tokens](http://jwt.io/). This will prevent things like vulnerability scans and testing with production URLs from exhausing the supply of serial numbers. 
 
 Model Enhancements
 ------------------
 
-- [ ] Use ORM(ish) package like 'gorp' to simplify database interactions.
+- [ ] Use enhanced database package like 'sqlx' or ORM package like 'gorp' to simplify database interactions.
+	* [sqlx](https://github.com/jmoiron/sqlx)
 	* [gorp](https://github.com/go-gorp/gorp)
 - [ ] Use some kind of caching solution (sqlite memcache?) for metadata.
 

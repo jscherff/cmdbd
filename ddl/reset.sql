@@ -13,7 +13,6 @@
 
 -- truncate all tables
 TRUNCATE TABLE `cmdb_sequence`;
-TRUNCATE TABLE `cmdb_users`;
 TRUNCATE TABLE `usbci_changes`;
 TRUNCATE TABLE `usbci_checkins`;
 TRUNCATE TABLE `usbci_serialized`;

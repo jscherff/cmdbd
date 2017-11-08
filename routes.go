@@ -23,6 +23,7 @@ type Route struct {
 	Name		string
 	Method		string
 	Pattern		string
+	Protected	bool
 	HandlerFunc	http.HandlerFunc
 }
 
@@ -49,6 +50,7 @@ var usbCiRoutes = Routes {
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
 		HandlerFunc:	usbCiCheckinV1,
+		Protected:	true,
 	},
 
 	Route {
@@ -56,6 +58,7 @@ var usbCiRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
 		HandlerFunc:	usbCiCheckoutV1,
+		Protected:	true,
 	},
 
 	Route {
@@ -63,6 +66,7 @@ var usbCiRoutes = Routes {
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
 		HandlerFunc:	usbCiNewSnV1,
+		Protected:	true,
 	},
 
 	Route {
@@ -70,6 +74,7 @@ var usbCiRoutes = Routes {
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
 		HandlerFunc:	usbCiAuditV1,
+		Protected:	true,
 	},
 }
 
@@ -81,6 +86,7 @@ var usbMetaRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}`,
 		HandlerFunc:	usbMetaVendorV1,
+		Protected:	false,
 	},
 
 	Route {
@@ -88,6 +94,7 @@ var usbMetaRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}/{pid}`,
 		HandlerFunc:	usbMetaProductV1,
+		Protected:	false,
 	},
 
 	Route {
@@ -95,6 +102,7 @@ var usbMetaRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/class/{cid}`,
 		HandlerFunc:	usbMetaClassV1,
+		Protected:	false,
 	},
 
 	Route {
@@ -102,6 +110,7 @@ var usbMetaRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/subclass/{cid}/{sid}`,
 		HandlerFunc:	usbMetaSubClassV1,
+		Protected:	false,
 	},
 
 	Route {
@@ -109,15 +118,17 @@ var usbMetaRoutes = Routes {
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
 		HandlerFunc:	usbMetaProtocolV1,
+		Protected:	false,
 	},
 }
 
 var cmdbAuthRoutes = Routes {
 
 	Route {
-		Name:		`CMDB Authenticator Set Token`,
+		Name:		`CMDB Authenticator`,
 		Method:		`GET`,
-		Pattern:	`/v1/cmdbauth/settoken`,
+		Pattern:	`/v1/cmdbauth`,
 		HandlerFunc:	cmdbAuthSetTokenV1,
+		Protected:	false,
 	},
 }
