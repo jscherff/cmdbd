@@ -48,9 +48,13 @@ the audit to the server for later analysis.
 
   export GOPATH=%{gopath}
   go get %{package}
-  cd %{gopath}/src/%{package}
+
+  pushd %{gopath}/src/%{package}
   git checkout %{branch}
-  go build -ldflags='-X main.version=%{version}-%{release}' %{package}
+  go get
+
+  popd
+  go build -ldflags='-X main.version=%{version}-%{release}' %{package}        
 
 %install
 
@@ -157,7 +161,7 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
-* Wed Nov 8 2017
+* Wed Nov 8 2017 - jscherff@gmail.com
 - Added cmdb_users table for authentication
 - Added authentication API to support basic authentication
 - Added authentication JWT support for protected API endpoints
