@@ -54,8 +54,8 @@ func init() {
 }
 
 func main() {
+	defer conf.Logger.Close()
+	defer conf.Database.Close()
+	defer conf.Queries.Close()
 	log.Fatal(conf.Server.ListenAndServe())
-	conf.Queries.Close()
-	conf.Database.Close()
-	conf.Logger.Close()
 }
