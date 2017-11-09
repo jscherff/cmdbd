@@ -54,7 +54,8 @@ the audit to the server for later analysis.
   go get
 
   popd
-  go build -ldflags='-X main.version=%{version}-%{release}' %{package}        
+  go build -ldflags='-X main.version=%{version}-%{release}' %{package}
+  go build %{package}/bcrypt
 
 %install
 
@@ -63,6 +64,7 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{confdir},%{syslib},%{logdir},%{docdir}}
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
+  install -s -m 755 bcrypt %{buildroot}%{_bindir}/
   install -m 640 go/src/%{package}/cnf/* %{buildroot}%{confdir}/
   install -m 640 go/src/%{package}/ddl/* %{buildroot}%{docdir}/
   install -m 644 go/src/%{package}/svc/* %{buildroot}%{syslib}/
@@ -76,7 +78,8 @@ the audit to the server for later analysis.
 %files
 
   %defattr(-,root,root)
-  %{_sbindir}/%{name}
+  %{_sbindir}/*
+  %{_bindir}/*
   %{docdir}/*
   %{syslib}/*
   %{docdir}/README.md
