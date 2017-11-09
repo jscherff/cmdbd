@@ -61,7 +61,8 @@ the audit to the server for later analysis.
 
   test %{buildroot} != / && rm -rf %{buildroot}
 
-  mkdir -p %{buildroot}{%{_sbindir},%{confdir},%{syslib},%{logdir},%{docdir}}
+  mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
+  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{docdir}}
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
   install -s -m 755 bcrypt %{buildroot}%{_bindir}/
