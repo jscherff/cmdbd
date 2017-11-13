@@ -1,8 +1,8 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	2.0.2
-%define		release	8
-%define		branch  develop
+%define		version	2.0.4
+%define		release	1
+%define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
 %define		author	John Scherff <jscherff@24hourfit.com>
