@@ -92,7 +92,16 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(nil, host, vid, pid, sn, chgs, time.Now())
+	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(
+		nil,		// id
+		host,		// host_name
+		vid,		// vendor_id
+		pid,		// product_id
+		sn,		// serial_number
+		chgs,		// changes
+		time.Now(),	// audit_date
+	)
+
 	return err
 }
 
