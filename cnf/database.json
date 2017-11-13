@@ -3,9 +3,11 @@
 
 	"Config": {
         	"User": "cmdbd",
-        	"Passwd": "K2Cvg3NeyR",
+		"Passwd": "Hc7yevbzMxma",
+        	"Passwd_OLD": "K2Cvg3NeyR",
         	"Net": "tcp",
-        	"Addr": "localhost:3306",
+		"Addr": "digdug.24hourfit.com:3306",
+        	"Addr_OLD": "localhost:3306",
         	"DBName": "gocmdb",
         	"Params": null,
         	"Collation": "",
