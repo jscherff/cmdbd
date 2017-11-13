@@ -15,6 +15,7 @@ Authentication and Authorization
 --------------------------------
 
 - [X] Implement API security with [JSON web tokens](http://jwt.io/). This will prevent things like vulnerability scans and testing with production URLs from exhausing the supply of serial numbers. 
+- [ ] Obtain a valid 24 Hour Fitness certificate and perform authentication over TLS.
 
 Model Enhancements
 ------------------
