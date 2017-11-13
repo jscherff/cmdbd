@@ -17,6 +17,7 @@ package main
 import (
 	`fmt`
 	`github.com/go-sql-driver/mysql`
+	`time`
 	sql `github.com/jmoiron/sqlx`
 )
 
@@ -34,6 +35,12 @@ func NewDatabase(cf string) (this *Database, err error) {
 
 	if err = loadConfig(this, cf); err != nil {
 		return nil, err
+	}
+
+	if loc, err := time.LoadLocation(`Local`); err != nil {
+		return nil, err
+	} else {
+		this.Config.Loc = loc
 	}
 
 	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {

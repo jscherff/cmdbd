@@ -12,15 +12,15 @@
 		],
 		"usbCiInsertChanges": [
 			"INSERT_ALL",
-			"view_usbci_changes"
+			"usbci_changes"
 		],
 		"usbCiInsertCheckin": [
 		       	"INSERT_ALL",
-			"view_usbci_checkins"
+			"usbci_checkins"
 		],
 		"usbCiInsertSnRequest": [
 			"INSERT_ALL",
-			"view_usbci_snrequests"
+			"usbci_snrequests"
 		],
 		"usbCiUpdateSnRequest": [
        			"UPDATE_LIST",
@@ -30,13 +30,13 @@
 		],
 		"usbCiSelectSerialized": [
 			"SELECT_ALL",
-		       	"view_usbci_serialized",
+		       	"usbci_serialized",
 			"vendor_id = ? AND product_id = ? AND serial_number = ?"
 		],
 		"usbCiSelectJSONObject": [
 			"SELECT_LIST",
 			"object_json",
-			"view_usbci_serialized",
+			"usbci_serialized",
 			"vendor_id = ? AND product_id = ? AND serial_number = ?"
 		],
 		"usbMetaReplaceVendor": [
