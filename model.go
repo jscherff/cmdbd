@@ -14,12 +14,18 @@
 
 package main
 
-import `fmt`
+import (
+	`fmt`
+	`time`
+)
 
 // SaveDeviceCheckin saves a device checkin to the database 'checkins' table.
 func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 
 	var vals []interface{}
+
+	dev[`id`] = nil
+	dev[`checkin_date`] = time.Now()
 
 	for _, col := range dq.Cols[`usbCiInsertCheckin`] {
 		vals = append(vals, dev[col])
@@ -48,6 +54,9 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 	}
 
 	tx, err := db.Begin()
+
+	dev[`id`] = nil
+	dev[`request_date`] = time.Now()
 
 	if err != nil {
 		return sn, err
@@ -83,7 +92,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(host, vid, pid, sn, chgs)
+	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(nil, host, vid, pid, sn, chgs, time.Now())
 	return err
 }
 
