@@ -1,3 +1,5 @@
+package main
+
 type PrimaryKeyCol struct {
 	Id		int64	`db:"id"`
 }
