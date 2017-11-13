@@ -1,6 +1,6 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	2.0.5
+%define		version	2.0.7
 %define		release	1
 %define		branch  master
 %define		gecos	CMDBd Service
