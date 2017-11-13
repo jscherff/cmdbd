@@ -165,6 +165,11 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Mon Nov 13 2017 - jscherff@gmail.com
+- Modified queries to use tables directly versus views
+- Added DATETIME columns to inserts with time.Now() as value
+- Modified Loc (location) database parameter to 'Local'
+- Removed unnecessary views from DDL
 * Wed Nov 8 2017 - jscherff@gmail.com
 - Added cmdb_users table for authentication
 - Added authentication API to support basic authentication
