@@ -18,7 +18,7 @@ import (
 	`crypto/rsa`
 	`net/http`
 	`time`
-	jwt `github.com/dgrijalva/jwt-go`
+	`github.com/jmoiron/sqlx`
 )
 
 // ModelService is an interface to help manage database models.
@@ -30,12 +30,12 @@ type ModelService interface {
 // modelService is a service that implements the ModelService interface.
 type modelService struct {
 	ModelService
-	Tables []string
-	Columns map[string][]string
+	table
+	columns
 }
 
 // NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewModelService(driver, dsn string) *modelService {
+func NewModelService(db *sqlx.DB, table string, cols []string) *modelService {
 	return &modelService{}
 }
 

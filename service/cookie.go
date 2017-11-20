@@ -15,51 +15,39 @@
 package service
 
 import (
-	`crypto/rsa`
 	`net/http`
 	`time`
-	jwt `github.com/dgrijalva/jwt-go`
 )
 
 // AuthCookieService is an interface that create and extracts authentication cookies.
 type AuthCookieService interface {
-	Create(token *jwt.Token) (*http.Cookie, error)
-	Extract(req *http.Request) (*http.Cookie, error)
+	Create(string, time.Duration) (*http.Cookie)
+	Extract(*http.Request) (*http.Cookie, error)
 }
 
 // authCookieService is a service that implements the AuthCookieService interface.
-type authCookieService struct {
-	AuthCookieService
-}
+type authCookieService struct {}
 
-// NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewAuthCookieService() *authCookieService {
+// NewAuthCookieService returns an object that implements the AuthCookieService interface.
+func NewAuthCookieService() AuthCookieService {
 	return &authCookieService{}
 }
 
-// Create generates a new authentication http.Cookie from a jwt.Token.
-func (this *authCookieService) Create(token *jwt.Token, key *rsa.PrivateKey) (*http.Cookie, error) {
+// Create generates a new authentication http.Cookie from an auth token string.
+func (this *authCookieService) Create(tokenString string, maxAge time.Duration) (*http.Cookie) {
 
-	tokenString, err := token.SignedString(key)
-
-	if err != nil {
-		return nil, err
-	}
-
-	cookie := &http.Cookie{
+	return &http.Cookie{
 		Name: `Auth`,
 		Value: tokenString,
-		Expires: time.Now().Add(time.Hour * 1),
+		Expires: time.Now().Add(maxAge),
 		HttpOnly: true,
 	}
-
-	return cookie, nil
 }
 
 // Extract extracts the 'Auth' http.Cookie from an http.Request.
-func (this *authCookieService) Extract(req *http.Request) (*http.Cookie, error) {
+func (this *authCookieService) Extract(request *http.Request) (*http.Cookie, error) {
 
-	if cookie, err := req.Cookie(`Auth`); err != nil {
+	if cookie, err := request.Cookie(`Auth`); err != nil {
 		return nil, err
 	} else {
 		return cookie, nil

@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               10.2.8-MariaDB - mariadb.org binary distribution
+-- Server version:               5.7.20-log - MySQL Community Server (GPL)
 -- Server OS:                    Win64
 -- HeidiSQL Version:             9.4.0.5125
 -- --------------------------------------------------------
@@ -20,34 +20,24 @@ USE `gocmdb`;
 -- Dumping structure for table gocmdb.cmdb_sequence
 DROP TABLE IF EXISTS `cmdb_sequence`;
 CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
-  `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `issue_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`ord`)
+	`ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`issue_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`ord`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.cmdb_users
 DROP TABLE IF EXISTS `cmdb_users`;
 CREATE TABLE IF NOT EXISTS `cmdb_users` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(45) NOT NULL,
-  `password` text DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT current_timestamp(),
-  `locked` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `role` enum('agent','user','admin') NOT NULL DEFAULT 'user',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `cmdb_users`
---
-
-LOCK TABLES `cmdb_users` WRITE;
-/*!40000 ALTER TABLE `cmdb_users` DISABLE KEYS */;
-INSERT INTO `cmdb_users` (username, password, role) VALUES ('clubpc','$2a$10$Rwh9Ix7Q9.5ST49GngEUJu/VOAYdWG4wnMA9ArSv4qVWQ6nRkyPme','agent');
-/*!40000 ALTER TABLE `cmdb_users` ENABLE KEYS */;
-UNLOCK TABLES;
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`username` varchar(45) NOT NULL,
+	`password` text,
+	`created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`role` enum('agent','user','admin') NOT NULL DEFAULT 'user',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `username_UNIQUE` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for function gocmdb.func_usbci_serial_exists
@@ -56,8 +46,8 @@ DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `func_usbci_serial_exists`(
 	`serial_number_in` VARCHAR(127)
 ) RETURNS tinyint(4)
-    DETERMINISTIC
-    SQL SECURITY INVOKER
+	  DETERMINISTIC
+	  SQL SECURITY INVOKER
 BEGIN
 	IF EXISTS (SELECT * FROM usbci_serialized WHERE serial_number = serial_number_in) THEN
 		RETURN TRUE;
@@ -98,8 +88,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_checkins`(
 	IN `object_json_in` JSON,
 	IN `remote_addr_in` VARCHAR(255)
 )
-    DETERMINISTIC
-    SQL SECURITY INVOKER
+	DETERMINISTIC
+	SQL SECURITY INVOKER
 BEGIN
 	INSERT INTO usbci_checkins (
 		host_name,
@@ -192,8 +182,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_serialized`(
 	IN `remote_addr_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
 )
-    DETERMINISTIC
-    SQL SECURITY INVOKER
+	DETERMINISTIC
+	SQL SECURITY INVOKER
 BEGIN
 	INSERT INTO usbci_serialized (
 		host_name,
@@ -318,8 +308,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_insert_unserialized`(
 	IN `remote_addr_in` VARCHAR(255),
 	IN `checkin_date_in` DATETIME
 )
-    DETERMINISTIC
-    SQL SECURITY INVOKER
+	DETERMINISTIC
+	SQL SECURITY INVOKER
 BEGIN
 	INSERT INTO usbci_unserialized (
 		host_name,
@@ -418,7 +408,7 @@ DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_columns`(
 	IN `table_name_in` VARCHAR(64)
 )
-    DETERMINISTIC
+	DETERMINISTIC
 BEGIN
 	SELECT column_name
 	FROM information_schema.columns
@@ -431,7 +421,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `proc_usbci_list_tables`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_usbci_list_tables`()
-    DETERMINISTIC
+	DETERMINISTIC
 BEGIN
 	SELECT table_name
 	FROM information_schema.tables
@@ -442,267 +432,248 @@ DELIMITER ;
 -- Dumping structure for table gocmdb.usbci_changes
 DROP TABLE IF EXISTS `usbci_changes`;
 CREATE TABLE IF NOT EXISTS `usbci_changes` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(127) NOT NULL,
-  `changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `audit_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `host_name` (`host_name`),
-  KEY `vendor_id` (`vendor_id`),
-  KEY `product_id` (`product_id`),
-  KEY `serial_number` (`serial_number`),
-  CONSTRAINT `CONSTRAINT_1` CHECK (json_valid(`changes`))
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`host_name` varchar(255) NOT NULL,
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`serial_number` varchar(127) NOT NULL,
+	`changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`audit_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`),
+	KEY `host_name` (`host_name`),
+	KEY `vendor_id` (`vendor_id`),
+	KEY `product_id` (`product_id`),
+	KEY `serial_number` (`serial_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_checkins
 DROP TABLE IF EXISTS `usbci_checkins`;
 CREATE TABLE IF NOT EXISTS `usbci_checkins` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(127) NOT NULL,
-  `vendor_name` varchar(127) NOT NULL,
-  `product_name` varchar(127) NOT NULL,
-  `product_ver` varchar(255) NOT NULL,
-  `firmware_ver` varchar(255) NOT NULL,
-  `software_id` varchar(255) NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
-  `bus_number` int(10) unsigned NOT NULL,
-  `bus_address` int(10) unsigned NOT NULL,
-  `buffer_size` int(10) unsigned NOT NULL,
-  `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(127) NOT NULL,
-  `usb_subclass` varchar(127) NOT NULL,
-  `usb_protocol` varchar(127) NOT NULL,
-  `device_speed` varchar(127) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(127) NOT NULL,
-  `factory_sn` varchar(127) NOT NULL,
-  `descriptor_sn` varchar(127) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
-  `checkin_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `host_name` (`host_name`),
-  KEY `serial_number` (`serial_number`),
-  KEY `vendor_id` (`vendor_id`),
-  KEY `product_id` (`product_id`),
-  KEY `software_id` (`software_id`),
-  KEY `firmware_ver` (`firmware_ver`),
-  KEY `device_sn` (`device_sn`),
-  KEY `factory_sn` (`factory_sn`),
-  KEY `product_ver` (`product_ver`)
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`host_name` varchar(255) NOT NULL,
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`serial_number` varchar(127) NOT NULL,
+	`vendor_name` varchar(127) NOT NULL,
+	`product_name` varchar(127) NOT NULL,
+	`product_ver` varchar(255) NOT NULL,
+	`firmware_ver` varchar(255) NOT NULL,
+	`software_id` varchar(255) NOT NULL,
+	`port_number` int(10) unsigned NOT NULL,
+	`bus_number` int(10) unsigned NOT NULL,
+	`bus_address` int(10) unsigned NOT NULL,
+	`buffer_size` int(10) unsigned NOT NULL,
+	`max_pkt_size` int(10) unsigned NOT NULL,
+	`usb_spec` varchar(5) NOT NULL,
+	`usb_class` varchar(127) NOT NULL,
+	`usb_subclass` varchar(127) NOT NULL,
+	`usb_protocol` varchar(127) NOT NULL,
+	`device_speed` varchar(127) NOT NULL,
+	`device_ver` varchar(5) NOT NULL,
+	`device_sn` varchar(127) NOT NULL,
+	`factory_sn` varchar(127) NOT NULL,
+	`descriptor_sn` varchar(127) NOT NULL,
+	`object_type` varchar(255) NOT NULL,
+	`object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`remote_addr` varchar(255) NOT NULL,
+	`checkin_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`),
+	KEY `host_name` (`host_name`),
+	KEY `serial_number` (`serial_number`),
+	KEY `vendor_id` (`vendor_id`),
+	KEY `product_id` (`product_id`),
+	KEY `software_id` (`software_id`),
+	KEY `firmware_ver` (`firmware_ver`),
+	KEY `device_sn` (`device_sn`),
+	KEY `factory_sn` (`factory_sn`),
+	KEY `product_ver` (`product_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
 DROP TABLE IF EXISTS `usbci_serialized`;
 CREATE TABLE IF NOT EXISTS `usbci_serialized` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(127) NOT NULL,
-  `vendor_name` varchar(127) NOT NULL,
-  `product_name` varchar(127) NOT NULL,
-  `product_ver` varchar(255) NOT NULL,
-  `firmware_ver` varchar(255) NOT NULL,
-  `software_id` varchar(255) NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
-  `bus_number` int(10) unsigned NOT NULL,
-  `bus_address` int(10) unsigned NOT NULL,
-  `buffer_size` int(10) unsigned NOT NULL,
-  `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(127) NOT NULL,
-  `usb_subclass` varchar(127) NOT NULL,
-  `usb_protocol` varchar(127) NOT NULL,
-  `device_speed` varchar(127) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(127) NOT NULL,
-  `factory_sn` varchar(127) NOT NULL,
-  `descriptor_sn` varchar(127) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
-  `first_seen` datetime NOT NULL,
-  `last_seen` datetime NOT NULL,
-  `checkins` int(10) unsigned NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_id` (`vendor_id`,`product_id`,`serial_number`),
-  KEY `software_id` (`software_id`),
-  KEY `device_sn` (`device_sn`),
-  KEY `factory_sn` (`factory_sn`),
-  KEY `product_ver` (`product_ver`),
-  KEY `host_name` (`host_name`),
-  KEY `firmware_ver` (`firmware_ver`)
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`host_name` varchar(255) NOT NULL,
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`serial_number` varchar(127) NOT NULL,
+	`vendor_name` varchar(127) NOT NULL,
+	`product_name` varchar(127) NOT NULL,
+	`product_ver` varchar(255) NOT NULL,
+	`firmware_ver` varchar(255) NOT NULL,
+	`software_id` varchar(255) NOT NULL,
+	`port_number` int(10) unsigned NOT NULL,
+	`bus_number` int(10) unsigned NOT NULL,
+	`bus_address` int(10) unsigned NOT NULL,
+	`buffer_size` int(10) unsigned NOT NULL,
+	`max_pkt_size` int(10) unsigned NOT NULL,
+	`usb_spec` varchar(5) NOT NULL,
+	`usb_class` varchar(127) NOT NULL,
+	`usb_subclass` varchar(127) NOT NULL,
+	`usb_protocol` varchar(127) NOT NULL,
+	`device_speed` varchar(127) NOT NULL,
+	`device_ver` varchar(5) NOT NULL,
+	`device_sn` varchar(127) NOT NULL,
+	`factory_sn` varchar(127) NOT NULL,
+	`descriptor_sn` varchar(127) NOT NULL,
+	`object_type` varchar(255) NOT NULL,
+	`object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`remote_addr` varchar(255) NOT NULL,
+	`first_seen` datetime NOT NULL,
+	`last_seen` datetime NOT NULL,
+	`checkins` int(10) unsigned NOT NULL DEFAULT '1',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `unique_id` (`vendor_id`,`product_id`,`serial_number`),
+	KEY `software_id` (`software_id`),
+	KEY `device_sn` (`device_sn`),
+	KEY `factory_sn` (`factory_sn`),
+	KEY `product_ver` (`product_ver`),
+	KEY `host_name` (`host_name`),
+	KEY `firmware_ver` (`firmware_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
 DROP TABLE IF EXISTS `usbci_snrequests`;
 CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(127) NOT NULL,
-  `vendor_name` varchar(127) NOT NULL,
-  `product_name` varchar(127) NOT NULL,
-  `product_ver` varchar(255) NOT NULL,
-  `firmware_ver` varchar(255) NOT NULL,
-  `software_id` varchar(255) NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
-  `bus_number` int(10) unsigned NOT NULL,
-  `bus_address` int(10) unsigned NOT NULL,
-  `buffer_size` int(10) unsigned NOT NULL,
-  `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(127) NOT NULL,
-  `usb_subclass` varchar(127) NOT NULL,
-  `usb_protocol` varchar(127) NOT NULL,
-  `device_speed` varchar(127) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(127) NOT NULL,
-  `factory_sn` varchar(127) NOT NULL,
-  `descriptor_sn` varchar(127) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
-  `request_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `host_name` (`host_name`),
-  KEY `serial_number` (`serial_number`),
-  KEY `vendor_id` (`vendor_id`),
-  KEY `product_id` (`product_id`),
-  KEY `software_id` (`software_id`),
-  KEY `firmware_ver` (`firmware_ver`),
-  KEY `device_sn` (`device_sn`),
-  KEY `factory_sn` (`factory_sn`),
-  KEY `product_ver` (`product_ver`)
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`host_name` varchar(255) NOT NULL,
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`serial_number` varchar(127) NOT NULL,
+	`vendor_name` varchar(127) NOT NULL,
+	`product_name` varchar(127) NOT NULL,
+	`product_ver` varchar(255) NOT NULL,
+	`firmware_ver` varchar(255) NOT NULL,
+	`software_id` varchar(255) NOT NULL,
+	`port_number` int(10) unsigned NOT NULL,
+	`bus_number` int(10) unsigned NOT NULL,
+	`bus_address` int(10) unsigned NOT NULL,
+	`buffer_size` int(10) unsigned NOT NULL,
+	`max_pkt_size` int(10) unsigned NOT NULL,
+	`usb_spec` varchar(5) NOT NULL,
+	`usb_class` varchar(127) NOT NULL,
+	`usb_subclass` varchar(127) NOT NULL,
+	`usb_protocol` varchar(127) NOT NULL,
+	`device_speed` varchar(127) NOT NULL,
+	`device_ver` varchar(5) NOT NULL,
+	`device_sn` varchar(127) NOT NULL,
+	`factory_sn` varchar(127) NOT NULL,
+	`descriptor_sn` varchar(127) NOT NULL,
+	`object_type` varchar(255) NOT NULL,
+	`object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`remote_addr` varchar(255) NOT NULL,
+	`request_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`),
+	KEY `host_name` (`host_name`),
+	KEY `serial_number` (`serial_number`),
+	KEY `vendor_id` (`vendor_id`),
+	KEY `product_id` (`product_id`),
+	KEY `software_id` (`software_id`),
+	KEY `firmware_ver` (`firmware_ver`),
+	KEY `device_sn` (`device_sn`),
+	KEY `factory_sn` (`factory_sn`),
+	KEY `product_ver` (`product_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
 DROP TABLE IF EXISTS `usbci_unserialized`;
 CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `serial_number` varchar(127) DEFAULT NULL,
-  `vendor_name` varchar(127) DEFAULT NULL,
-  `product_name` varchar(127) DEFAULT NULL,
-  `product_ver` varchar(255) NOT NULL,
-  `firmware_ver` varchar(255) NOT NULL,
-  `software_id` varchar(255) NOT NULL,
-  `port_number` int(10) unsigned NOT NULL,
-  `bus_number` int(10) unsigned NOT NULL,
-  `bus_address` int(10) unsigned NOT NULL,
-  `buffer_size` int(10) unsigned NOT NULL,
-  `max_pkt_size` int(10) unsigned NOT NULL,
-  `usb_spec` varchar(5) NOT NULL,
-  `usb_class` varchar(127) NOT NULL,
-  `usb_subclass` varchar(127) NOT NULL,
-  `usb_protocol` varchar(127) NOT NULL,
-  `device_speed` varchar(127) NOT NULL,
-  `device_ver` varchar(5) NOT NULL,
-  `device_sn` varchar(127) NOT NULL,
-  `factory_sn` varchar(127) NOT NULL,
-  `descriptor_sn` varchar(127) NOT NULL,
-  `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
-  `first_seen` datetime NOT NULL,
-  `last_seen` datetime NOT NULL,
-  `checkins` int(10) unsigned NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_id` (`host_name`,`vendor_id`,`product_id`,`port_number`,`bus_number`),
-  KEY `software_id` (`software_id`),
-  KEY `firmware_ver` (`firmware_ver`),
-  KEY `device_sn` (`device_sn`),
-  KEY `factory_sn` (`factory_sn`),
-  KEY `product_ver` (`product_ver`)
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`host_name` varchar(255) NOT NULL,
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`serial_number` varchar(127) DEFAULT NULL,
+	`vendor_name` varchar(127) DEFAULT NULL,
+	`product_name` varchar(127) DEFAULT NULL,
+	`product_ver` varchar(255) NOT NULL,
+	`firmware_ver` varchar(255) NOT NULL,
+	`software_id` varchar(255) NOT NULL,
+	`port_number` int(10) unsigned NOT NULL,
+	`bus_number` int(10) unsigned NOT NULL,
+	`bus_address` int(10) unsigned NOT NULL,
+	`buffer_size` int(10) unsigned NOT NULL,
+	`max_pkt_size` int(10) unsigned NOT NULL,
+	`usb_spec` varchar(5) NOT NULL,
+	`usb_class` varchar(127) NOT NULL,
+	`usb_subclass` varchar(127) NOT NULL,
+	`usb_protocol` varchar(127) NOT NULL,
+	`device_speed` varchar(127) NOT NULL,
+	`device_ver` varchar(5) NOT NULL,
+	`device_sn` varchar(127) NOT NULL,
+	`factory_sn` varchar(127) NOT NULL,
+	`descriptor_sn` varchar(127) NOT NULL,
+	`object_type` varchar(255) NOT NULL,
+	`object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`remote_addr` varchar(255) NOT NULL,
+	`first_seen` datetime NOT NULL,
+	`last_seen` datetime NOT NULL,
+	`checkins` int(10) unsigned NOT NULL DEFAULT '1',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `unique_id` (`host_name`,`vendor_id`,`product_id`,`port_number`,`bus_number`),
+	KEY `software_id` (`software_id`),
+	KEY `firmware_ver` (`firmware_ver`),
+	KEY `device_sn` (`device_sn`),
+	KEY `factory_sn` (`factory_sn`),
+	KEY `product_ver` (`product_ver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_class
 DROP TABLE IF EXISTS `usbmeta_class`;
 CREATE TABLE IF NOT EXISTS `usbmeta_class` (
-  `class_id` varchar(2) NOT NULL,
-  `class_desc` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  UNIQUE KEY `unique_id` (`class_id`)
+	`class_id` varchar(2) NOT NULL,
+	`class_desc` varchar(255) NOT NULL,
+	`last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY `unique_id` (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_product
 DROP TABLE IF EXISTS `usbmeta_product`;
 CREATE TABLE IF NOT EXISTS `usbmeta_product` (
-  `vendor_id` varchar(4) NOT NULL,
-  `product_id` varchar(4) NOT NULL,
-  `product_name` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  UNIQUE KEY `unique_id` (`vendor_id`,`product_id`)
+	`vendor_id` varchar(4) NOT NULL,
+	`product_id` varchar(4) NOT NULL,
+	`product_name` varchar(255) NOT NULL,
+	`last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY `unique_id` (`vendor_id`,`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_protocol
 DROP TABLE IF EXISTS `usbmeta_protocol`;
 CREATE TABLE IF NOT EXISTS `usbmeta_protocol` (
-  `class_id` varchar(2) NOT NULL DEFAULT '0',
-  `subclass_id` varchar(2) NOT NULL DEFAULT '0',
-  `protocol_id` varchar(2) NOT NULL DEFAULT '0',
-  `protocol_desc` varchar(255) NOT NULL DEFAULT '0',
-  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  UNIQUE KEY `unique_id` (`class_id`,`subclass_id`,`protocol_id`)
+	`class_id` varchar(2) NOT NULL DEFAULT '0',
+	`subclass_id` varchar(2) NOT NULL DEFAULT '0',
+	`protocol_id` varchar(2) NOT NULL DEFAULT '0',
+	`protocol_desc` varchar(255) NOT NULL DEFAULT '0',
+	`last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY `unique_id` (`class_id`,`subclass_id`,`protocol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_subclass
 DROP TABLE IF EXISTS `usbmeta_subclass`;
 CREATE TABLE IF NOT EXISTS `usbmeta_subclass` (
-  `class_id` varchar(2) NOT NULL DEFAULT '0',
-  `subclass_id` varchar(2) NOT NULL DEFAULT '0',
-  `subclass_desc` varchar(255) NOT NULL DEFAULT '0',
-  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  UNIQUE KEY `unique_id` (`class_id`,`subclass_id`)
+	`class_id` varchar(2) NOT NULL DEFAULT '0',
+	`subclass_id` varchar(2) NOT NULL DEFAULT '0',
+	`subclass_desc` varchar(255) NOT NULL DEFAULT '0',
+	`last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY `unique_id` (`class_id`,`subclass_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_vendor
 DROP TABLE IF EXISTS `usbmeta_vendor`;
 CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
-  `vendor_id` varchar(4) NOT NULL,
-  `vendor_name` varchar(255) NOT NULL,
-  `last_update` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  UNIQUE KEY `unique_id` (`vendor_id`)
+	`vendor_id` varchar(4) NOT NULL,
+	`vendor_name` varchar(255) NOT NULL,
+	`last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE KEY `unique_id` (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- Data exporting was unselected.
--- Dumping structure for view gocmdb.view_usbci_devices
-DROP VIEW IF EXISTS `view_usbci_devices`;
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `view_usbci_devices` (
-	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci'
-) ENGINE=MyISAM;
-
--- Dumping structure for view gocmdb.view_usbci_hosts
-DROP VIEW IF EXISTS `view_usbci_hosts`;
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `view_usbci_hosts` (
-	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
-) ENGINE=MyISAM;
 
 -- Dumping structure for trigger gocmdb.trig_insert_after_usbci_checkins
 DROP TRIGGER IF EXISTS `trig_insert_after_usbci_checkins`;
@@ -774,31 +745,117 @@ END//
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
 
+-- Dumping structure for view gocmdb.view_usbci_changes
+DROP VIEW IF EXISTS `view_usbci_changes`;
+-- Removing temporary table and create final VIEW structure
+DROP TABLE IF EXISTS `view_usbci_changes`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `view_usbci_changes` AS
+SELECT
+	`host_name`,
+	`vendor_id`,
+	`product_id`,
+	`serial_number`,
+	`changes`
+FROM
+	`usbci_changes`;
+
+-- Dumping structure for view gocmdb.view_usbci_checkins
+DROP VIEW IF EXISTS `view_usbci_checkins`;
+-- Removing temporary table and create final VIEW structure
+DROP TABLE IF EXISTS `view_usbci_checkins`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `view_usbci_checkins` AS
+SELECT
+	`host_name`,
+	`vendor_id`,
+	`product_id`,
+	`serial_number`,
+	`vendor_name`,
+	`product_name`,
+	`product_ver`,
+	`firmware_ver`,
+	`software_id`,
+	`port_number`,
+	`bus_number`,
+	`bus_address`,
+	`buffer_size`,
+	`max_pkt_size`,
+	`usb_spec`,
+	`usb_class`,
+	`usb_subclass`,
+	`usb_protocol`,
+	`device_speed`,
+	`device_ver`,
+	`device_sn`,
+	`factory_sn`,
+	`descriptor_sn`,
+	`object_type`,
+	`object_json`,
+	`remote_addr`
+FROM
+	`usbci_checkins`;
+
 -- Dumping structure for view gocmdb.view_usbci_devices
 DROP VIEW IF EXISTS `view_usbci_devices`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_devices`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_devices` AS SELECT DISTINCT
-	vendor_id,
-	product_id,
-	vendor_name,
-	product_name
-FROM
-	usbci_checkins
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `view_usbci_devices` AS
+SELECT DISTINCT
+	`vendor_id`,
+	`product_id`,
+	`vendor_name`,
+	`product_name`
+FROM 
+	`usbci_checkins`
 ORDER BY
-	vendor_id,
-	product_id ;
+	`vendor_id`,
+	`product_id`;
 
 -- Dumping structure for view gocmdb.view_usbci_hosts
 DROP VIEW IF EXISTS `view_usbci_hosts`;
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `view_usbci_hosts`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `view_usbci_hosts` AS SELECT DISTINCT
-	host_name
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `view_usbci_hosts` AS
+SELECT DISTINCT
+	`host_name`
 FROM
-	usbci_checkins
+	`usbci_checkins`
 ORDER BY
-	host_name ;
+	`host_name`;
+
+-- Dumping structure for view gocmdb.view_usbci_snrequests
+DROP VIEW IF EXISTS `view_usbci_snrequests`;
+-- Removing temporary table and create final VIEW structure
+DROP TABLE IF EXISTS `view_usbci_snrequests`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `view_usbci_snrequests` AS
+SELECT
+	`host_name`,
+	`vendor_id`,
+	`product_id`,
+	`serial_number`,
+	`vendor_name`,
+	`product_name`,
+	`product_ver`,
+	`firmware_ver`,
+	`software_id`,
+	`port_number`,
+	`bus_number`,
+	`bus_address`,
+	`buffer_size`,
+	`max_pkt_size`,
+	`usb_spec`,
+	`usb_class`,
+	`usb_subclass`,
+	`usb_protocol`,
+	`device_speed`,
+	`device_ver`,
+	`device_sn`,
+	`factory_sn`,
+	`descriptor_sn`,
+	`object_type`,
+	`object_json`,
+	`remote_addr`
+FROM
+	`usbci_snrequests`;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
