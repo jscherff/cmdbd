@@ -30,7 +30,7 @@ type Logger struct {
 
 // Log is an instance of MultiLogger with embedded configuration.
 type Log struct {
-	*log.MLogger
+	log.MLogger
 	LogFile string
 	LogFlags []string
 	Stdout bool
