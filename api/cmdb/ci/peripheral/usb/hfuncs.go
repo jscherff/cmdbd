@@ -27,27 +27,27 @@ const (
 	HttpBodySizeLimit = 1048576
 )
 
-type ApiV1 interface {
+type HandlerFuncV1 interface {
 	CheckIn(http.ResponseWriter, *http.Request)
 	NewSn(http.ResponseWriter, *http.Request)
 	Audit(http.ResponseWriter, *http.Request)
 	CheckOut(http.ResponseWriter, *http.Request)
 }
 
-type apiV1 struct {
+type handlerFuncV1 struct {
 	errLog log.MLogger
 	sysLog log.MLogger
 }
 
-func NewApiV1(errLog, sysLog log.MLogger) ApiV1 {
-	return &apiV1{
+func NewHandlerFuncV1(errLog, sysLog log.MLogger) HandlerFuncV1 {
+	return &handlerFuncV1{
 		errLog: errLog,
 		sysLog: sysLog,
 	}
 }
 
 // CheckIn records a device checkin.
-func (this *apiV1) CheckIn(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncV1) CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -94,7 +94,7 @@ func (this *apiV1) CheckIn(w http.ResponseWriter, r *http.Request) {
 }
 
 // newSn generates a new serial number for an unserialized device.
-func (this *apiV1) NewSn(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncV1) NewSn(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -151,7 +151,7 @@ func (this *apiV1) NewSn(w http.ResponseWriter, r *http.Request) {
 }
 
 // Audit accepts the results of a device self-audit and stores the results.
-func (this *apiV1) Audit(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncV1) Audit(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -182,7 +182,7 @@ func (this *apiV1) Audit(w http.ResponseWriter, r *http.Request) {
 
 // CheckOut retrieves a device from the serialized device database as a
 // JSON object and returns it to the caller.
-func (this *apiV1) CheckOut(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncV1) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
