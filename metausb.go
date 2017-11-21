@@ -14,7 +14,7 @@
 
 package main
 
-import `github.com/jscherff/cmdb/metaci/peripheral`
+import `github.com/jscherff/cmdb/meta/peripheral`
 
 // MetaUsb contains metatata for USB devices.
 type MetaUsb struct {
