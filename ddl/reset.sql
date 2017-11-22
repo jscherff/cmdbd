@@ -12,6 +12,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- truncate all tables
+TRUNCATE TABLE `cmdb_errors`;
 TRUNCATE TABLE `cmdb_sequence`;
 TRUNCATE TABLE `usbci_changes`;
 TRUNCATE TABLE `usbci_checkins`;
