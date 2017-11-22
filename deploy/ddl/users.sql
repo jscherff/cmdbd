@@ -33,3 +33,4 @@ VALUES (
 	'$2a$10$Rwh9Ix7Q9.5ST49GngEUJu/VOAYdWG4wnMA9ArSv4qVWQ6nRkyPme',
 	'agent'
 );
+UNLOCK TABLES;

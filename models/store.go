@@ -22,43 +22,56 @@ import (
 	`github.com/jmoiron/sqlx`
 )
 
-// Store is an interface that represents data storage and a collection of
-// methods that perform CRUD DML operations on the store.
+const (
+	listTables = `
+		SELECT table_name
+		FROM information_schema.tables
+		WHERE table_schema = DATABASE();
+	`
+	listColumns = `
+		SELECT column_name
+		FROM information_schema.columns
+		WHERE table_name = ?
+		AND table_schema = DATABASE();
+	`
+)
+
+// Query contains SQL query components needed for building prepared statements.
+type Query struct {
+	Table string
+	Command string
+	Columns []string
+	Filters []string
+}
+
+// queries is a collection of named query objects.
+type Queries map[string]*Query
+
+// Store is an interface that represents a data store.
 type Store interface {
-	Tables() ([]string, error)
-	Columns(table string) ([]string, error)
-	Select(queryName string, args interface{}) ([]interface, error)
-	Update(queryName string, args interface{}) (sql.Result, error)
-	Insert(queryName string, items []interface{}) (sql.Result, error)
-	Delete(queryName string, args interface{}) (sql.Result, error)
-	NewStmt(name, sql string) (error)
+	//Config(fileName string) (error)
+	Query(queryName string, args interface{}) ([]interface{}, error)
+	Exec(queryName string, args interface{}) (sql.Result, error)
 }
 
 // store is an object that implements the Store interface.
 type store struct {
 	db *sqlx.DB
-	tables map[string]string
-	columns map[string]map[string]string
-	query map[string]*sqlx.NamedStmt
+	Stmts map[string]*sqlx.NamedStmt
+	Tables map[string]string
+	Columns map[string]map[string]string
+	Queries map[string]*Query
 }
 
-func (this *store) Select(queryName string, args interface{}) ([]interface{}, error) {
-	return new([]interface{}), nil
+func (this *store) Query(queryName string, args interface{}) ([]interface{}, error) {
+	return nil, nil
 }
 
-func (this *store) Update(queryName string, args interface{}) (sql.Result, error) {
-	return nil
+func (this *store) Exec(queryName string, args interface{}) (sql.Result, error) {
+	return nil, nil
 }
 
-func (this *store) Insert(items []interface{}) (sql.Result, error) {
-	return nil
-}
-
-func (this *store) Delete(args interface{}) (sql.Result, error) {
-	return nil
-}
-
-func NewStore(
+func NewStore(driver, dsn
 // StoreService is an interface that creates new Stores.
 type StoreService interface {
 	Create(config map[string]string) (Store, error)
