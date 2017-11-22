@@ -20,19 +20,19 @@ import (
 )
 
 // V1 is an interface that contains V1 http.HandleFunc signatures of the cmdb API.
-type ApiV1 interface {
+type HandlerFuncsV1 interface {
 	SetAuthToken(http.ResponseWriter, *http.Request)
 }
 
 // v1 is a http.HandleFunc object that implements the cmdb.V1 interface.
-type apiV1 struct {
+type handlerFuncsV1 struct {
 	errLog log.MLogger
 	sysLog log.MLogger
 }
 
 // NewV1 returns a new instance of an object implementing the cmdb.V1 interface.
-func NewApiV1(errLog, sysLog log.MLogger) ApiV1 {
-	return &apiV1{
+func NewHandlerFuncsV1(errLog, sysLog log.MLogger) HandlerFuncsV1 {
+	return &handlerFuncsV1{
 		errLog: errLog,
 		sysLog: sysLog,
 	}
@@ -40,7 +40,7 @@ func NewApiV1(errLog, sysLog log.MLogger) ApiV1 {
 
 // cmdbAuthSetTokenV1 authenticates client using basic authentication and
 // issues a JWT for API authentication if successful.
-func (this *apiV1) SetAuthToken(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) SetAuthToken(w http.ResponseWriter, r *http.Request) {
 	/*
 	if user, pass, ok := r.BasicAuth(); !ok {
 		el.Print(`missing credentials`)

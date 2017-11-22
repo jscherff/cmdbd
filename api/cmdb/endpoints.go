@@ -12,31 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package cmdb
 
-import `github.com/jscherff/cmdb/meta/peripheral`
+import (
+	`github.com/jscherff/cmdbd/server`
+)
 
-// MetaUsb contains metatata for USB devices.
-type MetaUsb struct {
-	*peripheral.Usb
-}
+// NewRoutesV1 returns a collection of REST API endpoints for handling authentication.
+func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
 
-// NewMetaUsb creates and initializes a new MetaUsb instance.
-func NewMetaUsb (cf string, refresh bool) (this *MetaUsb, err error) {
+	return server.Routes {
 
-	if usb, err := peripheral.NewUsb(cf); err != nil {
-		return nil, err
-	} else {
-		this = &MetaUsb{usb}
+		server.Route {
+			Name:		`CMDB Authenticator`,
+			Method:		`GET`,
+			Pattern:	`/v1/cmdbauth`,
+			HandlerFunc:	hf.SetAuthToken,
+			Protected:	false,
+		},
 	}
-
-	if refresh {
-		if err := this.Refresh(); err != nil {
-			return this, err
-		} else if err := this.Save(cf); err != nil {
-			return this, err
-		}
-	}
-
-	return this, nil
 }

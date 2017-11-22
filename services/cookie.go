@@ -21,8 +21,8 @@ import (
 
 // AuthCookieService is an interface that create and extracts authentication cookies.
 type AuthCookieService interface {
-	Create(string, time.Duration) (*http.Cookie)
-	Extract(*http.Request) (*http.Cookie, error)
+	Create(tokenString string, maxAge time.Duration) (*http.Cookie)
+	Extract(request *http.Request) (*http.Cookie, error)
 }
 
 // authCookieService is a service that implements the AuthCookieService interface.

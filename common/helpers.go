@@ -12,31 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package common
 
-import `github.com/jscherff/cmdb/meta/peripheral`
+import (
+	`encoding/json`
+	`os`
+)
 
-// MetaUsb contains metatata for USB devices.
-type MetaUsb struct {
-	*peripheral.Usb
-}
+// loadConfig loads a JSON configuration file into an object.
+func LoadConfig(t interface{}, cf string) error {
 
-// NewMetaUsb creates and initializes a new MetaUsb instance.
-func NewMetaUsb (cf string, refresh bool) (this *MetaUsb, err error) {
-
-	if usb, err := peripheral.NewUsb(cf); err != nil {
-		return nil, err
+	if fh, err := os.Open(cf); err != nil {
+		return err
 	} else {
-		this = &MetaUsb{usb}
+		defer fh.Close()
+		jd := json.NewDecoder(fh)
+		err = jd.Decode(&t)
+		return err
 	}
-
-	if refresh {
-		if err := this.Refresh(); err != nil {
-			return this, err
-		} else if err := this.Save(cf); err != nil {
-			return this, err
-		}
-	}
-
-	return this, nil
 }

@@ -43,10 +43,10 @@ func (this *Token) Claim(name string) (string, error) {
 
 // AuthTokenService is an interface that creates, parses, and validates Tokens.
 type AuthTokenService interface {
-	Create(map[string]string, time.Duration) (string, error)
-	String(*Token) (string, error)
-	Parse(string) (*Token, error)
-	Valid(string) bool
+	Create(customClaims map[string]string, maxAge time.Duration) (string, error)
+	String(token *Token) (string, error)
+	Parse(tokenString string) (*Token, error)
+	Valid(tokenString string) (bool)
 }
 
 // authTokenService is a service that implements the AuthTokenService interface.
@@ -76,7 +76,7 @@ func NewAuthTokenService(priKey, pubKey []byte) (AuthTokenService, error) {
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(custClaims map[string]string, maxAge time.Duration) (string, error) {
+func (this *authTokenService) Create(customClaims map[string]string, maxAge time.Duration) (string, error) {
 
 	claims := &Claims {
 

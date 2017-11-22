@@ -19,11 +19,11 @@ import (
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/gox/log`
-	`github.com/jscherff/cmdb/metaci/peripheral`
+	`github.com/jscherff/cmdb/meta/peripheral`
 
 )
 
-type ApiV1 interface {
+type HandlerFuncsV1 interface {
 	Vendor(http.ResponseWriter, *http.Request)
 	Product(http.ResponseWriter, *http.Request)
 	Class(http.ResponseWriter, *http.Request)
@@ -31,21 +31,21 @@ type ApiV1 interface {
 	Protocol(http.ResponseWriter, *http.Request)
 }
 
-type apiV1 struct {
+type handlerFuncsV1 struct {
 	errLog log.MLogger
 	sysLog log.MLogger
 	meta *peripheral.Usb
 }
 
-func NewApiV1(errLog, sysLog log.MLogger, meta *peripheral.Usb) ApiV1 {
-	return &apiV1{
+func NewHandlerFuncsV1(errLog, sysLog log.MLogger, meta *peripheral.Usb) HandlerFuncsV1 {
+	return &handlerFuncsV1{
 		errLog: errLog,
 		sysLog: sysLog,
 	}
 }
 
 // Vendor returns the USB vendor name associated with a vendor ID.
-func (this *apiV1) Vendor(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) Vendor(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
@@ -68,7 +68,7 @@ func (this *apiV1) Vendor(w http.ResponseWriter, r *http.Request) {
 
 // Product returns the USB vendor and product names associated with
 // a vendor and product ID.
-func (this *apiV1) Product(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) Product(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
@@ -96,7 +96,7 @@ func (this *apiV1) Product(w http.ResponseWriter, r *http.Request) {
 }
 
 // Class returns the USB class description associated with a class ID.
-func (this *apiV1) Class(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) Class(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
@@ -120,7 +120,7 @@ func (this *apiV1) Class(w http.ResponseWriter, r *http.Request) {
 
 // SubClass returns the USB class and subclass descriptions associated
 // with a class and subclass ID.
-func (this *apiV1) SubClass(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) SubClass(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
@@ -149,7 +149,7 @@ func (this *apiV1) SubClass(w http.ResponseWriter, r *http.Request) {
 
 // Protocol returns the USB class, subclass, and protocol descriptions
 // associated with a class, subclass, and protocol ID.
-func (this *apiV1) Protocol(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) Protocol(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 

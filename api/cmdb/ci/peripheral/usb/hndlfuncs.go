@@ -27,27 +27,27 @@ const (
 	HttpBodySizeLimit = 1048576
 )
 
-type HandlerFuncV1 interface {
+type HandlerFuncsV1 interface {
 	CheckIn(http.ResponseWriter, *http.Request)
 	NewSn(http.ResponseWriter, *http.Request)
 	Audit(http.ResponseWriter, *http.Request)
 	CheckOut(http.ResponseWriter, *http.Request)
 }
 
-type handlerFuncV1 struct {
+type handlerFuncsV1 struct {
 	errLog log.MLogger
 	sysLog log.MLogger
 }
 
-func NewHandlerFuncV1(errLog, sysLog log.MLogger) HandlerFuncV1 {
-	return &handlerFuncV1{
+func NewHandlerFuncsV1(errLog, sysLog log.MLogger) HandlerFuncsV1 {
+	return &handlerFuncsV1{
 		errLog: errLog,
 		sysLog: sysLog,
 	}
 }
 
 // CheckIn records a device checkin.
-func (this *handlerFuncV1) CheckIn(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -94,7 +94,7 @@ func (this *handlerFuncV1) CheckIn(w http.ResponseWriter, r *http.Request) {
 }
 
 // newSn generates a new serial number for an unserialized device.
-func (this *handlerFuncV1) NewSn(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) NewSn(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
@@ -151,7 +151,7 @@ func (this *handlerFuncV1) NewSn(w http.ResponseWriter, r *http.Request) {
 }
 
 // Audit accepts the results of a device self-audit and stores the results.
-func (this *handlerFuncV1) Audit(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) Audit(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
@@ -182,7 +182,7 @@ func (this *handlerFuncV1) Audit(w http.ResponseWriter, r *http.Request) {
 
 // CheckOut retrieves a device from the serialized device database as a
 // JSON object and returns it to the caller.
-func (this *handlerFuncV1) CheckOut(w http.ResponseWriter, r *http.Request) {
+func (this *handlerFuncsV1) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]

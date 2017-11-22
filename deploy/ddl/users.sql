@@ -18,16 +18,18 @@ TO 'cmdbd'@'%';
 
 USE `gocmdb`;
 LOCK TABLES `cmdb_users` WRITE;
-INSERT INTO `cmdb_users` (
+INSERT IGNORE INTO `cmdb_users` (
 	username,
 	password,
 	role
 )
 VALUES (
+	-- PRODUCTION
+	-- 'clubpc',
+	-- '$2a$10$6bSZ98lc/iiZHFKuHyhwJ.IVf.ufyuAfejGWd.QMS721zZtzXfrAC'
+	-- 'agent'
+	-- NON-PRODUCTION
 	'clubpc',
 	'$2a$10$Rwh9Ix7Q9.5ST49GngEUJu/VOAYdWG4wnMA9ArSv4qVWQ6nRkyPme',
-	-- '$2a$10$6bSZ98lc/iiZHFKuHyhwJ.IVf.ufyuAfejGWd.QMS721zZtzXfrAC',
 	'agent'
 );
-UNLOCK TABLES;
-

@@ -66,9 +66,9 @@ the audit to the server for later analysis.
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
   install -s -m 755 bcrypt %{buildroot}%{_bindir}/
-  install -m 640 go/src/%{package}/cnf/* %{buildroot}%{confdir}/
-  install -m 640 go/src/%{package}/ddl/* %{buildroot}%{docdir}/
-  install -m 644 go/src/%{package}/svc/* %{buildroot}%{syslib}/
+  install -m 640 go/src/%{package}/configs/* %{buildroot}%{confdir}/
+  install -m 640 go/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
+  install -m 644 go/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
 
 %clean
