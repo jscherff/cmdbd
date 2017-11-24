@@ -82,7 +82,7 @@ func (this *MySqlDataStore) Tables() ([]string, error) {
 		return this.tables, nil
 	}
 
-	sql := `SELECT table_name
+	sql := `SELECT table_name, table_type
 		FROM information_schema.tables
 		WHERE table_schema = DATABASE()`
 
@@ -94,15 +94,20 @@ func (this *MySqlDataStore) Tables() ([]string, error) {
 
 	defer rows.Close()
 
-	var table string
+	var v struct {
+		TabName	string	`db:"table_name"`
+		TabType	string	`db:"table_type"`
+	}
 
 	for rows.Next() {
 
-		if err := rows.Scan(&table); err != nil {
+		if err := rows.StructScan(&v); err != nil {
 			return nil, err
+		} else if v.TabType != `BASE TABLE` {
+			continue
 		}
 
-		this.tables = append(this.tables, table)
+		this.tables = append(this.tables, v.TabName)
 	}
 
 	return this.tables, nil
@@ -130,34 +135,23 @@ func (this *MySqlDataStore) Columns(table string) ([]string, error) {
 
 	defer rows.Close()
 
-	for rows.Next() {
+	var v struct {
+		ColName	string	`db:"column_name"`
+		ColDflt	[]byte	`db:"column_default"`
+		Extra	[]byte	`db:"extra"`
+	}
 
-		var v struct {
-			column_name string
-			column_default []byte
-			extra []byte
-		}
+	for rows.Next() {
 
 		if err := rows.StructScan(&v); err != nil {
 			return nil, err
-		} else if v.column_default != nil && string(v.column_default) == `CURRENT_TIMESTAMP` {
+		} else if v.ColDflt != nil && string(v.ColDflt) == `CURRENT_TIMESTAMP` {
 			continue
-		} else if v.extra != nil && string(v.extra) == `auto_increment` {
+		} else if v.Extra != nil && string(v.Extra) == `auto_increment` {
 			continue
-		} else {
-			this.columns[table] = append(this.columns[table], v.column_name)
 		}
-/*
-		if err != nil {
-			return nil, err
-		} else if values[1] != nil && string(values[1]) == `CURRENT_TIMESTAMP` {
-			continue
-		} else if values[2] != nil && string(values[2]) == `auto_increment` {
-			continue
-		} else {
-			this.columns[table] = append(this.columns[table], string(values[0]))
-		}
-*/
+
+		this.columns[table] = append(this.columns[table], v.ColName)
 	}
 
 	return this.columns[table], nil

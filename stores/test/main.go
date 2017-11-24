@@ -13,6 +13,7 @@ func main() {
 		fmt.Printf(`%v`, err)
 	}
 
+	fmt.Println(ds.Version)
 	fmt.Println(ds.Tables())
 	fmt.Println(ds.Columns(`usbci_checkins`))
 
