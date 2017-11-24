@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package service
+package services
 
 import (
 	`crypto/rsa`
@@ -22,6 +22,14 @@ import (
 	`github.com/jmoiron/sqlx`
 )
 
+type dataStore struct {
+	Queries struct {
+		ListTables string
+		ListColumns string
+
+	ListTablesSQL string
+	ListColm
+var dataStores
 const (
 	listTables = `
 		SELECT table_name
@@ -29,7 +37,7 @@ const (
 		WHERE table_schema = DATABASE();
 	`
 	listColumns = `
-		SELECT column_name
+		SELECT column_name, column_default, extra
 		FROM information_schema.columns
 		WHERE table_name = ?
 		AND table_schema = DATABASE();
@@ -56,11 +64,10 @@ type Store interface {
 
 // store is an object that implements the Store interface.
 type store struct {
-	db *sqlx.DB
+	Db *sqlx.DB
 	Stmts map[string]*sqlx.NamedStmt
 	Tables map[string]string
 	Columns map[string]map[string]string
-	Queries map[string]*Query
 }
 
 func (this *store) Query(queryName string, args interface{}) ([]interface{}, error) {
@@ -71,11 +78,16 @@ func (this *store) Exec(queryName string, args interface{}) (sql.Result, error) 
 	return nil, nil
 }
 
-func NewStore(driver, dsn
-// StoreService is an interface that creates new Stores.
-type StoreService interface {
-	Create(config map[string]string) (Store, error)
-}
+func NewStore(driver, dsn string) (Store, error) {
+
+	this := &store{}
+
+	if this.db, err := sqlx.Open(driver, dsn); err != nil {
+		return nil, err
+	}
+
+
+
 
 // storeService is a service that implements the StoreService interface.
 type storeService struct {}
@@ -84,80 +96,32 @@ type storeService struct {}
 func NewStoreService(db *sqlx.DB, table string, cols []string) *storeService {
 	return &storeService{}
 }
-
-
-
-
-{
-	"Query": {
-		"cmdbInsertSequence": [
-			"INSERT_EMPTY",
-			"cmdb_sequence"
-		],
-		"cmdbSelectUserPassword": [
-			"SELECT_LIST",
-			"password",
-			"cmdb_users",
-			"username = ?"
-		],
-		"usbCiInsertChanges": [
-			"INSERT_ALL",
-			"usbci_changes"
-		],
-		"usbCiInsertCheckin": [
-		       	"INSERT_ALL",
-			"usbci_checkins"
-		],
-		"usbCiInsertSnRequest": [
-			"INSERT_ALL",
-			"usbci_snrequests"
-		],
-		"usbCiUpdateSnRequest": [
-       			"UPDATE_LIST",
-			"usbci_snrequests",
-			"serial_number = ?",
-			"id = ?"
-		],
-		"usbCiSelectSerialized": [
-			"SELECT_ALL",
-		       	"usbci_serialized",
-			"vendor_id = ? AND product_id = ? AND serial_number = ?"
-		],
-		"usbCiSelectJSONObject": [
-			"SELECT_LIST",
-			"object_json",
-			"usbci_serialized",
-			"vendor_id = ? AND product_id = ? AND serial_number = ?"
-		],
-		"usbMetaReplaceVendor": [
-			"REPLACE_LIST",
-			"usbmeta_vendor",
-			"vendor_id, vendor_name",
-			"?, ?"
-		],
-		"usbMetaReplaceProduct": [
-			"REPLACE_LIST",
-			"usbmeta_product",
-			"vendor_id, product_id, product_name",
-			"?, ?, ?"
-		],
-		"usbMetaReplaceClass": [
-			"REPLACE_LIST",
-			"usbmeta_class",
-			"class_id, class_desc",
-			"?, ?"
-		],
-		"usbMetaReplaceSubClass": [
-			"REPLACE_LIST",
-			"usbmeta_subclass",
-			"class_id, subclass_id, subclass_desc",
-			"?, ?, ?"
-		],
-		"usbMetaReplaceProtocol": [
-			"REPLACE_LIST",
-			"usbmeta_protocol",
-			"class_id, subclass_id, protocol_id, protocol_desc",
-			"?, ?, ?, ?"
-		]
+	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
+		return nil, err
 	}
+
+	if err = this.Ping(); err != nil {
+		return nil, err
+	}
+
+	return this, nil
+}
+
+// Info provides identifying information about the database and user.
+func (this *Database) Info() (string) {
+
+	var v string
+
+	this.QueryRow(`SELECT VERSION()`).Scan(&v)
+
+	return fmt.Sprintf(`Database version %s (%s@%s/%s)`, v,
+		this.Config.User,
+		this.Config.Addr,
+		this.Config.DBName,
+	)
+}
+
+// Close closes the database handle.
+func (this *Database) Close() {
+	this.DB.Close()
 }

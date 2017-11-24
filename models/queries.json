@@ -1,135 +1,99 @@
 {
-	"Driver": "mysql",
-
-	"Config": {
-        	"User": "cmdbd",
-		"Passwd_DEV": "Hc7yevbzMxma",
-        	"Passwd_LOCAL": "K2Cvg3NeyR",
-        	"Passwd": "K2Cvg3NeyR",
-        	"Net": "tcp",
-		"Addr_DEV": "digdug.24hourfit.com:3306",
-        	"Addr_LOCAL": "localhost:3306",
-        	"Addr": "localhost:3306",
-        	"DBName": "gocmdb",
-        	"Params": null,
-        	"Collation": "",
-        	"Loc": null,
-        	"MaxAllowedPacket": 0,
-        	"TLSConfig": "",
-        	"Timeout": 0,
-        	"ReadTimeout": 0,
-        	"WriteTimeout": 0,
-        	"AllowAllFiles": false,
-        	"AllowCleartextPasswords": false,
-        	"AllowNativePasswords": false,
-        	"AllowOldPasswords": false,
-        	"ClientFoundRows": false,
-        	"ColumnsWithAlias": false,
-        	"InterpolateParams": false,
-        	"MultiStatements": false,
-        	"ParseTime": false,
-        	"RejectReadOnly": false,
-        	"Strict": false
+	"InsertSequence": {
+		"Table": "cmdb_sequence",
+		"Command": "insert",
+		"Columns": null,
+		"Filters": null
 	},
 
-	"Queries": {
+	"InsertError": {
+		"Table": "cmdb_errors",
+		"Command": "insert",
+		"Columns": ["error_source", "error_code", "error_desc"],
+		"Filters": null
+	},
 
-		"InsertSequence": {
-			"Table": "cmdb_sequence",
-			"Command": "insert",
-			"Columns": null,
-			"Filters": null
-		},
+	"SelectPassword": {
+		"Table": "cmdb_users",
+		"Command": "select",
+		"Columns": ["password"],
+		"Filters": ["username"]
+	},
 
-		"InsertError": {
-			"Table": "cmdb_errors",
-			"Command": "insert",
-			"Columns": ["error_source", "error_code", "error_desc"],
-			"Filters": null
-		},
+	"InsertChanges": {
+		"Table": "usbci_changes",
+		"Command": "insert",
+		"Columns": [],
+		"Filters": null
+	},
 
-		"SelectPassword": {
-			"Table": "cmdb_users",
-			"Command": "select",
-			"Columns": ["password"],
-			"Filters": ["username"]
-		},
+	"InsertCheckIn": {
+		"Table": "usbci_checkins",
+		"Command": "insert",
+		"Columns": [],
+		"Filters": null
+	},
 
-		"InsertChanges": {
-			"Table": "usbci_changes",
-			"Command": "insert",
-			"Columns": [],
-			"Filters": null
-		},
+	"InsertSnRequest": {
+		"Table": "usbci_snrequests",
+		"Command": "insert",
+		"Columns": [],
+		"Filters": null
+	},
 
-		"InsertCheckIn": {
-			"Table": "usbci_checkins",
-			"Command": "insert",
-			"Columns": [],
-			"Filters": null
-		},
+	"UpdateSnRequest": {
+		"Table": "usbci_snrequests",
+		"Command": "update",
+		"Columns": ["serial_number"],
+		"Filters": ["id"]
+	},
 
-		"InsertSnRequest": {
-			"Table": "usbci_snrequests",
-			"Command": "insert",
-			"Columns": [],
-			"Filters": null
-		},
+	"SelectSerialized": {
+	       	"Table": "usbci_serialized",
+		"Command": "select",
+		"Columns": [],
+		"Filters": ["vendor_id", "product_id", "serial_number"]
+	},
 
-		"UpdateSnRequest": {
-			"Table": "usbci_snrequests",
-			"Command": "update",
-			"Columns": ["serial_number"],
-			"Filters": ["id"]
-		},
+	"SelectJSONObject": {
+		"Table": "usbci_serialized",
+		"Command": "select",
+		"Columns": ["object_json"],
+		"Filters": ["vendor_id", "product_id", "serial_number"]
+	},
 
-		"SelectSerialized": {
-		       	"Table": "usbci_serialized",
-			"Command": "select",
-			"Columns": [],
-			"Filters": ["vendor_id", "product_id", "serial_number"]
-		},
+	"ReplaceVendor": {
+		"Table": "usbmeta_vendor",
+		"Command": "replace",
+		"Columns": ["vendor_id", "vendor_name"],
+		"Filters": null
+	},
 
-		"SelectJSONObject": {
-			"Table": "usbci_serialized",
-			"Command": "select",
-			"Columns": ["object_json"],
-			"Filters": ["vendor_id", "product_id", "serial_number"]
-		},
+	"ReplaceProduct": {
+		"Table": "usbmeta_product",
+		"Command": "replace",
+		"Columns": ["vendor_id", "product_id", "product_name"],
+		"Filters": null
+	},
 
-		"ReplaceVendor": {
-			"Table": "usbmeta_vendor",
-			"Command": "replace",
-			"Columns": ["vendor_id", "vendor_name"],
-			"Filters": null
-		},
+	"ReplaceClass": {
+		"Table": "usbmeta_class",
+		"Command": "replace",
+		"Columns": ["class_id", "class_desc"],
+		"Filters": null
+	},
 
-		"ReplaceProduct": {
-			"Table": "usbmeta_product",
-			"Command": "replace",
-			"Columns": ["vendor_id", "product_id", "product_name"],
-			"Filters": null
-		},
+	"ReplaceSubClass": {
+		"Table": "usbmeta_subclass",
+		"Command": "replace",
+		"Columns": ["class_id", "subclass_id", "subclass_desc"],
+		"Filters": null
+	},
 
-		"ReplaceClass": {
-			"Table": "usbmeta_class",
-			"Command": "replace",
-			"Columns": ["class_id", "class_desc"],
-			"Filters": null
-		},
-
-		"ReplaceSubClass": {
-			"Table": "usbmeta_subclass",
-			"Command": "replace",
-			"Columns": ["class_id", "subclass_id", "subclass_desc"],
-			"Filters": null
-		},
-
-		"ReplaceProtocol": {
-			"Table": "usbmeta_protocol",
-			"Command": "replace",
-			"Columns": ["class_id", "subclass_id", "protocol_id", "protocol_desc"],
-			"Filters": null
-		}
+	"ReplaceProtocol": {
+		"Table": "usbmeta_protocol",
+		"Command": "replace",
+		"Columns": ["class_id", "subclass_id", "protocol_id", "protocol_desc"],
+		"Filters": null
 	}
 }
