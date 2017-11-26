@@ -7,7 +7,16 @@ import (
 
 func main() {
 
-	ds, err := stores.NewMySqlDataStore(`mysql.json`)
+	//ds, err := stores.NewMySqlDataStore(`mysql.json`)
+	var ds stores.DataStore
+
+	factory, err := stores.Factory(`mysql`)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ds, err = factory(`mysql.json`)
 
 	if err != nil {
 		panic(err)

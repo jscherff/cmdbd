@@ -20,12 +20,21 @@ import (
 	`strings`
 )
 
-// Query contains SQL query components needed for building prepared statements.
-type Query struct {
-	Table string
-	Command string
-	Columns []string
-	Filters []string
+// Registry is a function map of data store types to factory methods.
+var Registry = map[string]func(string) (DataStore, error)
+
+// Register registers the factory function of the named datastore.
+func Register(name string, factory func(string) (DataStore, error)) {
+	Registry[name] = factory
+}
+
+// Factory returns the data store factory method of the named datastore.
+func Factory(name string) (func(string) (DataStore, error), error) {
+	if factory, ok := Registry[name]; !ok {
+		return nil, fmt.Errorf(`data store %q does not exist`, name)
+	} else {
+		return factory, nil
+	}
 }
 
 // DataStore is an interface that represents a data store.
@@ -34,11 +43,50 @@ type DataStore interface {
 	Tables() ([]string, error)
 	Columns(table string) ([]string, error)
 	Prepare(queryFile string) (error)
-	QueryRow(queryName string, args interface{}) (interface{}, error)
-	Query(queryName string, args interface{}) ([]interface{}, error)
-	Exec(queryName string, args interface{}) (sql.Result, error)
+	Query(queryName string, dest []interface{}, args []interface{}) (error)
 	Get(queryName string, dest interface{}, args interface{}) (error)
+	Exec(queryName string, args interface{}) (sql.Result, error)
 	Close()
+}
+
+
+type Query interface {
+	Table() string
+	Command() string
+	Columns() string
+	Filters() string
+	//Order() string
+	SQL() string
+}
+
+type Queries interface {
+	Load(queryFile string) (error)
+}
+
+// Query contains SQL query components needed for building prepared statements.
+type query struct {
+	Table string
+	Command string
+	Columns []string
+	Filters []string
+}
+
+type queries []query
+
+func (this *query) Table() (string) {
+	return strings.ToLower(this.table)
+}
+
+func (this *query) Command() (string) {
+	return strings.ToUpper(this.Commmand)
+}
+
+func (this *query) Columns() ([]string) {
+	return this.Columns
+}
+
+func (this *query) Filters() ([]string) {
+	return this.Filters
 }
 
 // SQL converts a Query object into a SQL string.
