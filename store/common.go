@@ -21,11 +21,20 @@ import (
 
 // Registry is a centralized DataStore registry to allow models to find
 // DataStore implementations in a standardized way.
-var Registry = make(map[string]DataStore)
+var registry = make(map[string]DataStore)
 
 // Register allows DataStore implementations to register themselves.
-func Register(name string, store DataStore) {
-	Registry[name] = store
+func Register(name string, ds DataStore) {
+	registry[name] = ds
+}
+
+// Lookup allows models to look up registered DataStores.
+func Lookup(name string) (DataStore, error) {
+	if ds, ok := registry[name]; !ok {
+		return nil, fmt.Errorf(`datastore %q not found`, name)
+	} else {
+		return ds, nil
+	}
 }
 
 // DataStore is an interface that represents a data store.

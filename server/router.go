@@ -46,7 +46,7 @@ func NewRouter(cf string, alog, rlog HandlerLogger) (this *Router, err error) {
 		RecoveryStack: false,
 	}
 
-	if err = common.LoadConfig(this, cf); err != nil {
+	if err = utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

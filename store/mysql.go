@@ -26,35 +26,36 @@ import (
 // mysqlDataStore is a MySQL database that implements the DataStore interface.
 type mysqlDataStore struct {
 	*sqlx.DB
+	conf *mysql.Config
 	stmts map[string]*sqlx.NamedStmt
 }
 
 // NewmysqlDataStore creates a new instance of mysqlDataStore.
 func NewMysqlDataStore(configFile string) (DataStore, error) {
 
-	config := &mysql.Config{}
+	conf := &mysql.Config{}
 
-	if err := common.LoadConfig(config, configFile); err != nil {
+	if err := utils.LoadConfig(conf, configFile); err != nil {
 		return nil, err
 	}
 
 	if location, err := time.LoadLocation(`Local`); err != nil {
 		return nil, err
 	} else {
-		config.Loc = location
+		conf.Loc = location
 	}
 
 	var this *mysqlDataStore
 
-	if db, err := sqlx.Open(`mysql`, config.FormatDSN()); err != nil {
+	if db, err := sqlx.Open(`mysql`, conf.FormatDSN()); err != nil {
 		return nil, err
 	} else if err := db.Ping(); err != nil {
 		return nil, err
 	} else {
-		this = &mysqlDataStore{db, make(map[string]*sqlx.NamedStmt)}
+		this = &mysqlDataStore{db, conf, make(map[string]*sqlx.NamedStmt)}
 	}
 
-	Register(`mysql`, this)
+	Register(this.conf.DBName, this)
 
 	return this, nil
 }
@@ -87,7 +88,7 @@ func (this *mysqlDataStore) Prepare(queryFile string) (error) {
 
 	queries := make(Queries)
 
-	if err := common.LoadConfig(&queries, queryFile); err != nil {
+	if err := utils.LoadConfig(&queries, queryFile); err != nil {
 		return err
 	}
 
@@ -108,7 +109,7 @@ func (this *mysqlDataStore) Prepare(queryFile string) (error) {
 func (this *mysqlDataStore) exec(queryName string, args interface{}) (sql.Result, error) {
 
 	if stmt, ok := this.stmts[queryName]; !ok {
-		return nil, fmt.Errorf(`statement %q does not exist`, queryName)
+		return nil, fmt.Errorf(`statement %q not found`, queryName)
 	} else if res, err := stmt.Exec(args); err != nil {
 		return nil, err
 	} else {
@@ -123,7 +124,7 @@ func (this *mysqlDataStore) Select(queryName string, dest interface{}, args inte
 	if destSlice, ok := dest.([]interface{}); !ok {
 		return fmt.Errorf(`destination must be a slice`)
 	} else if stmt, ok := this.stmts[queryName]; !ok {
-		return fmt.Errorf(`statement %q does not exist`, queryName)
+		return fmt.Errorf(`statement %q not found`, queryName)
 	} else if err := stmt.Select(destSlice, args); err != nil {
 		return err
 	}
@@ -157,7 +158,7 @@ func (this *mysqlDataStore) Exec(queryName string, args interface{}) (int64, err
 func (this *mysqlDataStore) Get(queryName string, dest interface{}, args interface{}) (error) {
 
 	if stmt, ok := this.stmts[queryName]; !ok {
-		return fmt.Errorf(`statement %q does not exist`, queryName)
+		return fmt.Errorf(`statement %q not found`, queryName)
 	} else if err := stmt.Get(dest, args); err != nil {
 		return err
 	}

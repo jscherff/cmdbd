@@ -44,7 +44,7 @@ func NewLogger(cf string, console bool, syslog *Syslog) (this *Logger, err error
 
 	this = &Logger{}
 
-	if err = common.LoadConfig(this, cf); err != nil {
+	if err = utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
