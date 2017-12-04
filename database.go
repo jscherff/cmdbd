@@ -24,31 +24,32 @@ import (
 // Database contains the database configuration and handle.
 type Database struct {
 	*sql.DB
-	Driver string
 	Config *mysql.Config
 }
 
 // NewDatabase creates and initializes a new Database instance.
-func NewDatabase(cf string) (this *Database, err error) {
+func NewDatabase(cf string) (*Database, error) {
 
-	this = &Database{}
+	config := &mysql.Config{}
 
-	if err = loadConfig(this, cf); err != nil {
+	if err := loadConfig(config, cf); err != nil {
 		return nil, err
 	}
 
 	if loc, err := time.LoadLocation(`Local`); err != nil {
 		return nil, err
 	} else {
-		this.Config.Loc = loc
+		config.Loc = loc
 	}
 
-	if this.DB, err = sql.Open(this.Driver, this.Config.FormatDSN()); err != nil {
-		return nil, err
-	}
+	var this *Database
 
-	if err = this.Ping(); err != nil {
+	if db, err := sql.Open(`mysql`, config.FormatDSN()); err != nil {
 		return nil, err
+	} else if err := db.Ping(); err != nil {
+		return nil, err
+	} else {
+		this = &Database{db, config}
 	}
 
 	return this, nil

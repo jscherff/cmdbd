@@ -7,17 +7,17 @@
 	},
 
 	"Configs": {
-		"Database": "database.json",
+		"Database": "store/mysql.json",
 		"Queries": "queries.json",
-		"Syslog": "syslog.json",
-		"Logger": "logger.json",
-		"Router": "router.json",
-		"Server": "server.json",
-		"MetaUsb": "metausb.json"
+		"Syslog": "server/syslog.json",
+		"Logger": "server/logger.json",
+		"Router": "server/router.json",
+		"Server": "server/httpd.json",
+		"MetaUsb": "model/metausb.json"
 	},
 
 	"KeyFiles": {
-		"Private": "cmdbd.rsa",
-		"Public": "cmdbd.pub"
+		"Private": "crypto/cmdbd.rsa",
+		"Public": "crypto/cmdbd.pub"
 	}
 }

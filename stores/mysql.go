@@ -48,12 +48,10 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 
 	if db, err := sqlx.Open(`mysql`, config.FormatDSN()); err != nil {
 		return nil, err
+	} else if err := db.Ping(); err != nil {
+		return nil, err
 	} else {
 		this = &mysqlDataStore{db, make(map[string]*sqlx.NamedStmt)}
-	}
-
-	if err := this.Ping(); err != nil {
-		return nil, err
 	}
 
 	return this, nil
