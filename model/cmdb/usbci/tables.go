@@ -18,10 +18,10 @@ import `time`
 
 type Ident struct {
 	Id		interface{}	`db:"id"`
-	HostName	string		`db:"host_name"`
 	VendorID	string		`db:"vendor_id"`
 	ProductID	string		`db:"product_id"`
 	SerialNum	string		`db:"serial_number"`
+	HostName	string		`db:"host_name"`
 }
 
 type Common struct {
@@ -87,8 +87,18 @@ type Unserialized struct {
 	Checkins	int		`db:"checkins"`
 }
 
+type Audits struct {
+	Ident
+	Changes		[]byte		`db:"changes"`
+	AuditDate	time.Time	`db:"audit_date"`
+}
+
 type Changes struct {
 	Ident
 	Changes		[]byte		`db:"changes"`
+	RemoteAddr	string		`db:"remote_addr"`
+	PropertyName	string		`db:"property_name"`
+	PreviousValue	string		`db:"previous_value"`
+	CurrentValue	string		`db:"current_value"`
 	AuditDate	time.Time	`db:"audit_date"`
 }

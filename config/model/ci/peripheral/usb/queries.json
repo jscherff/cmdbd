@@ -1,33 +1,4 @@
 {
-	"InsertSequence": {
-		"Table": "cmdb_sequence",
-		"Command": "insert",
-		"Filters": null,
-		"Columns": null
-	},
-
-	"InsertError": {
-		"Table": "cmdb_errors",
-		"Command": "insert",
-		"Filters": null,
-		"Columns": [
-			"error_source",
-		       	"error_code",
-		       	"error_desc"
-		]
-	},
-
-	"SelectPassword": {
-		"Table": "cmdb_users",
-		"Command": "select",
-		"Filters": [
-			"username"
-		],
-		"Columns": [
-			"password"
-		]
-	},
-
 	"InsertAudit": {
 		"Table": "usbci_audits",
 		"Command": "insert",
@@ -163,60 +134,6 @@
 		],
 		"Columns": [
 			"object_json"
-		]
-	},
-
-	"ReplaceVendor": {
-		"Table": "usbmeta_vendor",
-		"Command": "replace",
-		"Filters": null,
-		"Columns": [
-			"vendor_id",
-		       	"vendor_name"
-		]
-	},
-
-	"ReplaceProduct": {
-		"Table": "usbmeta_product",
-		"Command": "replace",
-		"Filters": null,
-		"Columns": [
-			"vendor_id",
-		       	"product_id",
-		       	"product_name"
-		]
-	},
-
-	"ReplaceClass": {
-		"Table": "usbmeta_class",
-		"Command": "replace",
-		"Filters": null,
-		"Columns": [
-			"class_id",
-		       	"class_desc"
-		]
-	},
-
-	"ReplaceSubClass": {
-		"Table": "usbmeta_subclass",
-		"Command": "replace",
-		"Filters": null,
-		"Columns": [
-			"class_id",
-		       	"subclass_id",
-		       	"subclass_desc"
-		]
-	},
-
-	"ReplaceProtocol": {
-		"Table": "usbmeta_protocol",
-		"Command": "replace",
-		"Filters": null,
-		"Columns": [
-			"class_id",
-		       	"subclass_id",
-		       	"protocol_id",
-		       	"protocol_desc"
 		]
 	}
 }

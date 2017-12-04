@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stores
+package store
 
 import (
 	`database/sql`
@@ -53,6 +53,8 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 	} else {
 		this = &mysqlDataStore{db, make(map[string]*sqlx.NamedStmt)}
 	}
+
+	Register(`mysql`, this)
 
 	return this, nil
 }

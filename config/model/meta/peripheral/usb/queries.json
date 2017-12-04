@@ -1,0 +1,55 @@
+{
+	"ReplaceVendor": {
+		"Table": "usbmeta_vendor",
+		"Command": "replace",
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+		       	"vendor_name"
+		]
+	},
+
+	"ReplaceProduct": {
+		"Table": "usbmeta_product",
+		"Command": "replace",
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+		       	"product_id",
+		       	"product_name"
+		]
+	},
+
+	"ReplaceClass": {
+		"Table": "usbmeta_class",
+		"Command": "replace",
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"class_desc"
+		]
+	},
+
+	"ReplaceSubClass": {
+		"Table": "usbmeta_subclass",
+		"Command": "replace",
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"subclass_id",
+		       	"subclass_desc"
+		]
+	},
+
+	"ReplaceProtocol": {
+		"Table": "usbmeta_protocol",
+		"Command": "replace",
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"subclass_id",
+		       	"protocol_id",
+		       	"protocol_desc"
+		]
+	}
+}

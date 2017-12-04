@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stores
+package store
 
 import (
 	`fmt`
 	`strings`
 )
+
+// Registry is a centralized DataStore registry to allow models to find
+// DataStore implementations in a standardized way.
+var Registry = make(map[string]DataStore)
+
+// Register allows DataStore implementations to register themselves.
+func Register(name string, store DataStore) {
+	Registry[name] = store
+}
 
 // DataStore is an interface that represents a data store.
 type DataStore interface {
