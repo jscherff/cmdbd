@@ -15,169 +15,132 @@
 package stores
 
 import (
-	`database/sql`
 	`fmt`
 	`strings`
 )
 
-// Registry is a function map of data store types to factory methods.
-var Registry = map[string]func(configFile string) (DataStore, error)
-
-// Register registers the factory function of the named datastore.
-func Register(name string, factory func(string) (DataStore, error)) {
-	Registry[name] = factory
-}
-
-// Factory returns the data store factory method of the named datastore.
-func Factory(name string) (func(string) (DataStore, error), error) {
-	if factory, ok := Registry[name]; !ok {
-		return nil, fmt.Errorf(`data store %q does not exist`, name)
-	} else {
-		return factory, nil
-	}
-}
-
 // DataStore is an interface that represents a data store.
 type DataStore interface {
 	Version() (string, error)
-	Tables() ([]string, error)
-	Columns(table string) ([]string, error)
 	Prepare(queryFile string) (error)
-	Query(queryName string, dest []interface{}, args []interface{}) (error)
-	Get(queryName string, dest interface{}, args interface{}) (error)
-	Exec(queryName string, args interface{}) (sql.Result, error)
+	Select(queryName string, dest interface{}, args interface{}) (err error)
+	Insert(queryName string, args interface{}) (id int64, err error)
+	Exec(queryName string, args interface{}) (rows int64, err error)
+	Get(queryName string, dest interface{}, args interface{}) (err error)
 	Close()
 }
 
-// Columns is a slice of column names.
-type Columns []string
-
-// Tables is a map of table names to column name slices.
-type Tables map[string]Columns
-
-// Query is an interface whose methods return components of a SQL statement.
-type Query interface {
-	Table() string
-	Command() string
-	Columns() []string
-	Filters() []string
-	String() string
-	Build(Columns) (error)
-}
-
-// Queries is an interface that represents a collection of query objects
-// and whose methods load those objects from a JSON configuration file and
-// return a map of SQL statement strings.
-type Queries interface {
-	Init(configFile string) (error)
-	Get() map[string]Query
-	String() map[string]string
-	Build(Tables) (error)
-}
-
-// query contains SQL query components needed for building prepared statements.
+// query contains SQL Xquery components needed for building prepared statements.
 type query struct {
 	Table string
 	Command string
-	Columns []string
 	Filters []string
+	Columns []string
 	sqlStmt string
 }
 
-// Table returns the lowercase name of the table.
-func (this *query) Table() (string) {
-	return strings.ToLower(this.table)
+// table returns the lowercase name of the table.
+func (this *query) table() (string) {
+	return strings.ToLower(this.Table)
 }
 
-// Command returns the uppercase SQL command.
-func (this *query) Command() (string) {
-	return strings.ToUpper(this.Commmand)
+// command returns the uppercase SQL command.
+func (this *query) command() (string) {
+	return strings.ToUpper(this.Command)
 }
 
-// Columns is a slice of target column names for INSERT, SELECT, and UPDATE
-// SQL statements. Nil values indicate 'all columns.' A single empty-string
-// column name indicates an empty column list for the INSERT statement (all
-// defaults). A single '*' is legal only for the SELECT statement.
-func (this *query) Columns() ([]string) {
-	return this.Columns
+// columns is a list of column names for INSERT, SELECT, and UPDATE
+// statements.
+func (this *query) columns() (string) {
+	return strings.Join(this.Columns, `, `)
 }
 
-// Filters is a slice of columns used in the conditions clause of the SQL
+// filters is a list of columns used in the conditions clause of a SQL
 // statement. The interface currently only supportes ANDed conditions.
-func (this *query) Filters() ([]string) {
-	return this.Filters
+func (this *query) filters() (string) {
+	var filters []string
+	for _, column := range this.Filters {
+		filters = append(filters, fmt.Sprintf(`%[1]v = :%[1]v`, column))
+	}
+	return strings.Join(filters, ` AND `)
+}
+
+// params is a list of named parameters for INSERT statements.
+func (this *query) params() (string) {
+	var params []string
+	for _, column := range this.Columns {
+		if column == `*` {
+			continue
+		}
+		params = append(params, fmt.Sprintf(`:%v`, column))
+	}
+	return strings.Join(params, `, `)
+}
+
+// setters is a list of column assignments for UPDATE statements.
+func (this *query) setters() (string) {
+	var setters []string
+	for _, column := range this.Columns {
+		if column == `*` {
+			continue
+		}
+		setters = append(setters, fmt.Sprintf(`%[1]v = :%[1]v`, column))
+	}
+	return strings.Join(setters, `, `)
 }
 
 // String implements the Stringer interface for the Query object and returns
 // the complete SQL statement string assembled from the statement components.
 func (this *query) String() (string) {
-	return this.sqlStmt
-}
 
-// Build constructs the SQL query statement from the query components.
-func (this *query) Build(cols Columns) (error) {
-
-	if this.Table() == `` || this.Command() == `` {
-		return fmt.Errorf(`table and command cannot be nil`)
+	if this.sqlStmt != `` {
+		return this.sqlStmt
 	}
 
-	var args, sets, flts []string
-
-	if this.Columns() != nil {
-		cols = this.Columns()
+	if this.table() == `` || this.command() == `` {
+		return ``
 	}
 
-	for _, col := range cols {
-
-		if col == `*` || col == `` {
-			continue
-		}
-
-		args = append(args, fmt.Sprintf(`:%s`, col))
-		sets = append(sets, fmt.Sprintf(`%s = :%s`, col, col))
-	}
-
-	for _, col := range this.Filters() {
-		flts = append(flts, fmt.Sprintf(`%s = :%s`, col, col))
-	}
-
-	switch this.Command() {
+	switch this.command() {
 
 	case `INSERT`, `REPLACE`:
 		this.sqlStmt = fmt.Sprintf(`%s INTO %s (%s) VALUES (%s)`,
-			this.Command(),
-			this.Table(),
-			strings.Join(cols, `, `),
-			strings.Join(args, `, `),
+			this.command(),
+			this.table(),
+			this.columns(),
+			this.params(),
 		)
 
 	case `SELECT`:
 		this.sqlStmt = fmt.Sprintf(`%s %s FROM %s`,
-			this.Command(),
-			strings.Join(cols, `, `),
-			this.Table(),
-			strings.Join(this.OrderBy(), `, `),
+			this.command(),
+			this.columns(),
+			this.table(),
 		)
 
 	case `UPDATE`:
 		this.sqlStmt = fmt.Sprintf(`%s %s SET %s`,
-			this.Command(),
-			this.Table(),
-			strings.Join(sets, `, `),
+			this.command(),
+			this.table(),
+			this.setters(),
 		)
 
 	case `DELETE`:
 		this.sqlStmt = fmt.Sprintf(`DELETE FROM %s`,
-			this.Table(),
+			this.table(),
 		)
 
 	default:
-		return fmt.Errorf(`invalid command %q`, this.Command())
+		return ``
 	}
 
-	if flts != nil {
-		sql += fmt.Sprintf(` WHERE %s`, strings.Join(flts, ` AND `))
+	if len(this.Filters) > 0 {
+		this.sqlStmt += fmt.Sprintf(` WHERE %s`,
+			this.filters(),
+		)
 	}
 
-	return nil
+	return this.sqlStmt
 }
+
+type Queries map[string]*query

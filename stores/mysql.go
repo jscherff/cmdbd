@@ -23,22 +23,14 @@ import (
 	`github.com/jscherff/cmdbd/common`
 )
 
-func init() {
-	Register(`mysql`, NewMySqlDataStore)
-}
-
-// MySqlDataStore is a MySQL database that implements the DataStore interface.
-type MySqlDataStore struct {
+// mysqlDataStore is a MySQL database that implements the DataStore interface.
+type mysqlDataStore struct {
 	*sqlx.DB
-	ver	string
-	tbls	[]string
-	cols	map[string][]string
-	query	map[string]*sqlx.NamedStmt
-	exec	map[string]*sqlx.NamedStmt
+	stmts map[string]*sqlx.NamedStmt
 }
 
-// NewMySqlDataStore creates a new instance of MySqlDataStore.
-func NewMySqlDataStore(configFile string) (DataStore, error) {
+// NewmysqlDataStore creates a new instance of mysqlDataStore.
+func NewMysqlDataStore(configFile string) (DataStore, error) {
 
 	config := &mysql.Config{}
 
@@ -52,15 +44,12 @@ func NewMySqlDataStore(configFile string) (DataStore, error) {
 		config.Loc = location
 	}
 
-	this := &MySqlDataStore{
-		query:	make(map[string]*sqlx.NamedStmt),
-		exec:	make(map[string]*sqlx.NamedStmt),
-	}
+	var this *mysqlDataStore
 
 	if db, err := sqlx.Open(`mysql`, config.FormatDSN()); err != nil {
 		return nil, err
 	} else {
-		this.DB = db
+		this = &mysqlDataStore{db, make(map[string]*sqlx.NamedStmt)}
 	}
 
 	if err := this.Ping(); err != nil {
@@ -71,13 +60,9 @@ func NewMySqlDataStore(configFile string) (DataStore, error) {
 }
 
 // Version returns database ver, user, and schema information.
-func (this *MySqlDataStore) Version() (string, error) {
+func (this *mysqlDataStore) Version() (string, error) {
 
-	if this.ver != `` {
-		return this.ver, nil
-	}
-
-	sql := `SELECT VERSION() AS 'ver',
+	sql := `SELECT VERSION() AS 'version',
 		DATABASE() AS 'schema',
 		USER() AS 'user'`
 
@@ -92,99 +77,15 @@ func (this *MySqlDataStore) Version() (string, error) {
 	} else if err := row.StructScan(&v); err != nil {
 		return ``, err
 	} else {
-		this.ver = fmt.Sprintf(`ver %s (%s/%s)`, v.Version, v.User, v.Schema)
+		return fmt.Sprintf(`version %s (%s/%s)`, v.Version, v.User, v.Schema), nil
 	}
-
-	return this.ver, nil
-}
-
-// Tables returns a slice of tbls in the schema.
-func (this *MySqlDataStore) Tables() ([]string, error) {
-
-	if this.tbls != nil {
-		return this.tbls, nil
-	}
-
-	sql := `SELECT table_name, table_type
-		FROM information_schema.tbls
-		WHERE table_schema = DATABASE()`
-
-	var v struct {
-		TabName	string	`db:"table_name"`
-		TabType	string	`db:"table_type"`
-	}
-
-	rows, err := this.Queryx(sql)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-
-		if err := rows.StructScan(&v); err != nil {
-			return nil, err
-		} else if v.TabType != `BASE TABLE` {
-			continue
-		}
-
-		this.tbls = append(this.tbls, v.TabName)
-	}
-
-	return this.tbls, nil
-}
-
-// Columns returns a slice of cols in the named table.
-func (this *MySqlDataStore) Columns(table string) ([]string, error) {
-
-	if this.cols[table] != nil {
-		return this.cols[table], nil
-	}
-
-	this.cols = make(map[string][]string)
-
-	sql := `SELECT column_name, column_default, extra
-		FROM information_schema.cols
-		WHERE table_name = ?
-		AND table_schema = DATABASE()`
-
-	var v struct {
-		ColName	string	`db:"column_name"`
-		ColDflt	[]byte	`db:"column_default"`
-		Extra	[]byte	`db:"extra"`
-	}
-
-	rows, err := this.Queryx(sql, table)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-
-		if err := rows.StructScan(&v); err != nil {
-			return nil, err
-		} else if v.ColDflt != nil && string(v.ColDflt) == `CURRENT_TIMESTAMP` {
-			continue
-		} else if v.Extra != nil && string(v.Extra) == `auto_increment` {
-			continue
-		}
-
-		this.cols[table] = append(this.cols[table], v.ColName)
-	}
-
-	return this.cols[table], nil
 }
 
 // Prepare converts a collection of JSON-encoded Query objects into 
 // a collection of sqlx Named Statements.
-func (this *MySqlDataStore) Prepare(queryFile string) (error) {
+func (this *mysqlDataStore) Prepare(queryFile string) (error) {
 
-	var queries = make(map[string]*Query)
+	queries := make(Queries)
 
 	if err := common.LoadConfig(&queries, queryFile); err != nil {
 		return err
@@ -192,29 +93,36 @@ func (this *MySqlDataStore) Prepare(queryFile string) (error) {
 
 	for name, query := range queries {
 
-		cols, err := this.Columns(query.Table)
-
-		if err != nil {
+		if stmt, err := this.PrepareNamed(query.String()); err != nil {
 			return err
-		}
-
-		if sql, err := query.SQL(cols); err != nil {
-			return err
-		} else if stmt, err := this.PrepareNamed(sql); err != nil {
-			return err
-		} else if strings.ToUpper
-			this.query[name] = stmt
+		} else {
+			this.stmts[name] = stmt
 		}
 	}
 
 	return nil
 }
 
-// Query executes a select Named Statement and returns the multiple-row result
-// in a slice of interfaces.
-func (this *MySqlDataStore) Query(queryName string, dest []interface{}, args interface{}) error) {
+// exec executes a non-SELECT Named Statement and returns a sql.Result object.
+// Called by Insert(), Update(), and Delete().
+func (this *mysqlDataStore) exec(queryName string, args interface{}) (sql.Result, error) {
 
-	if stmt, ok := this.query[queryName]; !ok {
+	if stmt, ok := this.stmts[queryName]; !ok {
+		return nil, fmt.Errorf(`statement %q does not exist`, queryName)
+	} else if res, err := stmt.Exec(args); err != nil {
+		return nil, err
+	} else {
+		return res, nil
+	}
+}
+
+// Select executes a Named SELECT Statement and returns the multi-row result
+// in a slice of interfaces.
+func (this *mysqlDataStore) Select(queryName string, dest interface{}, args interface{}) (error) {
+
+	if destSlice, ok := dest.([]interface{}); !ok {
+		return fmt.Errorf(`destination must be a slice`)
+	} else if stmt, ok := this.stmts[queryName]; !ok {
 		return fmt.Errorf(`statement %q does not exist`, queryName)
 	} else if err := stmt.Select(destSlice, args); err != nil {
 		return err
@@ -223,25 +131,32 @@ func (this *MySqlDataStore) Query(queryName string, dest []interface{}, args int
 	return nil
 }
 
-// Query executes a non-select Named Statement and returns the last insert ID
-// and number of rows affected in a sql.Result object.
-func (this *MySqlDataStore) Exec(queryName string, args interface{}) (sql.Result, error) {
+// Insert executes a Named INSERT Statement and returns the last insert ID.
+func (this *mysqlDataStore) Insert(queryName string, args interface{}) (int64, error) {
 
-	if stmt, ok := this.exec[queryName]; !ok {
-		return nil, fmt.Errorf(`statement %q does not exist`, queryName)
-	} else if res, err := stmt.Get(dest, args); err != nil {
-		return nil, err
+	if res, err := this.exec(queryName, args); err != nil {
+		return 0, err
+	} else {
+		return res.LastInsertId()
 	}
-
-	return res, nil
-
 }
 
-// Get executes a select Named Statement and returns the single-row
-// result in an interface.
-func (this *MySqlDataStore) Get(queryName string, dest interface{}, args interface{}) (error) {
+// Insert executes a Named UPDATE or DELETE Statement and returns the number 
+// of rows affected.
+func (this *mysqlDataStore) Exec(queryName string, args interface{}) (int64, error) {
 
-	if stmt, ok := this.query[queryName]; !ok {
+	if res, err := this.exec(queryName, args); err != nil {
+		return 0, err
+	} else {
+		return res.RowsAffected()
+	}
+}
+
+// Get executes a Named SELECT Statement and returns the single-row result
+// in an interface.
+func (this *mysqlDataStore) Get(queryName string, dest interface{}, args interface{}) (error) {
+
+	if stmt, ok := this.stmts[queryName]; !ok {
 		return fmt.Errorf(`statement %q does not exist`, queryName)
 	} else if err := stmt.Get(dest, args); err != nil {
 		return err
@@ -251,14 +166,10 @@ func (this *MySqlDataStore) Get(queryName string, dest interface{}, args interfa
 }
 
 // Close closes the database handle.
-func (this *MySqlDataStore) Close() {
+func (this *mysqlDataStore) Close() {
 
-	for _, stmt := range this.query {
+	for _, stmt := range this.stmts {
 		stmt.Close()
-	}
-
-	for _, stmt := range this.exec {
-		exec.Close()
 	}
 
 	this.Close()

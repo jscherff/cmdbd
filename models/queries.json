@@ -2,98 +2,221 @@
 	"InsertSequence": {
 		"Table": "cmdb_sequence",
 		"Command": "insert",
-		"Columns": [""],
-		"Filters": null
+		"Filters": null,
+		"Columns": null
 	},
 
 	"InsertError": {
 		"Table": "cmdb_errors",
 		"Command": "insert",
-		"Columns": ["error_source", "error_code", "error_desc"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"error_source",
+		       	"error_code",
+		       	"error_desc"
+		]
 	},
 
 	"SelectPassword": {
 		"Table": "cmdb_users",
 		"Command": "select",
-		"Columns": ["password"],
-		"Filters": ["username"]
+		"Filters": [
+			"username"
+		],
+		"Columns": [
+			"password"
+		]
 	},
 
-	"InsertChanges": {
+	"InsertAudit": {
+		"Table": "usbci_audits",
+		"Command": "insert",
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+			"product_id",
+			"serial_number",
+			"host_name",
+			"remote_addr",
+			"changes",
+			"audit_date"
+		]
+	},
+
+	"InsertChange": {
 		"Table": "usbci_changes",
 		"Command": "insert",
-		"Columns": null,
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+			"product_id",
+			"serial_number",
+			"host_name",
+			"remote_addr",
+			"property_name",
+			"previous_value",
+			"current_value",
+			"audit_date"
+		]
 	},
 
 	"InsertCheckIn": {
 		"Table": "usbci_checkins",
 		"Command": "insert",
-		"Columns": null,
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"host_name",
+			"vendor_id",
+			"product_id",
+			"serial_number",
+			"vendor_name",
+			"product_name",
+			"product_ver",
+			"firmware_ver",
+			"software_id",
+			"port_number",
+			"bus_number",
+			"bus_address",
+			"buffer_size",
+			"max_pkt_size",
+			"usb_spec",
+			"usb_class",
+			"usb_subclass",
+			"usb_protocol",
+			"device_speed",
+			"device_ver",
+			"device_sn",
+			"factory_sn",
+			"descriptor_sn",
+			"object_type",
+			"object_json",
+			"remote_addr",
+			"checkin_date"
+		]
 	},
 
 	"InsertSnRequest": {
 		"Table": "usbci_snrequests",
 		"Command": "insert",
-		"Columns": null,
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"host_name",
+			"vendor_id",
+			"product_id",
+			"serial_number",
+			"vendor_name",
+			"product_name",
+			"product_ver",
+			"firmware_ver",
+			"software_id",
+			"port_number",
+			"bus_number",
+			"bus_address",
+			"buffer_size",
+			"max_pkt_size",
+			"usb_spec",
+			"usb_class",
+			"usb_subclass",
+			"usb_protocol",
+			"device_speed",
+			"device_ver",
+			"device_sn",
+			"factory_sn",
+			"descriptor_sn",
+			"object_type",
+			"object_json",
+			"remote_addr",
+			"request_date"
+		]
 	},
 
 	"UpdateSnRequest": {
 		"Table": "usbci_snrequests",
 		"Command": "update",
-		"Columns": ["serial_number"],
-		"Filters": ["id"]
+		"Filters": [
+			"id"
+		],
+		"Columns": [
+			"serial_number"
+		]
 	},
 
 	"SelectSerialized": {
 	       	"Table": "usbci_serialized",
 		"Command": "select",
-		"Columns": ["*"],
-		"Filters": ["vendor_id", "product_id", "serial_number"]
+		"Filters": [
+			"vendor_id",
+		       	"product_id",
+		       	"serial_number"],
+		"Columns": [
+			"*"
+		]
 	},
 
 	"SelectJSONObject": {
 		"Table": "usbci_serialized",
 		"Command": "select",
-		"Columns": ["object_json"],
-		"Filters": ["vendor_id", "product_id", "serial_number"]
+		"Filters": [
+			"vendor_id",
+		       	"product_id",
+		       	"serial_number"
+		],
+		"Columns": [
+			"object_json"
+		]
 	},
 
 	"ReplaceVendor": {
 		"Table": "usbmeta_vendor",
 		"Command": "replace",
-		"Columns": ["vendor_id", "vendor_name"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+		       	"vendor_name"
+		]
 	},
 
 	"ReplaceProduct": {
 		"Table": "usbmeta_product",
 		"Command": "replace",
-		"Columns": ["vendor_id", "product_id", "product_name"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"vendor_id",
+		       	"product_id",
+		       	"product_name"
+		]
 	},
 
 	"ReplaceClass": {
 		"Table": "usbmeta_class",
 		"Command": "replace",
-		"Columns": ["class_id", "class_desc"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"class_desc"
+		]
 	},
 
 	"ReplaceSubClass": {
 		"Table": "usbmeta_subclass",
 		"Command": "replace",
-		"Columns": ["class_id", "subclass_id", "subclass_desc"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"subclass_id",
+		       	"subclass_desc"
+		]
 	},
 
 	"ReplaceProtocol": {
 		"Table": "usbmeta_protocol",
 		"Command": "replace",
-		"Columns": ["class_id", "subclass_id", "protocol_id", "protocol_desc"],
-		"Filters": null
+		"Filters": null,
+		"Columns": [
+			"class_id",
+		       	"subclass_id",
+		       	"protocol_id",
+		       	"protocol_desc"
+		]
 	}
 }

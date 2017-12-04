@@ -22,7 +22,7 @@ import (
 )
 
 // loadConfig loads a JSON configuration file into an object.
-func LoadConfig(t interface{}, cf string) error {
+func LoadConfig(t interface{}, cf string) (error) {
 
 	if fh, err := os.Open(cf); err != nil {
 		return err
