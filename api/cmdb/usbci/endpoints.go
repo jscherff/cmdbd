@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usb
+package usbci
 
-import (
-	`github.com/jscherff/cmdbd/server`
-)
+import `github.com/jscherff/cmdbd/server`
 
 // NewRoutesV1 returns a collection of REST API endpoints providing CMDB CI data.
-func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
+func NewRoutesV1(hf HandlersV1) server.Routes {
 
 	return server.Routes {
 
@@ -27,12 +25,12 @@ func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
 			Name:		`USB CI Checkin Handler`,
 			Method:		`POST`,
 			Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
-			HandlerFunc:	hf.CheckIn,
+			HandlerFunc:	hf.Checkin,
 			Protected:	true,
 		},
 
 		server.Route {
-			Name:		`USBCI Checkout Handler`,
+			Name:		`USB CI Checkout Handler`,
 			Method:		`GET`,
 			Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
 			HandlerFunc:	hf.CheckOut,
@@ -40,7 +38,7 @@ func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
 		},
 
 		server.Route {
-			Name:		`USBCI NewSn Handler`,
+			Name:		`USB CI NewSn Handler`,
 			Method:		`POST`,
 			Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
 			HandlerFunc:	hf.NewSn,
@@ -48,7 +46,7 @@ func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
 		},
 
 		server.Route {
-			Name:		`USBCI Audit Handler`,
+			Name:		`USB CI Audit Handler`,
 			Method:		`POST`,
 			Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
 			HandlerFunc:	hf.Audit,

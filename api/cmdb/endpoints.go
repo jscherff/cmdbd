@@ -14,12 +14,10 @@
 
 package cmdb
 
-import (
-	`github.com/jscherff/cmdbd/server`
-)
+import `github.com/jscherff/cmdbd/server`
 
 // NewRoutesV1 returns a collection of REST API endpoints for handling authentication.
-func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
+func NewRoutesV1(hf HandlersV1) server.Routes {
 
 	return server.Routes {
 

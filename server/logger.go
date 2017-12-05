@@ -17,7 +17,7 @@ package server
 import (
 	`path/filepath`
 	`github.com/jscherff/gox/log`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // Logger contains logging options and a collection of logs.

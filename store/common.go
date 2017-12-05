@@ -41,10 +41,10 @@ func Lookup(name string) (DataStore, error) {
 type DataStore interface {
 	Version() (string, error)
 	Prepare(queryFile string) (error)
-	Select(queryName string, dest interface{}, args interface{}) (err error)
-	Insert(queryName string, args interface{}) (id int64, err error)
-	Exec(queryName string, args interface{}) (rows int64, err error)
-	Get(queryName string, dest interface{}, args interface{}) (err error)
+	Select(queryName string, dest interface{}, arg interface{}) (err error)
+	Insert(queryName string, arg interface{}) (id int64, err error)
+	Exec(queryName string, arg interface{}) (rows int64, err error)
+	Get(queryName string, arg interface{}) (err error)
 	Close()
 }
 

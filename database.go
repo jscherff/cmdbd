@@ -18,12 +18,14 @@ import (
 	`fmt`
 	`github.com/go-sql-driver/mysql`
 	`time`
-	sql `github.com/jmoiron/sqlx`
+
+	`github.com/jmoiron/sqlx`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // Database contains the database configuration and handle.
 type Database struct {
-	*sql.DB
+	*sqlx.DB
 	Config *mysql.Config
 }
 
@@ -32,7 +34,7 @@ func NewDatabase(cf string) (*Database, error) {
 
 	config := &mysql.Config{}
 
-	if err := loadConfig(config, cf); err != nil {
+	if err := utils.LoadConfig(config, cf); err != nil {
 		return nil, err
 	}
 
@@ -44,7 +46,7 @@ func NewDatabase(cf string) (*Database, error) {
 
 	var this *Database
 
-	if db, err := sql.Open(`mysql`, config.FormatDSN()); err != nil {
+	if db, err := sqlx.Open(`mysql`, config.FormatDSN()); err != nil {
 		return nil, err
 	} else if err := db.Ping(); err != nil {
 		return nil, err

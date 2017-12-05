@@ -16,11 +16,21 @@ package cmdb
 
 import (
 	`time`
+	`github.com/jscherff/cmdbd/model`
 	`github.com/jscherff/cmdbd/store`
 )
 
-type Errors struct {
-	id		interface{}	`db:"id"`
+var ds store.DataStore
+
+func Init(storeName, queryFile string) (err error) {
+	if ds, err = model.Prepare(storeName, queryFile); err != nil {
+		return err
+	}
+	return nil
+}
+
+type Error struct {
+	Id		interface{}	`db:"id"`
 	Code		int		`db:"code"`
 	Source		string		`db:"source"`
 	Description	string		`db:"description"`
@@ -32,8 +42,8 @@ type Sequence struct {
 	IssueDate	time.Time	`db:"issue_date"`
 }
 
-type Users struct {
-	id		interface{}	`db:"id"`
+type User struct {
+	Id		interface{}	`db:"id"`
 	Username	string		`db:"username"`
 	Password	string		`db:"password"`
 	Created		time.Time	`db:"created"`
@@ -41,11 +51,25 @@ type Users struct {
 	Role		string		`db:"role"`
 }
 
-func Init(queryFile, storeName string) (error) {
+func (this *Error) Create() (int64, error) {
+	return ds.Insert(`InsertError`, this)
+}
 
-	if ds, err := store.Lookup(storeName); err != nil {
-		return err
-	} else if err := ds.Prepare(queryFile); err != nil {
-		return err
+func (this *Sequence) Create() (int64, error) {
+	return ds.Insert(`InsertSequence`, this)
+}
+
+func (this *User) Create() (int64, error) {
+	return ds.Insert(`InsertUser`, this)
+}
+
+func (this *User) Read() (error) {
+	return ds.Get(`SelectUser`, this)
+}
+
+func (this *User) ReadPassword() (string, error) {
+	if err := ds.Get(`SelectUserPassword`, this); err != nil {
+		return ``, err
 	}
-
+	return this.Password, nil
+}

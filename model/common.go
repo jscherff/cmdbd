@@ -16,13 +16,13 @@ package model
 
 import `github.com/jscherff/cmdbd/store`
 
-func Prepare(storeName, queryFile string) (error) {
+func Prepare(storeName, queryFile string) (store.DataStore, error) {
 
 	if ds, err := store.Lookup(storeName); err != nil {
-		return err
+		return nil, err
 	} else if err := ds.Prepare(queryFile); err != nil {
-		return err
+		return nil, err
+	} else {
+		return ds, nil
 	}
-
-	return nil
 }

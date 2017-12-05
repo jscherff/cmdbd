@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usb
+package usbmeta
 
 import (
 	`encoding/json`
@@ -23,7 +23,7 @@ import (
 
 )
 
-type HandlerFuncsV1 interface {
+type HandlersV1 interface {
 	Vendor(http.ResponseWriter, *http.Request)
 	Product(http.ResponseWriter, *http.Request)
 	Class(http.ResponseWriter, *http.Request)
@@ -31,152 +31,138 @@ type HandlerFuncsV1 interface {
 	Protocol(http.ResponseWriter, *http.Request)
 }
 
-type handlerFuncsV1 struct {
-	errLog log.MLogger
-	sysLog log.MLogger
+type handlersV1 struct {
+	errorLog log.MLogger
+	systemLog log.MLogger
 	meta *peripheral.Usb
 }
 
-func NewHandlerFuncsV1(errLog, sysLog log.MLogger, meta *peripheral.Usb) HandlerFuncsV1 {
-	return &handlerFuncsV1{
-		errLog: errLog,
-		sysLog: sysLog,
+func NewHandlersV1(errLog, sysLog log.MLogger, meta *peripheral.Usb) HandlersV1 {
+	return &handlersV1{
+		errorLog: errLog,
+		systemLog: sysLog,
 	}
 }
 
 // Vendor returns the USB vendor name associated with a vendor ID.
-func (this *handlerFuncsV1) Vendor(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV1) Vendor(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
-	var vid = vars[`vid`]
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	if v, err := this.meta.GetVendor(vid); err != nil {
+	if v, err := this.meta.GetVendor(vars[`vid`]); err != nil {
 
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(v.String()); err != nil {
-			this.errLog.Panic(err)
+			this.errorLog.Panic(err)
 		}
 	}
 }
 
 // Product returns the USB vendor and product names associated with
 // a vendor and product ID.
-func (this *handlerFuncsV1) Product(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV1) Product(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
-	var vid, pid = vars[`vid`], vars[`pid`]
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
+	if v, err := this.meta.GetVendor(vars[`vid`]); err != nil {
 
-	if v, err := this.meta.GetVendor(vid); err != nil {
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else if p, err := v.GetProduct(vars[`pid`]); err != nil {
 
-	} else if p, err := v.GetProduct(pid); err != nil {
-
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			this.errLog.Panic(err)
+			this.errorLog.Panic(err)
 		}
 	}
 }
 
 // Class returns the USB class description associated with a class ID.
-func (this *handlerFuncsV1) Class(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV1) Class(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
-	var cid = vars[`cid`]
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
+	if c, err := this.meta.GetClass(vars[`cid`]); err != nil {
 
-	if c, err := this.meta.GetClass(cid); err != nil {
-
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(c.String()); err != nil {
-			this.errLog.Panic(err)
+			this.errorLog.Panic(err)
 		}
 	}
 }
 
 // SubClass returns the USB class and subclass descriptions associated
 // with a class and subclass ID.
-func (this *handlerFuncsV1) SubClass(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV1) SubClass(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
-	var cid, sid = vars[`cid`], vars[`sid`]
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
+	if c, err := this.meta.GetClass(vars[`cid`]); err != nil {
 
-	if c, err := this.meta.GetClass(cid); err != nil {
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else if s, err := c.GetSubClass(vars[`sid`]); err != nil {
 
-	} else if s, err := c.GetSubClass(sid); err != nil {
-
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(s.String()); err != nil {
-			this.errLog.Panic(err)
+			this.errorLog.Panic(err)
 		}
 	}
 }
 
 // Protocol returns the USB class, subclass, and protocol descriptions
 // associated with a class, subclass, and protocol ID.
-func (this *handlerFuncsV1) Protocol(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV1) Protocol(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
-	var cid, sid, pid = vars[`cid`], vars[`sid`], vars[`pid`]
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
+	if c, err := this.meta.GetClass(vars[`cid`]); err != nil {
 
-	if c, err := this.meta.GetClass(cid); err != nil {
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else if s, err := c.GetSubClass(vars[`sid`]); err != nil {
 
-	} else if s, err := c.GetSubClass(sid); err != nil {
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else if p, err := s.GetProtocol(vars[`pid`]); err != nil {
 
-	} else if p, err := s.GetProtocol(pid); err != nil {
-
-		this.errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		this.errorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			this.errLog.Panic(err)
+			this.errorLog.Panic(err)
 		}
 	}
 }

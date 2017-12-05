@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usb
+package usbmeta
 
 import (
 	`github.com/jscherff/cmdbd/server`
 )
 
 // NewRoutesV1 returns a collection of REST API endpoints providing USB metadata.
-func NewRoutesV1(hf HandlerFuncsV1) server.Routes {
+func NewRoutesV1(hf HandlersV1) server.Routes {
 
 	return server.Routes {
 

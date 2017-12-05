@@ -16,12 +16,16 @@ package main
 
 import (
 	`crypto/rsa`
-	`encoding/json`
 	`fmt`
 	`io/ioutil`
-	`path/filepath`
 	`os`
+	`path/filepath`
+	`time`
+
 	jwt `github.com/dgrijalva/jwt-go`
+	`github.com/jscherff/cmdbd/server`
+	`github.com/jscherff/cmdbd/service`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 var (
@@ -39,24 +43,30 @@ var (
 
 	db *Database
 	dq *Queries
-	ws *Server
-	sl, al, el *Log
+	ws *server.Server
+	sl, al, el *server.Log
 )
 
 // Config contains infomation about the server process and log writers.
 type Config struct {
 
-	SerialFmt map[string]string
-	Configs   map[string]string
-	KeyFiles  map[string]string
+	AuthMaxAge	time.Duration
 
-	Database *Database
-	Queries  *Queries
-	Syslog   *Syslog
-	Logger   *Logger
-	Router   *Router
-	MetaUsb  *MetaUsb
-	Server   *Server
+	SerialFmt	map[string]string
+	Configs		map[string]string
+	KeyFiles	map[string]string
+
+	Database	*Database
+	Queries		*Queries
+	Syslog		*server.Syslog
+	Logger		*server.Logger
+	Router		*server.Router
+	MetaUsb		*MetaUsb
+	Server		*server.Server
+
+	AuthTokenSvc	service.AuthTokenService
+	AuthCookieSvc	service.AuthCookieService
+	SerialNumSvc	service.SerialNumService
 }
 
 // NewConfig creates a new Config object and reads its config
@@ -67,7 +77,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	this = &Config{}
 
-	if err := loadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
@@ -75,6 +85,30 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	for key, fn := range this.Configs {
 		this.Configs[key] = filepath.Join(filepath.Dir(cf), fn)
+	}
+
+	for key, fn := range this.KeyFiles{
+		this.KeyFiles[key] = filepath.Join(filepath.Dir(cf), fn)
+	}
+
+	// Initialize services.
+
+	if ts, err := service.NewAuthTokenService(this.KeyFiles, this.AuthMaxAge); err != nil {
+		return nil, err
+	} else {
+		this.AuthTokenSvc = ts
+	}
+
+	if ss, err := service.NewSerialNumService(this.SerialFmt); err != nil {
+		return nil, err
+	} else {
+		this.SerialNumSvc = ss
+	}
+
+	if cs, err := service.NewAuthCookieService(this.AuthMaxAge); err != nil {
+		return nil, err
+	} else {
+		this.AuthCookieSvc = cs
 	}
 
 	// Create and initialize Database object.
@@ -99,7 +133,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Syslog object.
 
-	if syslog, err := NewSyslog(this.Configs[`Syslog`]); err != nil {
+	if syslog, err := server.NewSyslog(this.Configs[`Syslog`]); err != nil {
 		return nil, err
 	} else {
 		this.Syslog = syslog
@@ -107,7 +141,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Logger object.
 
-	if logger, err := NewLogger(this.Configs[`Logger`], *FConsole, this.Syslog); err != nil {
+	if logger, err := server.NewLogger(this.Configs[`Logger`], *FConsole, this.Syslog); err != nil {
 		return nil, err
 	} else {
 		this.Logger = logger
@@ -129,7 +163,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Router object.
 
-	if router, err := NewRouter(this.Configs[`Router`], al, el); err != nil {
+	if router, err := server.NewRouter(this.Configs[`Router`], al, el); err != nil {
 		return nil, err
 	} else {
 		this.Router = router.
@@ -148,7 +182,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Server object.
 
-	if server, err := NewServer(this.Configs[`Server`]); err != nil {
+	if server, err := server.NewServer(this.Configs[`Server`]); err != nil {
 		return nil, err
 	} else {
 		server.Handler = this.Router
@@ -159,7 +193,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Read and store RSA private key.
 
-	if pemKey, err := ioutil.ReadFile(filepath.Join(filepath.Dir(cf), this.KeyFiles[`Private`])); err != nil {
+	if pemKey, err := ioutil.ReadFile(this.KeyFiles[`PrivateRSA`]); err != nil {
 		return nil, err
 	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
 		return nil, err
@@ -169,7 +203,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Read and store RSA public key.
 
-	if pemKey, err := ioutil.ReadFile(filepath.Join(filepath.Dir(cf), this.KeyFiles[`Public`])); err != nil {
+	if pemKey, err := ioutil.ReadFile(this.KeyFiles[`PublicRSA`]); err != nil {
 		return nil, err
 	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
 		return nil, err
@@ -178,19 +212,6 @@ func NewConfig(cf string) (this *Config, err error) {
 	}
 
 	return this, nil
-}
-
-// loadConfig loads a JSON configuration file into an object.
-func loadConfig(t interface{}, cf string) error {
-
-	if fh, err := os.Open(cf); err != nil {
-		return err
-	} else {
-		defer fh.Close()
-		jd := json.NewDecoder(fh)
-		err = jd.Decode(&t)
-		return err
-	}
 }
 
 // displayVersion displays the program version.

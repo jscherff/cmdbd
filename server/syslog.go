@@ -17,7 +17,7 @@ package server
 import (
 	`fmt`
 	`github.com/RackSec/srslog`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 var (

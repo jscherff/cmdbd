@@ -19,7 +19,7 @@ import (
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // HandlerLogger is a convenience interface to simplify method signatures.

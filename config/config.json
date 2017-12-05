@@ -1,4 +1,6 @@
 {
+	"AuthMaxAge": 3600000000000,
+
 	"SerialFmt": {
 		"*usb.Magtek": "24HF%04XMT",
 		"*usb.IDTech": "24HF%04XIT",
@@ -17,7 +19,7 @@
 	},
 
 	"KeyFiles": {
-		"Private": "crypto/cmdbd.rsa",
-		"Public": "crypto/cmdbd.pub"
+		"PrivateRSA": "crypto/cmdbd.rsa",
+		"PublicRSA": "crypto/cmdbd.pub"
 	}
 }

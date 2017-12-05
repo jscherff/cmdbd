@@ -1,4 +1,15 @@
 {
+	"InsertError": {
+		"Table": "cmdb_errors",
+		"Command": "insert",
+		"Filters": null,
+		"Columns": [
+		       	"code",
+			"source",
+		       	"description"
+		]
+	},
+
 	"InsertSequence": {
 		"Table": "cmdb_sequence",
 		"Command": "insert",
@@ -6,18 +17,28 @@
 		"Columns": null
 	},
 
-	"InsertError": {
-		"Table": "cmdb_errors",
+	"InsertUser": {
+		"Table": "cmdb_users",
 		"Command": "insert",
 		"Filters": null,
 		"Columns": [
-			"error_source",
-		       	"error_code",
-		       	"error_desc"
+		       	"username",
+			"password",
+			"role"
 		]
 	},
 
-	"SelectPassword": {
+	"SelectUser": {
+		"Table": "cmdb_users",
+		"Command": "select",
+		"Filters": [
+			"username"
+		],
+		"Columns": [
+			"*"
+		],
+
+	"SelectUserPassword": {
 		"Table": "cmdb_users",
 		"Command": "select",
 		"Filters": [

@@ -17,14 +17,17 @@ package service
 import (
 	`crypto/rsa`
 	`fmt`
+	`io/ioutil`
 	`time`
 	jwt `github.com/dgrijalva/jwt-go`
 )
 
-// Claims is a custom Claims object that extends jwt.StandardClaims.
-type Claims struct {
+// AuthClaims is a custom Claims object that extends jwt.StandardClaims
+// for authentication and authorization purposes.
+type AuthClaims struct {
 	jwt.StandardClaims
-	CustomClaims map[string]string
+	User string
+	Role string
 }
 
 // Token is a custom Token object that extends jwt.Token.
@@ -32,41 +35,56 @@ type Token struct {
 	*jwt.Token
 }
 
-// Claim extracts the named claim from the token.
-func (this *Token) Claim(name string) (string, error) {
-	if value, ok := this.Claims.(Claims).CustomClaims[name]; !ok {
-		return ``, fmt.Errorf(`claim %q does not exist`)
-	} else {
-		return value, nil
-	}
+// User extracts the User AuthClaims claim from the token.
+func (this *Token) User() (string) {
+	return this.Claims.(AuthClaims).User
+}
+
+// Role extracts the Role AuthClaims claim from the token.
+func (this *Token) Role() (string) {
+	return this.Claims.(AuthClaims).Role
 }
 
 // AuthTokenService is an interface that creates, parses, and validates Tokens.
 type AuthTokenService interface {
-	Create(customClaims map[string]string, maxAge time.Duration) (string, error)
-	String(token *Token) (string, error)
-	Parse(tokenString string) (*Token, error)
-	Valid(tokenString string) (bool)
+	Create(user, role string) (token *Token)
+	String(token *Token) (tokenString string, err error)
+	Parse(tokenString string) (token *Token, err error)
+	Valid(tokenString string) (ok bool)
 }
 
 // authTokenService is a service that implements the AuthTokenService interface.
 type authTokenService struct {
 	privateKey *rsa.PrivateKey
 	publicKey *rsa.PublicKey
+	maxAge time.Duration
 }
 
 // NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewAuthTokenService(priKey, pubKey []byte) (AuthTokenService, error) {
+func NewAuthTokenService(keyFiles map[string]string, maxAge time.Duration) (AuthTokenService, error) {
 
-	this := &authTokenService{}
+	this := &authTokenService{maxAge: maxAge}
+	priKeyName, pubKeyName := `PrivateRSA`, `PublicRSA`
 
-	if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(priKey); err != nil {
+	// Read and store RSA private key.
+
+	if priKeyFile, ok := keyFiles[priKeyName]; !ok {
+		return nil, fmt.Errorf(`key name %q not found`, priKeyName)
+	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
 		this.privateKey = rsaKey
 	}
 
-	if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKey); err != nil {
+	// Read and store RSA public key.
+
+	if pubKeyFile, ok := keyFiles[pubKeyName]; !ok {
+		return nil, fmt.Errorf(`key name %q not found`, pubKeyName)
+	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
 		this.publicKey = rsaKey
@@ -76,20 +94,20 @@ func NewAuthTokenService(priKey, pubKey []byte) (AuthTokenService, error) {
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(customClaims map[string]string, maxAge time.Duration) (string, error) {
+func (this *authTokenService) Create(user, role string) (*Token) {
 
-	claims := &Claims {
+	claims := &AuthClaims {
 
 		StandardClaims: jwt.StandardClaims {
 			IssuedAt: time.Now().Unix(),
-			ExpiresAt: time.Now().Add(maxAge).Unix(),
+			ExpiresAt: time.Now().Add(this.maxAge).Unix(),
 		},
 
-		CustomClaims: custClaims,
+		User: user,
+		Role: role,
 	}
 
-	token := jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)
-	return token.SignedString(this.privateKey)
+	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}
 }
 
 // Parse parses a token string and returns a Token.
@@ -97,7 +115,7 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 
 	token, err := jwt.ParseWithClaims(
 
-		tokenString, &Claims{},
+		tokenString, &AuthClaims{},
 
 		func(t *jwt.Token) (interface{}, error) {
 

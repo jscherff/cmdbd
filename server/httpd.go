@@ -18,7 +18,7 @@ import (
 	`fmt`
 	`net/http`
 	`time`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // Config contains infomation about the server process and log writers.

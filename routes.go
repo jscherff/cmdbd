@@ -14,38 +14,12 @@
 
 package main
 
-import (
-	`net/http`
-)
-
-// Route contains information about a REST API enpoint.
-type Route struct {
-	Name		string
-	Method		string
-	Pattern		string
-	Protected	bool
-	HandlerFunc	http.HandlerFunc
-}
-
-// Regular expression for hostname input validation
-var hostRgx = `^(?:(?:\w|\w[\w\-]*\w)\.)*(?:\w|\w[\w\-]*\w)$`
-
-// Regular expression for vendor and product ID input validation.
-var hex4Rgx = `[0-9A-Fa-f]{4}`
-
-// Regular expression for class, sublcass, and protocol ID input validation.
-var hex2Rgx = `[0-9A-Fa-f]{2}`
-
-// Regular expression for serial number input validation.
-var snRgx = `^[\w\-]+$`
-
-// Routes contains a collection of Route instances.
-type Routes []Route
+import `github.com/jscherff/cmdbd/server`
 
 // usbCiRoutes is a collection of REST API enpoints supporting USB CIs.
-var usbCiRoutes = Routes {
+var usbCiRoutes = server.Routes {
 
-	Route {
+	server.Route {
 		Name:		`USBCI Checkin Handler`,
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
@@ -53,7 +27,7 @@ var usbCiRoutes = Routes {
 		Protected:	true,
 	},
 
-	Route {
+	server.Route {
 		Name:		`USBCI Checkout Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
@@ -61,7 +35,7 @@ var usbCiRoutes = Routes {
 		Protected:	true,
 	},
 
-	Route {
+	server.Route {
 		Name:		`USBCI NewSn Handler`,
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
@@ -69,7 +43,7 @@ var usbCiRoutes = Routes {
 		Protected:	true,
 	},
 
-	Route {
+	server.Route {
 		Name:		`USBCI Audit Handler`,
 		Method:		`POST`,
 		Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
@@ -79,9 +53,9 @@ var usbCiRoutes = Routes {
 }
 
 // usbMetaRoutes is a collection of REST API enpoints providing USB metadata.
-var usbMetaRoutes = Routes {
+var usbMetaRoutes = server.Routes {
 
-	Route {
+	server.Route {
 		Name:		`Metadata USB Vendor Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}`,
@@ -89,7 +63,7 @@ var usbMetaRoutes = Routes {
 		Protected:	false,
 	},
 
-	Route {
+	server.Route {
 		Name:		`Metadata USB Product Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}/{pid}`,
@@ -97,7 +71,7 @@ var usbMetaRoutes = Routes {
 		Protected:	false,
 	},
 
-	Route {
+	server.Route {
 		Name:		`Metadata USB Class Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/class/{cid}`,
@@ -105,7 +79,7 @@ var usbMetaRoutes = Routes {
 		Protected:	false,
 	},
 
-	Route {
+	server.Route {
 		Name:		`Metadata USB SubClass Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/subclass/{cid}/{sid}`,
@@ -113,7 +87,7 @@ var usbMetaRoutes = Routes {
 		Protected:	false,
 	},
 
-	Route {
+	server.Route {
 		Name:		`Metadata USB Protocol Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
@@ -122,9 +96,9 @@ var usbMetaRoutes = Routes {
 	},
 }
 
-var cmdbAuthRoutes = Routes {
+var cmdbAuthRoutes = server.Routes {
 
-	Route {
+	server.Route {
 		Name:		`CMDB Authenticator`,
 		Method:		`GET`,
 		Pattern:	`/v1/cmdbauth`,

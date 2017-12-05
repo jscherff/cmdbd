@@ -20,7 +20,7 @@ import (
 	`time`
 	`github.com/jmoiron/sqlx`
 	`github.com/go-sql-driver/mysql`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // mysqlDataStore is a MySQL database that implements the DataStore interface.
@@ -106,11 +106,11 @@ func (this *mysqlDataStore) Prepare(queryFile string) (error) {
 
 // exec executes a non-SELECT Named Statement and returns a sql.Result object.
 // Called by Insert(), Update(), and Delete().
-func (this *mysqlDataStore) exec(queryName string, args interface{}) (sql.Result, error) {
+func (this *mysqlDataStore) exec(queryName string, arg interface{}) (sql.Result, error) {
 
 	if stmt, ok := this.stmts[queryName]; !ok {
 		return nil, fmt.Errorf(`statement %q not found`, queryName)
-	} else if res, err := stmt.Exec(args); err != nil {
+	} else if res, err := stmt.Exec(arg); err != nil {
 		return nil, err
 	} else {
 		return res, nil
@@ -119,13 +119,13 @@ func (this *mysqlDataStore) exec(queryName string, args interface{}) (sql.Result
 
 // Select executes a Named SELECT Statement and returns the multi-row result
 // in a slice of interfaces.
-func (this *mysqlDataStore) Select(queryName string, dest interface{}, args interface{}) (error) {
+func (this *mysqlDataStore) Select(queryName string, dest interface{}, arg interface{}) (error) {
 
 	if destSlice, ok := dest.([]interface{}); !ok {
 		return fmt.Errorf(`destination must be a slice`)
 	} else if stmt, ok := this.stmts[queryName]; !ok {
 		return fmt.Errorf(`statement %q not found`, queryName)
-	} else if err := stmt.Select(destSlice, args); err != nil {
+	} else if err := stmt.Select(destSlice, arg); err != nil {
 		return err
 	}
 
@@ -133,9 +133,9 @@ func (this *mysqlDataStore) Select(queryName string, dest interface{}, args inte
 }
 
 // Insert executes a Named INSERT Statement and returns the last insert ID.
-func (this *mysqlDataStore) Insert(queryName string, args interface{}) (int64, error) {
+func (this *mysqlDataStore) Insert(queryName string, arg interface{}) (int64, error) {
 
-	if res, err := this.exec(queryName, args); err != nil {
+	if res, err := this.exec(queryName, arg); err != nil {
 		return 0, err
 	} else {
 		return res.LastInsertId()
@@ -144,9 +144,9 @@ func (this *mysqlDataStore) Insert(queryName string, args interface{}) (int64, e
 
 // Insert executes a Named UPDATE or DELETE Statement and returns the number 
 // of rows affected.
-func (this *mysqlDataStore) Exec(queryName string, args interface{}) (int64, error) {
+func (this *mysqlDataStore) Exec(queryName string, arg interface{}) (int64, error) {
 
-	if res, err := this.exec(queryName, args); err != nil {
+	if res, err := this.exec(queryName, arg); err != nil {
 		return 0, err
 	} else {
 		return res.RowsAffected()
@@ -155,11 +155,11 @@ func (this *mysqlDataStore) Exec(queryName string, args interface{}) (int64, err
 
 // Get executes a Named SELECT Statement and returns the single-row result
 // in an interface.
-func (this *mysqlDataStore) Get(queryName string, dest interface{}, args interface{}) (error) {
+func (this *mysqlDataStore) Get(queryName string, arg interface{}) (error) {
 
 	if stmt, ok := this.stmts[queryName]; !ok {
 		return fmt.Errorf(`statement %q not found`, queryName)
-	} else if err := stmt.Get(dest, args); err != nil {
+	} else if err := stmt.Get(arg, arg); err != nil {
 		return err
 	}
 

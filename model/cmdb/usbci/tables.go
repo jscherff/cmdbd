@@ -14,7 +14,21 @@
 
 package usbci
 
-import `time`
+import (
+	`encoding/json`
+	`time`
+	`github.com/jscherff/cmdbd/model`
+	`github.com/jscherff/cmdbd/store`
+)
+
+var ds store.DataStore
+
+func Init(storeName, queryFile string) (err error) {
+	if ds, err = model.Prepare(storeName, queryFile); err != nil {
+		return err
+	}
+	return nil
+}
 
 type Ident struct {
 	Id		interface{}	`db:"id"`
@@ -22,10 +36,10 @@ type Ident struct {
 	ProductID	string		`db:"product_id"`
 	SerialNum	string		`db:"serial_number"`
 	HostName	string		`db:"host_name"`
+	RemoteAddr	string		`db:"remote_addr"`
 }
 
 type Common struct {
-	Ident
 	VendorName	string		`db:"vendor_name"`
 	ProductName	string		`db:"product_name"`
 	ProductVer	string		`db:"product_ver"`
@@ -47,7 +61,6 @@ type Common struct {
 	DescriptorSN	string		`db:"descriptor_sn"`
 	ObjectType	string		`db:"object_type"`
 	ObjectJSON	[]byte		`db:"object_json"`
-	RemoteAddr	string		`db:"remote_addr"`
 }
 
 type Custom struct {
@@ -63,42 +76,72 @@ type Custom struct {
 	Custom10	string		`db:"custom_10,omitempty"`
 }
 
-type Checkins struct {
-	Common
+type Checkin struct {
+	*Ident
+	*Common
 	CheckinDate	time.Time	`db:"checkin_date"`
 }
 
-type SnRequests struct {
-	Common
+type SnRequest struct {
+	*Ident
+	*Common
 	RequestDate	time.Time	`db:"request_date"`
 }
 
 type Serialized struct {
-	Common
+	*Ident
+	*Common
 	FirstSeen	time.Time	`db:"first_seen"`
 	LastSeen	time.Time	`db:"last_seen"`
 	Checkins	int		`db:"checkins"`
 }
 
 type Unserialized struct {
-	Common
+	*Ident
+	*Common
 	FirstSeen	time.Time	`db:"first_seen"`
 	LastSeen	time.Time	`db:"last_seen"`
 	Checkins	int		`db:"checkins"`
 }
 
-type Audits struct {
-	Ident
+type Audit struct {
+	*Ident
 	Changes		[]byte		`db:"changes"`
 	AuditDate	time.Time	`db:"audit_date"`
 }
 
-type Changes struct {
-	Ident
-	Changes		[]byte		`db:"changes"`
-	RemoteAddr	string		`db:"remote_addr"`
+type Change struct {
+	*Ident
 	PropertyName	string		`db:"property_name"`
 	PreviousValue	string		`db:"previous_value"`
 	CurrentValue	string		`db:"current_value"`
 	AuditDate	time.Time	`db:"audit_date"`
+}
+
+func (this *Audit) Create() (int64, error) {
+	return ds.Insert(`InsertAudit`, this)
+}
+
+func (this *Change) Create() (int64, error) {
+	return ds.Insert(`InsertChange`, this)
+}
+
+func (this *Checkin) Create() (int64, error) {
+	return ds.Insert(`InsertCheckin`, this)
+}
+
+func (this *SnRequest) Create() (int64, error) {
+	return ds.Insert(`InsertSnRequest`, this)
+}
+
+func (this *SnRequest) Update() (int64, error) {
+	return ds.Exec(`UpdateSnRequest`, this)
+}
+
+func (this *Serialized) Read() (error) {
+	return ds.Get(`SelectSerialized`, this)
+}
+
+func (this *Serialized) JSON() ([]byte, error) {
+	return json.Marshal(this)
 }
