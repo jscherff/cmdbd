@@ -17,33 +17,49 @@ package server
 import (
 	`context`
 	`net/http`
+
+	`github.com/jscherff/cmdbd/service`
 )
 
-// AuthTokenValidator is middleware that can be used to validate
-// a client authentication JWT prior to allowing access to protected
-// pages.
-func AuthTokenValidator(next http.Handler) (http.Handler) {
+// MiddleWare provides various middleWare handlers used by the HTTP Server.
+type MiddleWare interface {
+	AuthTokenValidator(next http.Handler) (http.Handler)
+}
+
+// middleWare is an implementation of the MiddleWare interface.
+type middleWare struct {
+	authTokenSvc service.AuthTokenService
+	authCookieSvc service.AuthCookieService
+}
+
+// NewMiddleWare implements a new MiddleWare instance.
+func NewMiddleWare(ts service.AuthTokenService, cs service.AuthCookieService) (MiddleWare, error) {
+	return &middleWare{ts, cs}, nil
+}
+
+// AuthTokenValidator is middleWare that validates a client authentication
+// token prior to allowing access to protected pages.
+func (this *middleWare) AuthTokenValidator(next http.Handler) (http.Handler) {
 
 	return http.HandlerFunc(
 
 		func(w http.ResponseWriter, r *http.Request) {
 
-			fail := func(err error) {
+			if tokenString, err := this.authCookieSvc.Read(r); err != nil {
+
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				panic(err)
-			}
 
-			if cookie, err := getAuthCookie(r); err != nil {
-				fail(err)
-			} else if token, err := parseAuthToken(cookie.Value); err != nil {
-				fail(err)
-			} else if err := validateAuthToken(token); err != nil {
-				fail(err)
-			} else if claims, ok := token.Claims.(*Claims); ok {
-				ctx := context.WithValue(r.Context(), `Claims`, *claims)
-				next.ServeHTTP(w, r.WithContext(ctx))
+			} else if token, err := this.authTokenSvc.Parse(tokenString); err != nil {
+
+				http.Error(w, err.Error(), http.StatusUnauthorized)
+				panic(err)
+
 			} else {
-				next.ServeHTTP(w, r)
+
+				claims := token.AuthClaims()
+				context := context.WithValue(r.Context(), `AuthClaims`, claims)
+				next.ServeHTTP(w, r.WithContext(context))
 			}
 		},
 	)

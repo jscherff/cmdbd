@@ -24,10 +24,16 @@ import (
 	`github.com/jscherff/cmdbd/model/cmdb`
 )
 
-// AuthClaims is a custom Claims object that extends jwt.StandardClaims.
+// AuthClaims is a custom claims object that contains user authentication
+// and authorization infomration.
 type AuthClaims struct {
-	jwt.StandardClaims
 	cmdb.User
+}
+
+// Claims is a custom Claims object that extends jwt.StandardClaims.
+type Claims struct {
+	jwt.StandardClaims
+	AuthClaims
 }
 
 // Token is a custom Token object that extends jwt.Token.
@@ -36,16 +42,15 @@ type Token struct {
 }
 
 // Username extracts the Username AuthClaim claim from the token.
-func (this *Token) User() (cmdb.User) {
-	return this.Claims.(AuthClaims).User
+func (this *Token) AuthClaims() (AuthClaims) {
+	return this.Claims.(Claims).AuthClaims
 }
 
 // AuthTokenService is an interface that creates, parses, and validates Tokens.
 type AuthTokenService interface {
-	Create(user, role string) (token *Token)
+	Create(user cmdb.User) (token *Token)
 	String(token *Token) (tokenString string, err error)
 	Parse(tokenString string) (token *Token, err error)
-	Valid(tokenString string) (ok bool)
 }
 
 // authTokenService is a service that implements the AuthTokenService interface.
@@ -89,19 +94,16 @@ func NewAuthTokenService(keyFiles map[string]string, maxAge time.Duration) (Auth
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(username, role string) (*Token) {
+func (this *authTokenService) Create(user cmdb.User) (*Token) {
 
-	claims := &AuthClaims {
+	claims := &Claims {
 
 		StandardClaims: jwt.StandardClaims {
 			IssuedAt: time.Now().Unix(),
 			ExpiresAt: time.Now().Add(this.maxAge).Unix(),
 		},
 
-		User: cmdb.User {
-			Username: username,
-			Role: role,
-		},
+		AuthClaims: AuthClaims{user},
 	}
 
 	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}
@@ -112,7 +114,7 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 
 	token, err := jwt.ParseWithClaims(
 
-		tokenString, &AuthClaims{},
+		tokenString, &Claims{},
 
 		func(t *jwt.Token) (interface{}, error) {
 
@@ -127,22 +129,12 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	} else if token == nil {
-		return nil, fmt.Errorf(`nil token`)
+		return nil, fmt.Errorf(`empty token`)
+	} else if !token.Valid {
+		return nil, fmt.Errorf(`invalid token`)
 	}
 
 	return &Token{token}, nil
-}
-
-// Valid validates a Token.
-func (this *authTokenService) Valid(tokenString string) (bool) {
-
-	if token, err := this.Parse(tokenString); err != nil {
-		return false
-	} else if !token.Valid {
-		return false
-	}
-
-	return true
 }
 
 // String returns a token string suitable for cookies.

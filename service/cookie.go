@@ -22,7 +22,7 @@ import (
 // AuthCookieService is an interface that create and extracts authentication cookies.
 type AuthCookieService interface {
 	Create(tokenString string) (cookie *http.Cookie)
-	Read(request *http.Request) (cookie *http.Cookie, err error)
+	Read(request *http.Request) (tokenString string, err error)
 }
 
 // authCookieService is a service that implements the AuthCookieService interface.
@@ -47,11 +47,11 @@ func (this *authCookieService) Create(tokenString string) (*http.Cookie) {
 }
 
 // Read extracts the 'Auth' http.Cookie from an http.Request.
-func (this *authCookieService) Read(request *http.Request) (*http.Cookie, error) {
+func (this *authCookieService) Read(request *http.Request) (string, error) {
 
 	if cookie, err := request.Cookie(`Auth`); err != nil {
-		return nil, err
+		return ``, err
 	} else {
-		return cookie, nil
+		return cookie.Value, nil
 	}
 }

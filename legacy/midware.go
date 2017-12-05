@@ -29,7 +29,7 @@ func AuthTokenValidator(next http.Handler) (http.Handler) {
 		func(w http.ResponseWriter, r *http.Request) {
 
 			logAndFail := func(err error) {
-				el.Print(err)
+				errLog.Print(err)
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 			}
 

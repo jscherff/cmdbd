@@ -27,6 +27,7 @@ import (
 	`github.com/jscherff/cmdbd/server`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/gox/log`
 )
 
 var (
@@ -47,7 +48,16 @@ var (
 	db *Database
 	dq *Queries
 	ws *server.Server
-	sl, al, el *server.Log
+)
+
+var (
+	authTokenSvc	service.AuthTokenService
+	authCookieSvc	service.AuthCookieService
+	serialNumSvc	service.SerialNumService
+	middleWare	server.MiddleWare
+	sysLog		log.MLogger
+	accLog		log.MLogger
+	errLog		log.MLogger
 )
 
 // Config contains infomation about the server process and log writers.
@@ -66,10 +76,6 @@ type Config struct {
 	Router		*server.Router
 	MetaUsb		*MetaUsb
 	Server		*server.Server
-
-	AuthTokenSvc	service.AuthTokenService
-	AuthCookieSvc	service.AuthCookieService
-	SerialNumSvc	service.SerialNumService
 }
 
 // NewConfig creates a new Config object and reads its config
@@ -99,19 +105,27 @@ func NewConfig(cf string, console, refresh bool) (this *Config, err error) {
 	if ts, err := service.NewAuthTokenService(this.KeyFiles, this.AuthMaxAge); err != nil {
 		return nil, err
 	} else {
-		this.AuthTokenSvc = ts
-	}
-
-	if ss, err := service.NewSerialNumService(this.SerialFmt); err != nil {
-		return nil, err
-	} else {
-		this.SerialNumSvc = ss
+		authTokenSvc = ts
 	}
 
 	if cs, err := service.NewAuthCookieService(this.AuthMaxAge); err != nil {
 		return nil, err
 	} else {
-		this.AuthCookieSvc = cs
+		authCookieSvc = cs
+	}
+
+	if ss, err := service.NewSerialNumService(this.SerialFmt); err != nil {
+		return nil, err
+	} else {
+		serialNumSvc = ss
+	}
+
+	// Create and initialize MiddleWare object.
+
+	if mw, err := server.NewMiddleWare(authTokenSvc, authCookieSvc); err != nil {
+		return nil, err
+	} else {
+		middleWare = mw
 	}
 
 	// Create and initialize Database object.
@@ -154,19 +168,19 @@ func NewConfig(cf string, console, refresh bool) (this *Config, err error) {
 
 	var ok bool
 
-	if sl, ok = this.Logger.Logs[`system`]; !ok {
+	if sysLog, ok = this.Logger.Logs[`system`]; !ok {
 		return nil, fmt.Errorf(`missing "system" log config`)
 	}
-	if al, ok = this.Logger.Logs[`access`]; !ok {
+	if accLog, ok = this.Logger.Logs[`access`]; !ok {
 		return nil, fmt.Errorf(`missing "access" log config`)
 	}
-	if el, ok = this.Logger.Logs[`error`]; !ok {
+	if errLog, ok = this.Logger.Logs[`error`]; !ok {
 		return nil, fmt.Errorf(`missing "error" log config`)
 	}
 
 	// Create and initialize Router object.
 
-	if router, err := server.NewRouter(this.Configs[`Router`], al, el); err != nil {
+	if router, err := server.NewRouter(this.Configs[`Router`], middleWare, accLog, errLog); err != nil {
 		return nil, err
 	} else {
 		this.Router = router.

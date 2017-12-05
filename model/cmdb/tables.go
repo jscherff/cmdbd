@@ -63,13 +63,6 @@ func (this *User) Create() (int64, error) {
 	return ds.Insert(`InsertUser`, this)
 }
 
-func (this *User) Read() (error) {
-	return ds.Get(`SelectUser`, this)
-}
-
-func (this *User) ReadPassword() (string, error) {
-	if err := ds.Get(`SelectUserPassword`, this); err != nil {
-		return ``, err
-	}
-	return this.Password, nil
+func (this *User) Read(arg interface{}) (error) {
+	return ds.Get(`SelectUser`, this, arg)
 }

@@ -77,41 +77,41 @@ type Custom struct {
 }
 
 type Checkin struct {
-	*Ident
-	*Common
+	Ident
+	Common
 	CheckinDate	time.Time	`db:"checkin_date"`
 }
 
 type SnRequest struct {
-	*Ident
-	*Common
+	Ident
+	Common
 	RequestDate	time.Time	`db:"request_date"`
 }
 
 type Serialized struct {
-	*Ident
-	*Common
+	Ident
+	Common
 	FirstSeen	time.Time	`db:"first_seen"`
 	LastSeen	time.Time	`db:"last_seen"`
 	Checkins	int		`db:"checkins"`
 }
 
 type Unserialized struct {
-	*Ident
-	*Common
+	Ident
+	Common
 	FirstSeen	time.Time	`db:"first_seen"`
 	LastSeen	time.Time	`db:"last_seen"`
 	Checkins	int		`db:"checkins"`
 }
 
 type Audit struct {
-	*Ident
+	Ident
 	Changes		[]byte		`db:"changes"`
 	AuditDate	time.Time	`db:"audit_date"`
 }
 
 type Change struct {
-	*Ident
+	Ident
 	PropertyName	string		`db:"property_name"`
 	PreviousValue	string		`db:"previous_value"`
 	CurrentValue	string		`db:"current_value"`
@@ -138,8 +138,8 @@ func (this *SnRequest) Update() (int64, error) {
 	return ds.Exec(`UpdateSnRequest`, this)
 }
 
-func (this *Serialized) Read() (error) {
-	return ds.Get(`SelectSerialized`, this)
+func (this *Serialized) Read(arg interface{}) (error) {
+	return ds.Get(`SelectSerialized`, this, arg)
 }
 
 func (this *Serialized) JSON() ([]byte, error) {

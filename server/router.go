@@ -15,38 +15,33 @@
 package server
 
 import (
-	`io`
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
 	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/gox/log`
 )
-
-// HandlerLogger is a convenience interface to simplify method signatures.
-type HandlerLogger interface {
-	io.Writer
-	handlers.RecoveryHandlerLogger
-}
 
 // Router is a Gorilla Mux router with additional methods.
 type Router struct {
 	*mux.Router
-	AccessLog HandlerLogger
-	RecoveryLog HandlerLogger
+	MiddleWare MiddleWare
+	AccessLog log.MLogger
+	RecoveryLog log.MLogger
 	RecoveryStack bool
 }
 
 // NewRouter creates and initializes a new Router instance.
-func NewRouter(cf string, alog, rlog HandlerLogger) (this *Router, err error) {
+func NewRouter(cf string, mware MiddleWare, alog, rlog log.MLogger) (*Router, error) {
 
-	this = &Router{
+	this := &Router{
 		Router: mux.NewRouter().StrictSlash(true),
+		MiddleWare: mware,
 		AccessLog: alog,
 		RecoveryLog: rlog,
-		RecoveryStack: false,
 	}
 
-	if err = utils.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
@@ -63,7 +58,7 @@ func (this *Router) AddRoutes(routes Routes) *Router {
 		handler = route.HandlerFunc
 
 		if route.Protected {
-			handler = AuthTokenValidator(handler)
+			handler = this.MiddleWare.AuthTokenValidator(handler)
 		}
 
 		handler = handlers.RecoveryHandler(

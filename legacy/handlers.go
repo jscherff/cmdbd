@@ -27,16 +27,16 @@ import (
 func cmdbAuthSetTokenV1(w http.ResponseWriter, r *http.Request) {
 
 	if user, pass, ok := r.BasicAuth(); !ok {
-		el.Print(`missing credentials`)
+		errLog.Print(`missing credentials`)
 		http.Error(w, `missing credentials`, http.StatusUnauthorized)
 	} else if token, err := createAuthToken(user, pass, r.URL.Host); err != nil {
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 	} else if cookie, err := createAuthCookie(token); err != nil {
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		sl.Printf(`issuing auth token to %q at %q`, user, r.RemoteAddr)
+		sysLog.Printf(`issuing auth token to %q at %q`, user, r.RemoteAddr)
 		http.SetCookie(w, cookie)
 	}
 }
@@ -50,11 +50,11 @@ func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -63,11 +63,11 @@ func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 
 		return
@@ -78,12 +78,12 @@ func usbCiCheckinV1(w http.ResponseWriter, r *http.Request) {
 
 	if err = SaveDeviceCheckin(dev); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		sl.Printf(`saved checkin for host %q device VID %q PID %q`, host, vid, pid)
+		sysLog.Printf(`saved checkin for host %q device VID %q PID %q`, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
@@ -97,11 +97,11 @@ func usbCiNewSnV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -110,11 +110,11 @@ func usbCiNewSnV1(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.Unmarshal(body, &dev); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 		if err = json.NewEncoder(w).Encode(err); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 
 		return
@@ -126,22 +126,22 @@ func usbCiNewSnV1(w http.ResponseWriter, r *http.Request) {
 	var sn string = dev[`serial_number`].(string)
 
 	if len(sn) > 0 {
-		sl.Printf(`host %q device VID %q PID %q SN was already set to %q`, host, vid, pid, sn)
+		sysLog.Printf(`host %q device VID %q PID %q SN was already set to %q`, host, vid, pid, sn)
 	}
 
 	if sn, err = GetNewSerialNumber(dev); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		sl.Printf(`generated SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
+		sysLog.Printf(`generated SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusCreated)
 	}
 
 	if err = json.NewEncoder(w).Encode(sn); err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 }
 
@@ -154,23 +154,23 @@ func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
 	if err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	if err = r.Body.Close(); err != nil {
-		el.Panic(err)
+		errLog.Panic(err)
 	}
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
 	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		sl.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, host, vid, pid, sn)
+		sysLog.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, host, vid, pid, sn)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
@@ -186,16 +186,16 @@ func usbCiCheckoutV1(w http.ResponseWriter, r *http.Request) {
 
 	if j, err := GetDeviceJSONObject(vid, pid, sn); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		sl.Printf(`found SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
+		sysLog.Printf(`found SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
 		w.WriteHeader(http.StatusOK)
 
 		if _, err = w.Write(j); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }
@@ -211,14 +211,14 @@ func usbMetaVendorV1(w http.ResponseWriter, r *http.Request) {
 
 	if v, err := usb.GetVendor(vid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(v.String()); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }
@@ -236,19 +236,19 @@ func usbMetaProductV1(w http.ResponseWriter, r *http.Request) {
 
 	if v, err := usb.GetVendor(vid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if p, err := v.GetProduct(pid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }
@@ -265,14 +265,14 @@ func usbMetaClassV1(w http.ResponseWriter, r *http.Request) {
 
 	if c, err := usb.GetClass(cid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(c.String()); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }
@@ -290,19 +290,19 @@ func usbMetaSubClassV1(w http.ResponseWriter, r *http.Request) {
 
 	if c, err := usb.GetClass(cid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if s, err := c.GetSubClass(sid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(s.String()); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }
@@ -320,24 +320,24 @@ func usbMetaProtocolV1(w http.ResponseWriter, r *http.Request) {
 
 	if c, err := usb.GetClass(cid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if s, err := c.GetSubClass(sid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if p, err := s.GetProtocol(pid); err != nil {
 
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			el.Panic(err)
+			errLog.Panic(err)
 		}
 	}
 }

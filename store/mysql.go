@@ -119,7 +119,7 @@ func (this *mysqlDataStore) exec(queryName string, arg interface{}) (sql.Result,
 
 // Select executes a Named SELECT Statement and returns the multi-row result
 // in a slice of interfaces.
-func (this *mysqlDataStore) Select(queryName string, dest interface{}, arg interface{}) (error) {
+func (this *mysqlDataStore) Select(queryName string, dest, arg interface{}) (error) {
 
 	if destSlice, ok := dest.([]interface{}); !ok {
 		return fmt.Errorf(`destination must be a slice`)
@@ -155,11 +155,11 @@ func (this *mysqlDataStore) Exec(queryName string, arg interface{}) (int64, erro
 
 // Get executes a Named SELECT Statement and returns the single-row result
 // in an interface.
-func (this *mysqlDataStore) Get(queryName string, arg interface{}) (error) {
+func (this *mysqlDataStore) Get(queryName string, dest, arg interface{}) (error) {
 
 	if stmt, ok := this.stmts[queryName]; !ok {
 		return fmt.Errorf(`statement %q not found`, queryName)
-	} else if err := stmt.Get(arg, arg); err != nil {
+	} else if err := stmt.Get(dest, arg); err != nil {
 		return err
 	}
 
