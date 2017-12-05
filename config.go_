@@ -23,6 +23,8 @@ import (
 	`time`
 
 	jwt `github.com/dgrijalva/jwt-go`
+
+	`github.com/jscherff/cmdbd/legacy`
 	`github.com/jscherff/cmdbd/server`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/utils`
@@ -41,8 +43,8 @@ var (
 
 	// Configuration aliases.
 
-	db *Database
-	dq *Queries
+	db *legacy.Database
+	dq *legacy.Queries
 	ws *server.Server
 	sl, al, el *server.Log
 )
@@ -56,12 +58,12 @@ type Config struct {
 	Configs		map[string]string
 	KeyFiles	map[string]string
 
-	Database	*Database
-	Queries		*Queries
+	Database	*legacy.Database
+	Queries		*legacy.Queries
 	Syslog		*server.Syslog
 	Logger		*server.Logger
 	Router		*server.Router
-	MetaUsb		*MetaUsb
+	MetaUsb		*MetaUslegacy.b
 	Server		*server.Server
 
 	AuthTokenSvc	service.AuthTokenService
@@ -113,7 +115,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Database object.
 
-	if database, err := NewDatabase(this.Configs[`Database`]); err != nil {
+	if database, err := legacy.NewDatabase(this.Configs[`Database`]); err != nil {
 		return nil, err
 	} else {
 		this.Database = database
@@ -123,7 +125,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize Queries object.
 
-	if queries, err := NewQueries(this.Configs[`Queries`], db); err != nil {
+	if queries, err := legacy.NewQueries(this.Configs[`Queries`], db); err != nil {
 		return nil, err
 	} else {
 		this.Queries = queries
@@ -174,7 +176,7 @@ func NewConfig(cf string) (this *Config, err error) {
 
 	// Create and initialize MetaUsb object.
 
-	if metausb, err := NewMetaUsb(this.Configs[`MetaUsb`], *FRefresh); err != nil {
+	if metausb, err := legacy.NewMetaUsb(this.Configs[`MetaUsb`], *FRefresh); err != nil {
 		return nil, err
 	} else {
 		this.MetaUsb = metausb

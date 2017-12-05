@@ -18,10 +18,12 @@ import (
 	`flag`
 	`log`
 	`os`
+
+	`github.com/jscherff/cmdbd/legacy`
 )
 
 // Systemwide configuration.
-var conf *Config
+var conf *legacy.Config
 
 // Systemwide initialization.
 func init() {
@@ -32,25 +34,25 @@ func init() {
 	log.SetFlags(log.Flags() | log.Lshortfile)
 
 	if *FVersion {
-		displayVersion()
+		legacy.DisplayVersion()
 		os.Exit(0)
 	}
 
-	if conf, err = NewConfig(*FConfig); err != nil {
+	if conf, err = legacy.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
 		log.Fatal(err)
 	}
 
 	if *FRefresh {
-		if err := SaveUsbMeta(); err != nil {
-			el.Fatal(err)
+		if err := legacy.SaveUsbMeta(); err != nil {
+			conf.Logger.Logs[`error`].Fatal(err)
 		} else {
-			sl.Println(`USB Metadata refreshed.`)
+			conf.Logger.Logs[`system`].Println(`USB Metadata refreshed.`)
 			os.Exit(0)
 		}
 	}
 
-	sl.Print(conf.Database.Info())
-	sl.Print(conf.Server.Info())
+	conf.Logger.Logs[`system`].Print(conf.Database.Info())
+	conf.Logger.Logs[`system`].Print(conf.Server.Info())
 }
 
 func main() {

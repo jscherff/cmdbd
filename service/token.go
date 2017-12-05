@@ -20,14 +20,14 @@ import (
 	`io/ioutil`
 	`time`
 	jwt `github.com/dgrijalva/jwt-go`
+
+	`github.com/jscherff/cmdbd/model/cmdb`
 )
 
-// AuthClaims is a custom Claims object that extends jwt.StandardClaims
-// for authentication and authorization purposes.
+// AuthClaims is a custom Claims object that extends jwt.StandardClaims.
 type AuthClaims struct {
 	jwt.StandardClaims
-	User string
-	Role string
+	cmdb.User
 }
 
 // Token is a custom Token object that extends jwt.Token.
@@ -35,14 +35,9 @@ type Token struct {
 	*jwt.Token
 }
 
-// User extracts the User AuthClaims claim from the token.
-func (this *Token) User() (string) {
+// Username extracts the Username AuthClaim claim from the token.
+func (this *Token) User() (cmdb.User) {
 	return this.Claims.(AuthClaims).User
-}
-
-// Role extracts the Role AuthClaims claim from the token.
-func (this *Token) Role() (string) {
-	return this.Claims.(AuthClaims).Role
 }
 
 // AuthTokenService is an interface that creates, parses, and validates Tokens.
@@ -94,7 +89,7 @@ func NewAuthTokenService(keyFiles map[string]string, maxAge time.Duration) (Auth
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(user, role string) (*Token) {
+func (this *authTokenService) Create(username, role string) (*Token) {
 
 	claims := &AuthClaims {
 
@@ -103,8 +98,10 @@ func (this *authTokenService) Create(user, role string) (*Token) {
 			ExpiresAt: time.Now().Add(this.maxAge).Unix(),
 		},
 
-		User: user,
-		Role: role,
+		User: cmdb.User {
+			Username: username,
+			Role: role,
+		},
 	}
 
 	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}
