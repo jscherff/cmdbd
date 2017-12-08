@@ -15,8 +15,14 @@
 package store
 
 import (
+	`database/sql`
 	`fmt`
 	`strings`
+	`time`
+
+	`github.com/jmoiron/sqlx`
+	`github.com/go-sql-driver/mysql`
+	`github.com/jscherff/cmdbd/common`
 )
 
 // DataStore is an interface that represents a data store.
@@ -25,7 +31,8 @@ type DataStore interface {
 	Prepare(queryFile string) (err error)
 	Select(queryName string, dest, arg interface{}) (err error)
 	Insert(queryName string, arg interface{}) (id int64, err error)
-	Exec(queryName string, arg interface{}) (rows int64, err error)
+	Update(queryName string, arg interface{}) (rows int64, err error)
+	Delete(queryName string, arg interface{}) (rows int64, err error)
 	Get(queryName string, dest, arg interface{}) (err error)
 	String() (info string)
 	Close()
@@ -42,124 +49,132 @@ func New(driver, config string) (DataStore, error) {
 	}
 }
 
-// query contains SQL Xquery components needed for building prepared statements.
-type query struct {
-	Table string
-	Command string
-	Filters []string
-	Columns []string
-	sqlStmt string
+// dataStore is a MySQL database that implements the DataStore interface.
+type dataStore struct {
+	*sqlx.DB
+	Stmts NamedStmts
 }
 
-// table returns the lowercase name of the table.
-func (this *query) table() (string) {
-	return strings.ToLower(this.Table)
+// Register registers the DataStore in the registry using the schema name.
+func (this *dataStore) Register(schemaName string) {
+	registerDataStore(schemaName, this)
 }
 
-// command returns the uppercase SQL command.
-func (this *query) command() (string) {
-	return strings.ToUpper(this.Command)
+// String returns database version, schema, and other information.
+func (this *dataStore) String() (string) {
+	return ``
 }
 
-// columns is a list of column names for INSERT, SELECT, and UPDATE
-// statements.
-func (this *query) columns() (string) {
-	return strings.Join(this.Columns, `, `)
-}
+// Prepare converts a collection of JSON-encoded Query objects into 
+// a collection of sqlx Named Statements.
+func (this *dataStore) Prepare(queryFile string) (error) {
 
-// filters is a list of columns used in the conditions clause of a SQL
-// statement. The interface currently only supportes ANDed conditions.
-func (this *query) filters() (string) {
-	var filters []string
-	for _, column := range this.Filters {
-		filters = append(filters, fmt.Sprintf(`%[1]v = :%[1]v`, column))
+	queries := make(Queries)
+
+	if err := common.LoadConfig(&queries, queryFile); err != nil {
+		return err
 	}
-	return strings.Join(filters, ` AND `)
-}
 
-// params is a list of named parameters for INSERT statements.
-func (this *query) params() (string) {
-	var params []string
-	for _, column := range this.Columns {
-		if column == `*` {
-			continue
+	for name, query := range queries {
+
+		if stmt, err := this.PrepareNamed(query.String()); err != nil {
+			return err
+		} else {
+			this.stmts[name] = stmt
 		}
-		params = append(params, fmt.Sprintf(`:%v`, column))
 	}
-	return strings.Join(params, `, `)
+
+	return nil
 }
 
-// setters is a list of column assignments for UPDATE statements.
-func (this *query) setters() (string) {
-	var setters []string
-	for _, column := range this.Columns {
-		if column == `*` {
-			continue
-		}
-		setters = append(setters, fmt.Sprintf(`%[1]v = :%[1]v`, column))
+// Select executes a Named SELECT Statement and returns the multi-row result
+// in a slice of interfaces.
+func (this *dataStore) Select(queryName string, dest, arg interface{}) (error) {
+
+	if destSlice, ok := dest.([]interface{}); !ok {
+		return fmt.Errorf(`destination must be a slice`)
+	} else if stmt, ok := this.stmts[queryName]; !ok {
+		return fmt.Errorf(`statement %q not found`, queryName)
+	} else if err := stmt.Select(destSlice, arg); err != nil {
+		return err
 	}
-	return strings.Join(setters, `, `)
+
+	return nil
 }
 
-// String implements the Stringer interface for the Query object and returns
-// the complete SQL statement string assembled from the statement components.
-func (this *query) String() (string) {
+// Insert executes a Named INSERT Statement and returns the last insert ID.
+func (this *dataStore) Insert(queryName string, arg interface{}) (int64, error) {
 
-	if this.sqlStmt != `` {
-		return this.sqlStmt
+	if res, err := this.do(queryName, arg); err != nil {
+		return 0, err
+	} else {
+		return res.LastInsertId()
 	}
-
-	if this.table() == `` || this.command() == `` {
-		return ``
-	}
-
-	switch this.command() {
-
-	case `INSERT`, `REPLACE`:
-		this.sqlStmt = fmt.Sprintf(`%s INTO %s (%s) VALUES (%s)`,
-			this.command(),
-			this.table(),
-			this.columns(),
-			this.params(),
-		)
-
-	case `SELECT`:
-		this.sqlStmt = fmt.Sprintf(`%s %s FROM %s`,
-			this.command(),
-			this.columns(),
-			this.table(),
-		)
-
-	case `UPDATE`:
-		this.sqlStmt = fmt.Sprintf(`%s %s SET %s`,
-			this.command(),
-			this.table(),
-			this.setters(),
-		)
-
-	case `DELETE`:
-		this.sqlStmt = fmt.Sprintf(`DELETE FROM %s`,
-			this.table(),
-		)
-
-	default:
-		return ``
-	}
-
-	if len(this.Filters) > 0 {
-		this.sqlStmt += fmt.Sprintf(` WHERE %s`,
-			this.filters(),
-		)
-	}
-
-	return this.sqlStmt
 }
 
-type queries struct {
-	Driver string
-	Schema string
-	Query map[string]*query
+// Update executes a Named UPDATE Statement and returns the number of
+// rows affected.
+func (this *dataStore) Update(queryName string, arg interface{}) (int64, error) {
+
+	if res, err := this.do(queryName, arg); err != nil {
+		return 0, err
+	} else {
+		return res.RowsAffected()
+	}
 }
 
-type Queries interface {
-	Build() 
+// Delete executes a Named DELETE Statement and returns the number of
+// rows affected.
+func (this *dataStore) Delete(queryName string, arg interface{}) (int64, error) {
+
+	if res, err := this.do(queryName, arg); err != nil {
+		return 0, err
+	} else {
+		return res.RowsAffected()
+	}
+}
+
+// Get executes a Named SELECT Statement and returns the single-row result
+// in an interface.
+func (this *dataStore) Get(queryName string, dest, arg interface{}) (error) {
+
+	if stmt, ok := this.stmts[queryName]; !ok {
+		return fmt.Errorf(`statement %q not found`, queryName)
+	} else if err := stmt.Get(dest, arg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Close closes the database handle.
+func (this *dataStore) Close() {
+
+	for _, stmt := range this.Stmts {
+		stmt.Close()
+	}
+
+	this.Close()
+}
+
+// do executes a non-SELECT Named Statement and returns a sql.Result object.
+// Called by Insert(), Update(), and Delete().
+func (this *dataStore) do(queryName string, arg interface{}) (sql.Result, error) {
+
+	if stmt, ok := this.stmts[queryName]; !ok {
+		return nil, fmt.Errorf(`statement %q not found`, queryName)
+	} else if res, err := stmt.Exec(arg); err != nil {
+		return nil, err
+	} else {
+		return res, nil
+	}
+}
+
+// NamedStmt extends sqlx.NamedStmt.
+type NamedStmt struct {
+	*sqlx.NamedStmt
+}
+
+// NamedStmts is a map of NamedStmt instances.
+type NamedStmts map[string]*NamedStmt
+

@@ -31,17 +31,17 @@ type query struct {
 	Command string
 	Filters []string
 	Columns []string
-	qString string
+	queryString string
 }
 
-// String implements the Stringer interface for the Query object and returns
+// String implements the Stringer interface for the query object and returns
 // the complete SQL statement string assembled from the statement components.
 func (this *query) String() (string) {
 
 	// Return stored query string if it has already been generated.
 
-	if this.qString != `` {
-		return this.qString
+	if this.queryString != `` {
+		return this.queryString
 	}
 
 	// Verify we have at least the minimum query elements for a valid query.
@@ -88,22 +88,22 @@ func (this *query) String() (string) {
 	switch command {
 
 	case `INSERT`, `REPLACE`:
-		this.qString = fmt.Sprintf(`%s INTO %s (%s) VALUES (%s)`,
+		this.queryString = fmt.Sprintf(`%s INTO %s (%s) VALUES (%s)`,
 			command, table, columns, params,
 		)
 
 	case `SELECT`:
-		this.qString = fmt.Sprintf(`%s %s FROM %s`,
+		this.queryString = fmt.Sprintf(`%s %s FROM %s`,
 			command, columns, table,
 		)
 
 	case `UPDATE`:
-		this.qString = fmt.Sprintf(`%s %s SET %s`,
+		this.queryString = fmt.Sprintf(`%s %s SET %s`,
 			command, table, setters,
 		)
 
 	case `DELETE`:
-		this.qString = fmt.Sprintf(`DELETE FROM %s`,
+		this.queryString = fmt.Sprintf(`DELETE FROM %s`,
 			table,
 		)
 
@@ -112,18 +112,12 @@ func (this *query) String() (string) {
 	}
 
 	if filters != `` {
-		this.qString = fmt.Sprintf(`%s WHERE %s`,
-			this.qString, filters,
+		this.queryString = fmt.Sprintf(`%s WHERE %s`,
+			this.queryString, filters,
 		)
 	}
 
-	return this.qString
+	return this.queryString
 }
 
-type queries struct {
-	Driver string
-	Schema string
-	Query map[string]*query
-}
-
-func NewQueries(cf string)
+type queries map[string]*query
