@@ -28,13 +28,19 @@ type MiddleWare interface {
 
 // middleWare is an implementation of the MiddleWare interface.
 type middleWare struct {
-	authTokenSvc service.AuthTokenService
-	authCookieSvc service.AuthCookieService
+	AuthTokenSvc service.AuthTokenService
+	AuthCookieSvc service.AuthCookieService
 }
 
 // NewMiddleWare implements a new MiddleWare instance.
-func NewMiddleWare(ts service.AuthTokenService, cs service.AuthCookieService) (MiddleWare, error) {
-	return &middleWare{ts, cs}, nil
+func NewMiddleWare(conf *Config) (MiddleWare, error) {
+
+	this := &middleWare{
+		AuthTokenSvc: conf.Services.AuthTokenSvc,
+		AuthCookieSvc: conf.Services.AuthCookieSvc,
+	}
+
+	return this, nil
 }
 
 // AuthTokenValidator is middleWare that validates a client authentication
@@ -45,12 +51,12 @@ func (this *middleWare) AuthTokenValidator(next http.Handler) (http.Handler) {
 
 		func(w http.ResponseWriter, r *http.Request) {
 
-			if tokenString, err := this.authCookieSvc.Read(r); err != nil {
+			if tokenString, err := this.AuthCookieSvc.Read(r); err != nil {
 
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				panic(err)
 
-			} else if token, err := this.authTokenSvc.Parse(tokenString); err != nil {
+			} else if token, err := this.AuthTokenSvc.Parse(tokenString); err != nil {
 
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				panic(err)

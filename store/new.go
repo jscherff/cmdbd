@@ -23,81 +23,27 @@ import (
 	`github.com/jscherff/cmdbd/common`
 )
 
-const (
-	mysqlDriverName = `mysql`
-	mysqlTimeLocale = `Local`
-)
+// NamedStmt extends sqlx.NamedStmt.
+type NamedStmt struct {
+	*sqlx.NamedStmt
+}
+
+// NamedStmts is a map of NamedStmt instances.
+type NamedStmts map[string]*NamedStmt
 
 // mysqlDataStore is a MySQL database that implements the DataStore interface.
-type mysqlDataStore struct {
+type dataStore struct {
 	*sqlx.DB
-	conf *mysql.Config
-	stmts map[string]*sqlx.NamedStmt
 }
 
-// init registers the driver name and factory method with the DataStore registry.
-func init() {
-	registerFactory(mysqlDriverName, NewMysqlDataStore)
-}
-
-// NewmysqlDataStore creates a new instance of mysqlDataStore.
-func NewMysqlDataStore(cf string) (DataStore, error) {
-
-	conf := &mysql.Config{}
-
-	if err := common.LoadConfig(conf, cf); err != nil {
-		return nil, err
-	}
-
-	if location, err := time.LoadLocation(mysqlTimeLocale); err != nil {
-		return nil, err
-	} else {
-		conf.Loc = location
-	}
-
-	var this *mysqlDataStore
-
-	if db, err := sqlx.Open(mysqlDriverName, conf.FormatDSN()); err != nil {
-		return nil, err
-	} else if err := db.Ping(); err != nil {
-		return nil, err
-	} else {
-		this = &mysqlDataStore{db, conf, make(map[string]*sqlx.NamedStmt)}
-	}
-
-	this.Register(conf.DBName)
-
-	return this, nil
-}
-
-// Register registers the DataStore in the store registry using the
-// database or schema name.
-func (this *mysqlDataStore) Register(schemaName string) {
+// Register registers the DataStore in the registry using the schema name.
+func (this *dataStore) Register(schemaName string) {
 	registerDataStore(schemaName, this)
 }
 
 // String returns database version, schema, and other information.
-func (this *mysqlDataStore) String() (string) {
-
-	info := mysqlDriverName
-
-	sql := `SELECT VERSION() AS 'version',
-		DATABASE() AS 'schema',
-		USER() AS 'user'`
-
-	var v struct {
-		Version	string	`db:"version"`
-		Schema	string	`db:"schema"`
-		User	string	`db:"user"`
-	}
-
-	if row := this.QueryRowx(sql); row.Err() == nil {
-		return info
-	} else if err := row.StructScan(&v); err != nil {
-		return info
-	} else {
-		return fmt.Sprintf(`%s version %s (%s/%s)`, info, v.Version, v.User, v.Schema)
-	}
+func (this *dataStore) String() (string) {
+	return ``
 }
 
 // Prepare converts a collection of JSON-encoded Query objects into 

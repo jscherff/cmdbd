@@ -23,7 +23,8 @@ import (
 
 )
 
-type HandlersV1 interface {
+// HandlersV2 contains http.HandleFunc signatures of CMDBd APIv2.
+type HandlersV2 interface {
 	Vendor(http.ResponseWriter, *http.Request)
 	Product(http.ResponseWriter, *http.Request)
 	Class(http.ResponseWriter, *http.Request)
@@ -31,21 +32,23 @@ type HandlersV1 interface {
 	Protocol(http.ResponseWriter, *http.Request)
 }
 
-type handlersV1 struct {
+// handlersV2 implements the HandlersV2 interface.
+type handlersV2 struct {
 	errorLog log.MLogger
 	systemLog log.MLogger
 	meta *peripheral.Usb
 }
 
-func NewHandlersV1(errLog, sysLog log.MLogger, meta *peripheral.Usb) HandlersV1 {
-	return &handlersV1{
+// NewHandlersV2 returns a new handlersV2 instance.
+func NewHandlersV2(errLog, sysLog log.MLogger, meta *peripheral.Usb) HandlersV2 {
+	return &handlersV2{
 		errorLog: errLog,
 		systemLog: sysLog,
 	}
 }
 
 // Vendor returns the USB vendor name associated with a vendor ID.
-func (this *handlersV1) Vendor(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Vendor(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -66,7 +69,7 @@ func (this *handlersV1) Vendor(w http.ResponseWriter, r *http.Request) {
 
 // Product returns the USB vendor and product names associated with
 // a vendor and product ID.
-func (this *handlersV1) Product(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Product(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -91,7 +94,7 @@ func (this *handlersV1) Product(w http.ResponseWriter, r *http.Request) {
 }
 
 // Class returns the USB class description associated with a class ID.
-func (this *handlersV1) Class(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Class(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -112,7 +115,7 @@ func (this *handlersV1) Class(w http.ResponseWriter, r *http.Request) {
 
 // SubClass returns the USB class and subclass descriptions associated
 // with a class and subclass ID.
-func (this *handlersV1) SubClass(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) SubClass(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
@@ -138,7 +141,7 @@ func (this *handlersV1) SubClass(w http.ResponseWriter, r *http.Request) {
 
 // Protocol returns the USB class, subclass, and protocol descriptions
 // associated with a class, subclass, and protocol ID.
-func (this *handlersV1) Protocol(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Protocol(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)

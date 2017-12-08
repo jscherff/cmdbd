@@ -16,15 +16,15 @@ package usbci
 
 import `github.com/jscherff/cmdbd/server`
 
-// NewRoutesV1 returns a collection of REST API endpoints providing CMDB CI data.
-func NewRoutesV1(hf HandlersV1) server.Routes {
+// NewRoutesV2 returns a collection of REST APIv2 endpoints providing CMDB CI data.
+func NewRoutesV2(hf HandlersV2) server.Routes {
 
 	return server.Routes {
 
 		server.Route {
 			Name:		`USB CI Checkin Handler`,
 			Method:		`POST`,
-			Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
+			Pattern:	`/v2/cmdb/usbci/checkin/{host}/{vid}/{pid}`,
 			HandlerFunc:	hf.Checkin,
 			Protected:	true,
 		},
@@ -32,7 +32,7 @@ func NewRoutesV1(hf HandlersV1) server.Routes {
 		server.Route {
 			Name:		`USB CI Checkout Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
+			Pattern:	`/v2/cmdb/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
 			HandlerFunc:	hf.CheckOut,
 			Protected:	true,
 		},
@@ -40,7 +40,7 @@ func NewRoutesV1(hf HandlersV1) server.Routes {
 		server.Route {
 			Name:		`USB CI NewSn Handler`,
 			Method:		`POST`,
-			Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
+			Pattern:	`/v2/cmdb/usbci/newsn/{host}/{vid}/{pid}`,
 			HandlerFunc:	hf.NewSn,
 			Protected:	true,
 		},
@@ -48,7 +48,7 @@ func NewRoutesV1(hf HandlersV1) server.Routes {
 		server.Route {
 			Name:		`USB CI Audit Handler`,
 			Method:		`POST`,
-			Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
+			Pattern:	`/v2/cmdb/usbci/audit/{host}/{vid}/{pid}/{sn}`,
 			HandlerFunc:	hf.Audit,
 			Protected:	true,
 		},

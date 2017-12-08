@@ -19,33 +19,27 @@ import (
 	`strings`
 )
 
-// Registry is a centralized DataStore registry to allow models to find
-// DataStore implementations in a standardized way.
-var registry = make(map[string]DataStore)
-
-// Register allows DataStore implementations to register themselves.
-func Register(name string, ds DataStore) {
-	registry[name] = ds
-}
-
-// Lookup allows models to look up registered DataStores.
-func Lookup(name string) (DataStore, error) {
-	if ds, ok := registry[name]; !ok {
-		return nil, fmt.Errorf(`datastore %q not found`, name)
-	} else {
-		return ds, nil
-	}
-}
-
 // DataStore is an interface that represents a data store.
 type DataStore interface {
-	Version() (string, error)
-	Prepare(queryFile string) (error)
+	Register(schemaName string)
+	Prepare(queryFile string) (err error)
 	Select(queryName string, dest, arg interface{}) (err error)
 	Insert(queryName string, arg interface{}) (id int64, err error)
 	Exec(queryName string, arg interface{}) (rows int64, err error)
 	Get(queryName string, dest, arg interface{}) (err error)
+	String() (info string)
 	Close()
+}
+
+// New creates a new DataStore instance using only the the provided driver
+// name and configuration file/string using the registered factory method
+// associated with the driver name from the factories registry.
+func New(driver, config string) (DataStore, error) {
+	if factory, ok := factories[driver]; !ok {
+		return nil, fmt.Errorf(`driver %q not found`, driver)
+	} else {
+		return factory(config)
+	}
 }
 
 // query contains SQL Xquery components needed for building prepared statements.
@@ -161,4 +155,11 @@ func (this *query) String() (string) {
 	return this.sqlStmt
 }
 
-type Queries map[string]*query
+type queries struct {
+	Driver string
+	Schema string
+	Query map[string]*query
+}
+
+type Queries interface {
+	Build() 

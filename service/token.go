@@ -41,7 +41,7 @@ type Token struct {
 	*jwt.Token
 }
 
-// Username extracts the Username AuthClaim claim from the token.
+// AuthClaims extracts the AuthClaim claim from the token.
 func (this *Token) AuthClaims() (AuthClaims) {
 	return this.Claims.(Claims).AuthClaims
 }
@@ -55,39 +55,38 @@ type AuthTokenService interface {
 
 // authTokenService is a service that implements the AuthTokenService interface.
 type authTokenService struct {
-	privateKey *rsa.PrivateKey
-	publicKey *rsa.PublicKey
-	maxAge time.Duration
+	PriKey *rsa.PrivateKey
+	PubKey *rsa.PublicKey
+	MaxAge time.Duration
 }
 
 // NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewAuthTokenService(keyFiles map[string]string, maxAge time.Duration) (AuthTokenService, error) {
+func NewAuthTokenService(conf *Config) (AuthTokenService, error) {
 
-	this := &authTokenService{maxAge: maxAge}
-	priKeyName, pubKeyName := `PrivateRSA`, `PublicRSA`
+	this := &authTokenService{MaxAge: conf.AuthMaxAge}
 
-	// Read and store RSA private key.
+	// Process RSA private key.
 
-	if priKeyFile, ok := keyFiles[priKeyName]; !ok {
-		return nil, fmt.Errorf(`key name %q not found`, priKeyName)
+	if priKeyFile, ok := conf.CryptoFile[priKeyName]; !ok {
+		return nil, fmt.Errorf(`private key name %q not found`, priKeyName)
 	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
 		return nil, err
 	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
-		this.privateKey = rsaKey
+		this.PriKey = rsaKey
 	}
 
-	// Read and store RSA public key.
+	// Process RSA public key.
 
-	if pubKeyFile, ok := keyFiles[pubKeyName]; !ok {
-		return nil, fmt.Errorf(`key name %q not found`, pubKeyName)
+	if pubKeyFile, ok := conf.CryptoFile[pubKeyName]; !ok {
+		return nil, fmt.Errorf(`public key name %q not found`, pubKeyName)
 	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
 		return nil, err
 	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
-		this.publicKey = rsaKey
+		this.PubKey = rsaKey
 	}
 
 	return this, nil
@@ -100,7 +99,7 @@ func (this *authTokenService) Create(user cmdb.User) (*Token) {
 
 		StandardClaims: jwt.StandardClaims {
 			IssuedAt: time.Now().Unix(),
-			ExpiresAt: time.Now().Add(this.maxAge).Unix(),
+			ExpiresAt: time.Now().Add(this.MaxAge).Unix(),
 		},
 
 		AuthClaims: AuthClaims{user},
@@ -122,7 +121,7 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 				return nil, fmt.Errorf(`unexpected signing method: %v`, t.Header[`alg`])
 			}
 
-			return this.publicKey, nil
+			return this.PubKey, nil
 		},
 	)
 
@@ -139,5 +138,5 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 
 // String returns a token string suitable for cookies.
 func (this *authTokenService) String(token *Token) (string, error) {
-	return token.SignedString(this.privateKey)
+	return token.SignedString(this.PriKey)
 }

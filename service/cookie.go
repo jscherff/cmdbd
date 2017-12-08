@@ -27,12 +27,12 @@ type AuthCookieService interface {
 
 // authCookieService is a service that implements the AuthCookieService interface.
 type authCookieService struct {
-	maxAge time.Duration
+	MaxAge time.Duration
 }
 
 // NewAuthCookieService returns an object that implements the AuthCookieService interface.
-func NewAuthCookieService(maxAge time.Duration) (AuthCookieService, error) {
-	return &authCookieService{maxAge}, nil
+func NewAuthCookieService(conf *Config) (AuthCookieService, error) {
+	return &authCookieService{conf.AuthMaxAge}, nil
 }
 
 // Create generates a new authentication http.Cookie from an auth token string.
@@ -41,7 +41,7 @@ func (this *authCookieService) Create(tokenString string) (*http.Cookie) {
 	return &http.Cookie{
 		Name: `Auth`,
 		Value: tokenString,
-		Expires: time.Now().Add(this.maxAge),
+		Expires: time.Now().Add(this.MaxAge),
 		HttpOnly: true,
 	}
 }

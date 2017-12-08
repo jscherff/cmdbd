@@ -20,7 +20,7 @@ import (
 	`time`
 
 	`github.com/jmoiron/sqlx`
-	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/cmdbd/common`
 )
 
 // Database contains the database configuration and handle.
@@ -34,7 +34,7 @@ func NewDatabase(cf string) (*Database, error) {
 
 	config := &mysql.Config{}
 
-	if err := utils.LoadConfig(config, cf); err != nil {
+	if err := common.LoadConfig(config, cf); err != nil {
 		return nil, err
 	}
 

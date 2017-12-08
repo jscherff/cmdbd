@@ -18,47 +18,47 @@ import (
 	`github.com/jscherff/cmdbd/server`
 )
 
-// NewRoutesV1 returns a collection of REST API endpoints providing USB metadata.
-func NewRoutesV1(hf HandlersV1) server.Routes {
+// NewRoutesV2 returns a collection of REST API endpoints providing USB metadata.
+func NewRoutesV2(hf HandlersV2) server.Routes {
 
 	return server.Routes {
 
 		server.Route {
-			Name:		`Metadata USB Vendor Handler`,
+			Name:		`USB Metadata Vendor Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbmeta/vendor/{vid}`,
+			Pattern:	`/v2/cmdb/usbmeta/vendor/{vid}`,
 			HandlerFunc:	hf.Vendor,
 			Protected:	false,
 		},
 
 		server.Route {
-			Name:		`Metadata USB Product Handler`,
+			Name:		`USB Metadata Product Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbmeta/vendor/{vid}/{pid}`,
+			Pattern:	`/v2/cmdb/usbmeta/vendor/{vid}/{pid}`,
 			HandlerFunc:	hf.Product,
 			Protected:	false,
 		},
 
 		server.Route {
-			Name:		`Metadata USB Class Handler`,
+			Name:		`USB Metadata Class Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbmeta/class/{cid}`,
+			Pattern:	`/v2/cmdb/usbmeta/class/{cid}`,
 			HandlerFunc:	hf.Class,
 			Protected:	false,
 		},
 
 		server.Route {
-			Name:		`Metadata USB SubClass Handler`,
+			Name:		`USB Metadata SubClass Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbmeta/subclass/{cid}/{sid}`,
+			Pattern:	`/v2/cmdb/usbmeta/subclass/{cid}/{sid}`,
 			HandlerFunc:	hf.SubClass,
 			Protected:	false,
 		},
 
 		server.Route {
-			Name:		`Metadata USB Protocol Handler`,
+			Name:		`USB Metadata Protocol Handler`,
 			Method:		`GET`,
-			Pattern:	`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
+			Pattern:	`/v2/cmdb/usbmeta/protocol/{cid}/{sid}/{pid}`,
 			HandlerFunc:	hf.Protocol,
 			Protected:	false,
 		},

@@ -19,41 +19,21 @@ import (
 	`github.com/jscherff/gox/log`
 )
 
-// V1 is an interface that contains V1 http.HandleFunc signatures of the cmdb API.
-type HandlersV1 interface {
-	SetAuthToken(http.ResponseWriter, *http.Request)
-}
-
-// v1 is a http.HandleFunc object that implements the cmdb.V1 interface.
-type handlersV1 struct {
-	errorLog log.MLogger
-	systemLog log.MLogger
-}
-
-// NewV1 returns a new instance of an object implementing the cmdb.V1 interface.
-func NewHandlersV1(errLog, sysLog log.MLogger) HandlersV1 {
-	return &handlersV1{
-		errorLog: errLog,
-		systemLog: sysLog,
-	}
-}
-
-// cmdbAuthSetTokenV1 authenticates client using basic authentication and
+// AuthSetTokenV1 authenticates client using basic authentication and
 // issues a JWT for API authentication if successful.
-func (this *handlersV1) SetAuthToken(w http.ResponseWriter, r *http.Request) {
-	/*
+func AuthSetTokenV1(w http.ResponseWriter, r *http.Request) {
+
 	if user, pass, ok := r.BasicAuth(); !ok {
-		el.Print(`missing credentials`)
+		errLog.Print(`missing credentials`)
 		http.Error(w, `missing credentials`, http.StatusUnauthorized)
 	} else if token, err := createAuthToken(user, pass, r.URL.Host); err != nil {
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 	} else if cookie, err := createAuthCookie(token); err != nil {
-		el.Print(err)
+		errLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		sl.Printf(`issuing auth token to %q at %q`, user, r.RemoteAddr)
+		sysLog.Printf(`issuing auth token to %q at %q`, user, r.RemoteAddr)
 		http.SetCookie(w, cookie)
 	}
-	*/
 }

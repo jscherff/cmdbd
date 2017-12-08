@@ -1,0 +1,26 @@
+{
+	"AuthMaxAge": 60,
+
+	"ConfigFile": {
+		"Database": "store/mysql.json",
+		"DataStore": "store/mysql.json",
+		"Queries": "queries.json",
+		"Syslog": "server/syslog.json",
+		"Loggers": "server/loggers.json",
+		"Router": "server/router.json",
+		"Server": "server/httpd.json",
+		"MetaUsb": "model/metausb.json"
+	},
+
+	"CryptoFile": {
+		"PriKey": "crypto/cmdbd.rsa",
+		"PubKey": "crypto/cmdbd.pub"
+	},
+
+	"SerialFormat": {
+		"*usb.Magtek": "24HF%04XMT",
+		"*usb.IDTech": "24HF%04XIT",
+		"*usbci.Magtek": "24HF%04XMT",
+		"Default": "24HF%06X"
+	}
+}

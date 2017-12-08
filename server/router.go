@@ -18,30 +18,30 @@ import (
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
-	`github.com/jscherff/cmdbd/utils`
-	`github.com/jscherff/gox/log`
+	`github.com/jscherff/cmdbd/common`
 )
 
 // Router is a Gorilla Mux router with additional methods.
 type Router struct {
 	*mux.Router
 	MiddleWare MiddleWare
-	AccessLog log.MLogger
-	RecoveryLog log.MLogger
+	AccessLog Logger
+	RecoveryLog Logger
 	RecoveryStack bool
 }
 
 // NewRouter creates and initializes a new Router instance.
-func NewRouter(cf string, mware MiddleWare, alog, rlog log.MLogger) (*Router, error) {
+func NewRouter(conf *Config) (*Router, error) {
 
 	this := &Router{
 		Router: mux.NewRouter().StrictSlash(true),
-		MiddleWare: mware,
-		AccessLog: alog,
-		RecoveryLog: rlog,
+		MiddleWare: conf.MiddleWare,
+		AccessLog: conf.AccessLog,
+		RecoveryLog: conf.ErrorLog,
+		RecoveryStack: false,
 	}
 
-	if err := utils.LoadConfig(this, cf); err != nil {
+	if err := common.LoadConfig(this, conf.ConfigFile[`Router`]); err != nil {
 		return nil, err
 	}
 

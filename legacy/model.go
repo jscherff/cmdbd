@@ -27,11 +27,11 @@ func SaveDeviceCheckin(dev map[string]interface{}) (err error) {
 	dev[`id`] = nil
 	dev[`checkin_date`] = time.Now()
 
-	for _, col := range dq.Cols[`usbCiInsertCheckin`] {
+	for _, col := range conf.Queries.Cols[`usbCiInsertCheckin`] {
 		vals = append(vals, dev[col])
 	}
 
-	_, err = dq.Stmt[`usbCiInsertCheckin`].Exec(vals...)
+	_, err = conf.Queries.Stmt[`usbCiInsertCheckin`].Exec(vals...)
 
 	return err
 }
@@ -53,7 +53,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		return sn, fmt.Errorf(`missing SN format for device %q`, objectType)
 	}
 
-	tx, err := db.Begin()
+	tx, err := conf.Database.Begin()
 
 	dev[`id`] = nil
 	dev[`request_date`] = time.Now()
@@ -62,17 +62,17 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		return sn, err
 	}
 
-	for _, col := range dq.Cols[`usbCiInsertSnRequest`] {
+	for _, col := range conf.Queries.Cols[`usbCiInsertSnRequest`] {
 		vals = append(vals, dev[col])
 	}
 
-	if res, err := dq.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
+	if res, err := conf.Queries.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
 		return sn, err
 	} else if id, err = res.LastInsertId(); err != nil {
 		return sn, err
 	}
 
-	if res, err := dq.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
+	if res, err := conf.Queries.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
 		return sn, err
 	} else if seq, err := res.LastInsertId(); err != nil {
 		return sn, err
@@ -80,7 +80,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		sn = fmt.Sprintf(serialFmt, seq)
 	}
 
-	if _, err := dq.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
+	if _, err := conf.Queries.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
 		return sn, err
 	}
 
@@ -92,7 +92,7 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 // table in JSON format.
 func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 
-	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(
+	_, err = conf.Queries.Stmt[`usbCiInsertChanges`].Exec(
 		nil,		// id
 		host,		// host_name
 		vid,		// vendor_id
@@ -109,31 +109,31 @@ func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
 // table and returns them to the caller in JSON format.
 func GetDeviceJSONObject(vid, pid, sn string) (j []byte, err error) {
 
-	err = dq.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j)
+	err = conf.Queries.Stmt[`usbCiSelectJSONObject`].QueryRow(vid, pid, sn).Scan(&j)
 	return j, err
 }
 
 // GetUserPassword retrieves the password hash for the named user.
 func GetUserPassword(u string) (p string, err error) {
 
-	err = dq.Stmt[`cmdbSelectUserPassword`].QueryRow(u).Scan(&p)
+	err = conf.Queries.Stmt[`cmdbSelectUserPassword`].QueryRow(u).Scan(&p)
 	return p, err
 }
 
 // SaveUsbMeta updates the USB meta tables in the database.
 func SaveUsbMeta() (err error) {
 
-	tx, err := db.Begin()
+	tx, err := conf.Database.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	vendorStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceVendor`])
-	productStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceProduct`])
-	classStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceClass`])
-	subclassStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceSubClass`])
-	protocolStmt := tx.Stmt(dq.Stmt[`usbMetaReplaceProtocol`])
+	vendorStmt := tx.Stmt(conf.Queries.Stmt[`usbMetaReplaceVendor`])
+	productStmt := tx.Stmt(conf.Queries.Stmt[`usbMetaReplaceProduct`])
+	classStmt := tx.Stmt(conf.Queries.Stmt[`usbMetaReplaceClass`])
+	subclassStmt := tx.Stmt(conf.Queries.Stmt[`usbMetaReplaceSubClass`])
+	protocolStmt := tx.Stmt(conf.Queries.Stmt[`usbMetaReplaceProtocol`])
 
 	for vid, v := range conf.MetaUsb.Vendors {
 

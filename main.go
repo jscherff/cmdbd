@@ -44,15 +44,15 @@ func init() {
 
 	if *FRefresh {
 		if err := legacy.SaveUsbMeta(); err != nil {
-			conf.Logger.Logs[`error`].Fatal(err)
+			conf.Logger.Error.Fatal(err)
 		} else {
-			conf.Logger.Logs[`system`].Println(`USB Metadata refreshed.`)
+			conf.Logger.System.Println(`USB Metadata refreshed.`)
 			os.Exit(0)
 		}
 	}
 
-	conf.Logger.Logs[`system`].Print(conf.Database.Info())
-	conf.Logger.Logs[`system`].Print(conf.Server.Info())
+	conf.Logger.System.Print(conf.Database.Info())
+	conf.Logger.System.Print(conf.Server.Info())
 }
 
 func main() {

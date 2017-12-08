@@ -16,8 +16,9 @@ package server
 
 import (
 	`fmt`
+	`io`
 	`github.com/RackSec/srslog`
-	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/cmdbd/common`
 )
 
 var (
@@ -58,10 +59,13 @@ var (
 	}
 )
 
-// Syslog contains syslog information and logging options. It is part of
-// the systemwide configuration under Config.Syslog.
-type Syslog struct {
-	*srslog.Writer
+// Syslog is a syslog client that implements the io.Writer interface.
+type Syslog interface {
+	io.Writer
+}
+
+// syslog contains the Syslog configuration.
+type syslog struct {
 	Protocol	string
 	Port		string
 	Host		string
@@ -71,33 +75,32 @@ type Syslog struct {
 }
 
 // NewSyslog creates and initializes a new Syslog instance.
-func NewSyslog(cf string) (this *Syslog, err error) {
+func NewSyslog(conf *Config) (Syslog, error) {
 
-	this = &Syslog{}
+	this := &syslog{}
 
-	if err = utils.LoadConfig(this, cf); err != nil {
+	if err := common.LoadConfig(this, conf.ConfigFile[`Syslog`]); err != nil {
 		return nil, err
 	}
 
-	var (
-		ok bool
-		facility, severity srslog.Priority
-	)
+	var facility, severity srslog.Priority
 
-	if facility, ok = FacilityMap[this.Facility]; !ok {
+	if fac, ok := FacilityMap[this.Facility]; !ok {
 		facility = srslog.LOG_LOCAL7
+	} else {
+		facility = fac
 	}
 
-	if severity, ok = SeverityMap[this.Severity]; !ok {
+	if sev, ok := SeverityMap[this.Severity]; !ok {
 		severity = srslog.LOG_INFO
+	} else {
+		severity = sev
 	}
 
-	this.Writer, err = srslog.Dial(
+	return srslog.Dial(
 		this.Protocol,
 		fmt.Sprintf(`%s:%s`, this.Host, this.Port),
 		facility|severity,
 		this.Tag,
 	)
-
-	return this, nil
 }

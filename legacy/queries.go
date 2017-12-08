@@ -19,7 +19,7 @@ import (
 	`fmt`
 	`strings`
 
-	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/cmdbd/common`
 )
 
 // Queries contains SQL queries, column lists, and prepared statements.
@@ -38,7 +38,7 @@ func NewQueries(cf string, db *Database) (this *Queries, err error) {
 		Stmt: make(map[string]*sql.Stmt),
 	}
 
-	if err = utils.LoadConfig(this, cf); err != nil {
+	if err = common.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

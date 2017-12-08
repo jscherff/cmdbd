@@ -12,54 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package legacy
+package usbmeta
 
 import `github.com/jscherff/cmdbd/server`
 
-// usbCiRoutes is a collection of REST API enpoints supporting USB CIs.
-var usbCiRoutes = server.Routes {
-
-	server.Route {
-		Name:		`USBCI Checkin Handler`,
-		Method:		`POST`,
-		Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
-		HandlerFunc:	usbCiCheckinV1,
-		Protected:	true,
-	},
-
-	server.Route {
-		Name:		`USBCI Checkout Handler`,
-		Method:		`GET`,
-		Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
-		HandlerFunc:	usbCiCheckoutV1,
-		Protected:	true,
-	},
-
-	server.Route {
-		Name:		`USBCI NewSn Handler`,
-		Method:		`POST`,
-		Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
-		HandlerFunc:	usbCiNewSnV1,
-		Protected:	true,
-	},
-
-	server.Route {
-		Name:		`USBCI Audit Handler`,
-		Method:		`POST`,
-		Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
-		HandlerFunc:	usbCiAuditV1,
-		Protected:	true,
-	},
-}
-
-// usbMetaRoutes is a collection of REST API enpoints providing USB metadata.
-var usbMetaRoutes = server.Routes {
+// Routes is a collection of REST API enpoints providing USB metadata.
+var Routes = server.Routes {
 
 	server.Route {
 		Name:		`Metadata USB Vendor Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}`,
-		HandlerFunc:	usbMetaVendorV1,
+		HandlerFunc:	VendorV1,
 		Protected:	false,
 	},
 
@@ -67,7 +31,7 @@ var usbMetaRoutes = server.Routes {
 		Name:		`Metadata USB Product Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/vendor/{vid}/{pid}`,
-		HandlerFunc:	usbMetaProductV1,
+		HandlerFunc:	ProductV1,
 		Protected:	false,
 	},
 
@@ -75,7 +39,7 @@ var usbMetaRoutes = server.Routes {
 		Name:		`Metadata USB Class Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/class/{cid}`,
-		HandlerFunc:	usbMetaClassV1,
+		HandlerFunc:	ClassV1,
 		Protected:	false,
 	},
 
@@ -83,7 +47,7 @@ var usbMetaRoutes = server.Routes {
 		Name:		`Metadata USB SubClass Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/subclass/{cid}/{sid}`,
-		HandlerFunc:	usbMetaSubClassV1,
+		HandlerFunc:	SubClassV1,
 		Protected:	false,
 	},
 
@@ -91,18 +55,7 @@ var usbMetaRoutes = server.Routes {
 		Name:		`Metadata USB Protocol Handler`,
 		Method:		`GET`,
 		Pattern:	`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
-		HandlerFunc:	usbMetaProtocolV1,
-		Protected:	false,
-	},
-}
-
-var cmdbAuthRoutes = server.Routes {
-
-	server.Route {
-		Name:		`CMDB Authenticator`,
-		Method:		`GET`,
-		Pattern:	`/v1/cmdbauth`,
-		HandlerFunc:	cmdbAuthSetTokenV1,
+		HandlerFunc:	ProtocolV1,
 		Protected:	false,
 	},
 }

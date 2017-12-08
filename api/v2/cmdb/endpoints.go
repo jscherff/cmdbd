@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package model
+package cmdb
 
-import `github.com/jscherff/cmdbd/store`
+import `github.com/jscherff/cmdbd/server`
 
-func Prepare(storeName, queryFile string) (store.DataStore, error) {
+// NewRoutesV2 returns a collection of REST API endpoints for handling authentication.
+func NewRoutesV2(hf HandlersV2) server.Routes {
 
-	if ds, err := store.Lookup(storeName); err != nil {
-		return nil, err
-	} else if err := ds.Prepare(queryFile); err != nil {
-		return nil, err
-	} else {
-		return ds, nil
+	return server.Routes {
+
+		server.Route {
+			Name:		`CMDB Authenticator`,
+			Method:		`GET`,
+			Pattern:	`/v2/cmdb/authenticate`,
+			HandlerFunc:	hf.SetAuthToken,
+			Protected:	false,
+		},
 	}
 }

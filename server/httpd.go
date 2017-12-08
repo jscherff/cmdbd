@@ -18,22 +18,20 @@ import (
 	`fmt`
 	`net/http`
 	`time`
-	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/cmdbd/common`
 )
 
-// Config contains infomation about the server process and log writers.
+// server extends the http.Server object.
 type Server struct {
 	*http.Server
-	AllowedContentTypes []string
-	HttpBodySizeLimit int64
 }
 
 // NewServer creates and initializes a new Server instance.
-func NewServer(cf string) (this *Server, err error) {
+func NewServer(conf *Config) (*Server, error) {
 
-	this = &Server{}
+	this := &Server{}
 
-	if err = utils.LoadConfig(this, cf); err != nil {
+	if err := common.LoadConfig(this, conf.ConfigFile[`Server`]); err != nil {
 		return nil, err
 	}
 

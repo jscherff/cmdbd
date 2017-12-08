@@ -25,25 +25,26 @@ import (
 	`github.com/jscherff/gox/log`
 )
 
-const (
-	HttpBodySizeLimit = 1048576
-)
+const HttpBodySizeLimit = 1048576
 
-type HandlersV1 interface {
+// HandlersV2 contains http.HandleFunc signatures of CMDBd APIv2.
+type HandlersV2 interface {
 	Checkin(http.ResponseWriter, *http.Request)
 	NewSn(http.ResponseWriter, *http.Request)
 	Audit(http.ResponseWriter, *http.Request)
 	CheckOut(http.ResponseWriter, *http.Request)
 }
 
-type handlersV1 struct {
+// handlersV2 implements the HandlersV2 interface.
+type handlersV2 struct {
 	errorLog log.MLogger
 	systemLog log.MLogger
 	serialNumSvc service.SerialNumService
 }
 
-func NewHandlersV1(errLog, sysLog log.MLogger, snSvc service.SerialNumService) HandlersV1 {
-	return &handlersV1{
+// NewHandlersV2 returns a new handlersV2 instance.
+func NewHandlersV2(errLog, sysLog log.MLogger, snSvc service.SerialNumService) HandlersV2 {
+	return &handlersV2{
 		errorLog: errLog,
 		systemLog: sysLog,
 		serialNumSvc: snSvc,
@@ -51,7 +52,7 @@ func NewHandlersV1(errLog, sysLog log.MLogger, snSvc service.SerialNumService) H
 }
 
 // Checkin records a device checkin.
-func (this *handlersV1) Checkin(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Checkin(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.Checkin{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -77,8 +78,8 @@ func (this *handlersV1) Checkin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// newSn generates a new serial number for an unserialized device.
-func (this *handlersV1) NewSn(w http.ResponseWriter, r *http.Request) {
+// NewSn generates a new serial number for an unserialized device.
+func (this *handlersV2) NewSn(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.SnRequest{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -114,7 +115,7 @@ func (this *handlersV1) NewSn(w http.ResponseWriter, r *http.Request) {
 }
 
 // Audit accepts the results of a device self-audit and stores the results.
-func (this *handlersV1) Audit(w http.ResponseWriter, r *http.Request) {
+func (this *handlersV2) Audit(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.Audit{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -140,9 +141,8 @@ func (this *handlersV1) Audit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// CheckOut retrieves a device from the serialized device database as a
-// JSON object and returns it to the caller.
-func (this *handlersV1) CheckOut(w http.ResponseWriter, r *http.Request) {
+// CheckOut retrieves a serialized device and returns it as a JSON object.
+func (this *handlersV2) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	dev := &usbci.Serialized{}
@@ -150,7 +150,7 @@ func (this *handlersV1) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	if err := dev.Read(); err != nil {
+	if err := dev.Read(dev); err != nil {
 
 		this.errorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -173,9 +173,8 @@ func (this *handlersV1) CheckOut(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// decode unmarshals the JSON object in the HTTP request body into the
-// object passed as an interface.
-func (this *handlersV1) decode(i interface{}, w http.ResponseWriter, r *http.Request) (error) {
+// decode unmarshals the JSON object in the HTTP request body to an object.
+func (this *handlersV2) decode(i interface{}, w http.ResponseWriter, r *http.Request) (error) {
 
 	if body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit)); err != nil {
 		this.errorLog.Panic(err)

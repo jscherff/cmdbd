@@ -24,24 +24,25 @@ type SerialNumService interface {
 
 // serialNumService is a service that implements the SerialNumService interface.
 type serialNumService struct {
-	serialFormat map[string]string
+	SerialFormat map[string]string
 }
 
 // NewSerialNumService returns an object that implements the SerialNumService interface.
-func NewSerialNumService(formatMap map[string]string) (SerialNumService, error) {
+func NewSerialNumService(conf *Config) (SerialNumService, error) {
 
-	if formatMap == nil || len(formatMap) == 0 {
+	if conf.SerialFormat == nil || len(conf.SerialFormat) == 0 {
 		return nil, fmt.Errorf(`empty serial format map`)
 	}
 
-	return &serialNumService{formatMap}, nil
+	return &serialNumService{conf.SerialFormat}, nil
 }
 
 // Format returns the format string of the provided format key.
 func (this *serialNumService) Format(key string) (string, error) {
-	if format, ok := this.serialFormat[key]; ok {
+
+	if format, ok := this.SerialFormat[key]; ok {
 		return format, nil
-	} else if format, ok := this.serialFormat[`Default`]; ok {
+	} else if format, ok := this.SerialFormat[`Default`]; ok {
 		return format, nil
 	} else {
 		return ``, fmt.Errorf(`format key %q not found`, key)
@@ -50,6 +51,7 @@ func (this *serialNumService) Format(key string) (string, error) {
 
 // Create generates a new serial number using the provided format key and seed.
 func (this *serialNumService) Create(key string, seed int64) (string, error) {
+
 	if format, err := this.Format(key); err != nil {
 		return ``, err
 	} else {

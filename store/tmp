@@ -1,0 +1,7 @@
+// table returns the lowercase name of the table.
+// command returns the uppercase SQL command.
+// columns is a list of column names for INSERT, SELECT, and UPDATE statements.
+// filters is a list of columns used in the conditions clause of a SQL
+// statement. The interface currently only supportes ANDed conditions.
+// params is a list of named parameters for INSERT statements.
+// setters is a list of column assignments for UPDATE statements.
