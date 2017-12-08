@@ -20,49 +20,45 @@ import (
 	`github.com/jscherff/cmdbd/store`
 )
 
-var ds store.DataStore
-
-func Init(storeName, queryFile string) (err error) {
-	if ds, err = model.Prepare(storeName, queryFile); err != nil {
-		return err
-	}
-	return nil
-}
-
 type Error struct {
-	Id		interface{}	`db:"id"`
-	Code		int		`db:"code"`
-	Source		string		`db:"source"`
-	Description	string		`db:"description"`
-	EventDate	time.Time	`db:"event_date"`
+	Id		interface{}	`db:"id,omitempty"`
+	Code		int		`db:"code,omitempty"`
+	Source		string		`db:"source,omitempty"`
+	Description	string		`db:"description,omitempty"`
+	EventDate	time.Time	`db:"event_date,omitempty"`
 }
 
 type Sequence struct {
-	Ord		interface{}	`db:"ord"`
-	IssueDate	time.Time	`db:"issue_date"`
+	Ord		interface{}	`db:"ord,omitempty"`
+	IssueDate	time.Time	`db:"issue_date,omitempty"`
 }
 
 type User struct {
-	Id		interface{}	`db:"id"`
-	Username	string		`db:"username"`
-	Password	string		`db:"password"`
-	Created		time.Time	`db:"created"`
-	Locked		bool		`db:"locked"`
-	Role		string		`db:"role"`
+	Id		interface{}	`db:"id,omitempty"`
+	Username	string		`db:"username,omitempty"`
+	Password	string		`db:"password,omitempty"`
+	Created		time.Time	`db:"created,omitempty"`
+	Locked		bool		`db:"locked,omitempty"`
+	Role		string		`db:"role,omitempty"`
 }
 
 func (this *Error) Create() (int64, error) {
-	return ds.Insert(`InsertError`, this)
+	return dataStore.Insert(`Create`, this)
 }
 
 func (this *Sequence) Create() (int64, error) {
-	return ds.Insert(`InsertSequence`, this)
+	return dataStore.Insert(`Create`, this)
 }
 
 func (this *User) Create() (int64, error) {
-	return ds.Insert(`InsertUser`, this)
+	return dataStore.Insert(`Create`, this)
 }
 
 func (this *User) Read(arg interface{}) (error) {
-	return ds.Get(`SelectUser`, this, arg)
+	return dataStore.Get(modelName, `Read`, this, arg)
+}
+
+func (this *User) Authenticate(passwd string) (error) {
+	//TODO
+	return nil
 }

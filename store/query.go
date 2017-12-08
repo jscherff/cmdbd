@@ -25,7 +25,7 @@ const (
 	namedEqualFmt = `%[1]v = :%[1]v`
 )
 
-// query contains SQL Xquery components needed for building prepared statements.
+// query contains SQL query components needed for building prepared statements.
 type query struct {
 	Table string
 	Command string
@@ -119,5 +119,3 @@ func (this *query) String() (string) {
 
 	return this.queryString
 }
-
-type queries map[string]*query

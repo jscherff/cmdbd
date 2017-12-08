@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package model
-/*
+package cmdb
+
 import `github.com/jscherff/cmdbd/store`
 
-func Prepare(ds store.DataStore, qf string) (error) {
+var dataStore store.DataStore
 
-	if err := ds.Prepare(qf); err != nil {
-		return nil, err
+func Prepare(ds store.DataStore, queryFile string) (error) {
+
+	if err := ds.Prepare(queryFile); err != nil {
+		return err
 	} else {
-		return ds, nil
+		dataStore = ds
 	}
+
+	return nil
 }
-*/

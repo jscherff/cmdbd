@@ -14,7 +14,11 @@
 
 package usbmeta
 
-import `time`
+import (
+	`time`
+	`github.com/jscherff/cmdbd/model`
+	`github.com/jscherff/cmdbd/store`
+)
 
 type Class struct {
 	ClassID		string		`db:"class_id"`

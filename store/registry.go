@@ -37,32 +37,32 @@ var dataStores = make(DataStores)
 // registerFactory allows DataStore implementations to register their
 // factory methods using the database driver name. It is called by the
 // init method of the file containing the DataStore implementation.
-func registerFactory(name string, factory func(string) (DataStore, error)) {
-	factories[name] = factory
+func registerFactory(driver string, factory func(string) (DataStore, error)) {
+	factories[driver] = factory
 }
 
 // registerDataStore allows initialized DataStore instances to register
-// references to themselves using the database or schema name. It is called
+// references to themselves using the data store name (DSN). It is called
 // by the Register method of the DataStore implementation.
-func registerDataStore(name string, dataStore DataStore) {
-	dataStores[name] = dataStore
+func registerDataStore(dsn string, dataStore DataStore) {
+	dataStores[dsn] = dataStore
 }
 
 // getFactory allows callers to obtain references to DataStore factory
 // methods using only the database driver name.
-func GetFactory(name string) (func(string) (DataStore, error), error) {
-	if factory, ok := factories[name]; !ok {
-		return nil, fmt.Errorf(`factory for %q not found`, name)
+func GetFactory(driver string) (func(string) (DataStore, error), error) {
+	if factory, ok := factories[driver]; !ok {
+		return nil, fmt.Errorf(`factory for %q not found`, driver)
 	} else {
 		return factory, nil
 	}
 }
 
 // getDataStore allows callers to obtain references to DataStore instances
-// using only the database or schema name.
-func GetDataStore(name string) (DataStore, error) {
-	if dataStore, ok := dataStores[name]; !ok {
-		return nil, fmt.Errorf(`datastore for %q not found`, name)
+// using only the data store name (DSN).
+func GetDataStore(dsn string) (DataStore, error) {
+	if dataStore, ok := dataStores[dsn]; !ok {
+		return nil, fmt.Errorf(`datastore for %q not found`, dsn)
 	} else {
 		return dataStore, nil
 	}

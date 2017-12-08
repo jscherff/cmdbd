@@ -19,6 +19,7 @@ import (
 	`os`
 	`path/filepath`
 	`runtime`
+	`strings`
 )
 
 // loadConfig loads a JSON configuration file into an object.
@@ -36,48 +37,60 @@ func LoadConfig(t interface{}, cf string) (error) {
 
 // callerInfo encapsulates path and function elements of caller information.
 type callerInfo struct {
-	Base string
-	Path string
-	File string
-	Line int
-	Func string
+	Exec     string
+	File     string
+	Line     int
+	Package  string
+	Function string
+	FilePath string
+	ExecPath string
 }
 
 // CallerInfo returns information about the caller to the caller.
 func CallerInfo() (*callerInfo) {
 
 	// Need space only for PC of caller.
+
 	pc := make([]uintptr, 1)
 
 	// Skip PC of Callers() and this function.
+
 	n := runtime.Callers(2, pc)
 
 	// Return nil if no PCs available.
+
 	if n == 0 { return nil }
 
 	// Obtain the caller frame.
+
 	frames := runtime.CallersFrames(pc[:n])
 	frame, _ := frames.Next()
 
-	// Obtain the path elements.
-	ci := &callerInfo {
-		File: filepath.Base(frame.File),
-		Line: frame.Line,
-		Func: frame.Function,
+	// Build callerInfo attributes.
+
+	exec := os.Args[0]
+	filePath := filepath.Dir(frame.File)
+	execPath := filepath.Dir(exec)
+
+	if p, err := filepath.Abs(filePath); err == nil {
+		filePath = p
 	}
 
-	if base, err := filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
-		ci.Base = filepath.Dir(os.Args[0])
-	} else {
-		ci.Base = base
+	if p, err := filepath.Abs(execPath); err == nil {
+		execPath = p
 	}
 
-	if path, err := filepath.Rel(ci.Base, filepath.Dir(frame.File)); err != nil {
-		ci.Path = filepath.Dir(frame.File)
-	} else {
-		ci.Path = path
-	}
+	pkgPath, funcBase := filepath.Split(frame.Function)
+	pkgBase := strings.Split(funcBase, `.`)[0]
+	pkgName := filepath.Join(pkgPath, pkgBase)
 
-	// Return caller info
-	return ci
+	return &callerInfo{
+		Exec:     filepath.ToSlash(exec),
+		File:     filepath.ToSlash(frame.File),
+		Line:     frame.Line,
+		Package:  filepath.ToSlash(pkgName),
+		Function: filepath.ToSlash(frame.Function),
+		FilePath: filepath.ToSlash(filePath),
+		ExecPath: filepath.ToSlash(execPath),
+	}
 }
