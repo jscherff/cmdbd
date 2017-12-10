@@ -17,8 +17,10 @@ package cmdb
 import (
 	`time`
 	`github.com/jscherff/cmdbd/model`
-	`github.com/jscherff/cmdbd/store`
+	`golang.org/x/crypto/bcrypt`
 )
+
+var Model = model.New()
 
 type Error struct {
 	Id		interface{}	`db:"id,omitempty"`
@@ -43,22 +45,21 @@ type User struct {
 }
 
 func (this *Error) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *Sequence) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *User) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *User) Read(arg interface{}) (error) {
-	return dataStore.Get(modelName, `Read`, this, arg)
+	return Model.Stmts().Get(`Read`, this, arg)
 }
 
-func (this *User) Authenticate(passwd string) (error) {
-	//TODO
-	return nil
+func (this *User) Verify(passwd string) (error) {
+	return bcrypt.CompareHashAndPassword([]byte(this.Password), []byte(passwd))
 }

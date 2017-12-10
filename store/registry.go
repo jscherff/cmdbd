@@ -21,8 +21,8 @@ import `fmt`
 type Factories map[string]func(string) (DataStore, error)
 
 // DataStores contains named references to initialized DataStore
-// instances. The name should be the database or schema name, not the
-// database driver name.
+// instances. The name is an arbitrary strings. It is up to the 
+// implmenentation to deconflict the name space.
 type DataStores map[string]DataStore
 
 // factories is a centralized registry of named references to DataStore
@@ -31,7 +31,7 @@ type DataStores map[string]DataStore
 var factories = make(Factories)
 
 // dataStores is a centralized registry of named references to initialized
-// DataStore instances. It is used by initialized DataStore instances.
+// DataStore instances.
 var dataStores = make(DataStores)
 
 // registerFactory allows DataStore implementations to register their
@@ -42,14 +42,15 @@ func registerFactory(driver string, factory func(string) (DataStore, error)) {
 }
 
 // registerDataStore allows initialized DataStore instances to register
-// references to themselves using the data store name (DSN). It is called
-// by the Register method of the DataStore implementation.
-func registerDataStore(dsn string, dataStore DataStore) {
-	dataStores[dsn] = dataStore
+// references to themselves using arbitrary strngs such as the data store
+// name (DSN), schema name, or qualified table name. It is called by the
+// Register and Prepare methods of the DataStore implementation.
+func registerDataStore(name string, dataStore DataStore) {
+	dataStores[name] = dataStore
 }
 
-// getFactory allows callers to obtain references to DataStore factory
-// methods using only the database driver name.
+// GetFactory allows callers to obtain references to DataStore factory
+// methods using the database driver name.
 func GetFactory(driver string) (func(string) (DataStore, error), error) {
 	if factory, ok := factories[driver]; !ok {
 		return nil, fmt.Errorf(`factory for %q not found`, driver)
@@ -58,11 +59,12 @@ func GetFactory(driver string) (func(string) (DataStore, error), error) {
 	}
 }
 
-// getDataStore allows callers to obtain references to DataStore instances
-// using only the data store name (DSN).
-func GetDataStore(dsn string) (DataStore, error) {
-	if dataStore, ok := dataStores[dsn]; !ok {
-		return nil, fmt.Errorf(`datastore for %q not found`, dsn)
+// GetDataStore allows callers to obtain references to DataStore instances
+// using arbitrary strings such as data store name (DSN), schema name, or
+// qualified table name.
+func GetDataStore(name string) (DataStore, error) {
+	if dataStore, ok := dataStores[name]; !ok {
+		return nil, fmt.Errorf(`datastore for %q not found`, name)
 	} else {
 		return dataStore, nil
 	}

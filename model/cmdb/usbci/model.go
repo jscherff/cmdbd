@@ -17,9 +17,10 @@ package usbci
 import (
 	`encoding/json`
 	`time`
-	`github.com/jscherff/cmdbd/model`
-	`github.com/jscherff/cmdbd/store`
+	`github.com/jscherff/cmdbd/model/cmdb`
 )
+
+var Model = cmdb.Model
 
 type Ident struct {
 	Id		interface{}	`db:"id,omitempty"`
@@ -112,27 +113,27 @@ type Change struct {
 type Changes []Change
 
 func (this *Audit) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *Change) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *Checkin) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *SnRequest) Create() (int64, error) {
-	return dataStore.Insert(`Create`, this)
+	return Model.Stmts().Insert(`Create`, this)
 }
 
 func (this *SnRequest) Update() (int64, error) {
-	return dataStore.Update(`Update`, this)
+	return Model.Stmts().Update(`Update`, this)
 }
 
 func (this *Serialized) Read(arg interface{}) (error) {
-	return dataStore.Get(`Read`, this, arg)
+	return Model.Stmts().Get(`Read`, this, arg)
 }
 
 func (this *Serialized) JSON() ([]byte, error) {

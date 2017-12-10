@@ -119,3 +119,6 @@ func (this *query) String() (string) {
 
 	return this.queryString
 }
+
+// queries is a collection of query instances indexed by model and query name.
+type queries map[string]map[string]*query

@@ -15,9 +15,7 @@
 package store
 
 import (
-	`database/sql`
 	`fmt`
-	`strings`
 
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/common`
@@ -29,23 +27,18 @@ var driverName = `undefined`
 // DataStore provides an enhanced CRUD interface for the dataStore.
 type DataStore interface {
 	Register(schemaName string)
-	Prepare(queryFile string) (err error)
-	Select(queryName string, dest, arg interface{}) (err error)
-	Insert(queryName string, arg interface{}) (id int64, err error)
-	Update(queryName string, arg interface{}) (rows int64, err error)
-	Delete(queryName string, arg interface{}) (rows int64, err error)
-	Get(queryName string, dest, arg interface{}) (err error)
+	Prepare(queryFile string) (stmts Statements, err error)
 	String() (info string)
-	Close()
+	Close() (error)
 }
 
 // New creates a new DataStore instance using the registered factory
 // method associated with the provided driver name.
-func New(driver, dsn string) (DataStore, error) {
+func New(driver, config string) (DataStore, error) {
 	if factory, ok := factories[driver]; !ok {
 		return nil, fmt.Errorf(`driver %q not found`, driver)
 	} else {
-		return factory(dsn)
+		return factory(config)
 	}
 }
 
@@ -60,8 +53,7 @@ func NewDataStore(driver, dsn string) (DataStore, error) {
 	} else if err := db.Ping(); err != nil {
 		return nil, err
 	} else {
-		stmts := make(map[string]map[string]*sqlx.NamedStmt)
-		this = &dataStore{db, stmts}
+		this = &dataStore{db}
 	}
 
 	this.Register(dsn)
@@ -72,12 +64,11 @@ func NewDataStore(driver, dsn string) (DataStore, error) {
 // dataStore is an implementation of the DataStore interface.
 type dataStore struct {
 	*sqlx.DB
-	stmts map[string]map[string]*sqlx.NamedStmt
 }
 
-// Register registers the DataStore in the registry using the schema name.
-func (this *dataStore) Register(schemaName string) {
-	registerDataStore(schemaName, this)
+// Register registers the DataStore in the registry using arbitrary names.
+func (this *dataStore) Register(name string) {
+	registerDataStore(name, this)
 }
 
 // String returns database version, schema, and other information.
@@ -85,127 +76,32 @@ func (this *dataStore) String() (string) {
 	return driverName
 }
 
-// Prepare converts a collection of JSON-encoded Query objects into 
-// a collection of sqlx Named Statements.
-func (this *dataStore) Prepare(queryFile string) (error) {
+// Prepareconverts a collection of JSON-encoded Query objects into 
+// a collection of Named Statements.
+func (this *dataStore) Prepare(queryFile string) (Statements, error) {
 
-	var queries map[string]map[string]*query
+	qries := make(queries)
+	stmts := make(statements)
 
-	if err := common.LoadConfig(&queries, queryFile); err != nil {
-		return err
+	if err := common.LoadConfig(&qries, queryFile); err != nil {
+		return nil, err
 	}
 
-	for modelName := range queries {
+	for modelName := range qries {
 
-		if this.stmts[modelName] == nil {
-			this.stmts[modelName] = make(map[string]*sqlx.NamedStmt)
+		if stmts[modelName] == nil {
+			stmts[modelName] = make(map[string]*statement)
 		}
 
-		for queryName, query := range queries[modelName] {
+		for queryName, query := range qries[modelName] {
 
 			if stmt, err := this.PrepareNamed(query.String()); err != nil {
-				return err
+				return nil, err
 			} else {
-				this.stmts[modelName][queryName] = stmt
+				stmts[modelName][queryName] = &statement{stmt}
 			}
 		}
 	}
 
-	return nil
-}
-
-// Select executes a Named SELECT Statement and returns the multi-row result
-// in a slice of interfaces.
-func (this *dataStore) Select(queryName string, dest, arg interface{}) (error) {
-
-	modelName := ModelName(dest)
-
-	if destSlice, ok := dest.([]interface{}); !ok {
-		return fmt.Errorf(`destination must be a slice`)
-	} else if stmt, ok := this.stmts[modelName][queryName]; !ok {
-		return fmt.Errorf(`statement %q not found`, queryName)
-	} else if err := stmt.Select(destSlice, arg); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Insert executes a Named INSERT Statement and returns the last insert ID.
-func (this *dataStore) Insert(queryName string, arg interface{}) (int64, error) {
-
-	if res, err := this.do(queryName, arg); err != nil {
-		return 0, err
-	} else {
-		return res.LastInsertId()
-	}
-}
-
-// Update executes a Named UPDATE Statement and returns the number of
-// rows affected.
-func (this *dataStore) Update(queryName string, arg interface{}) (int64, error) {
-
-	if res, err := this.do(queryName, arg); err != nil {
-		return 0, err
-	} else {
-		return res.RowsAffected()
-	}
-}
-
-// Delete executes a Named DELETE Statement and returns the number of
-// rows affected.
-func (this *dataStore) Delete(queryName string, arg interface{}) (int64, error) {
-
-	if res, err := this.do(queryName, arg); err != nil {
-		return 0, err
-	} else {
-		return res.RowsAffected()
-	}
-}
-
-// Get executes a Named SELECT Statement and returns the single-row result
-// in an interface.
-func (this *dataStore) Get(queryName string, dest, arg interface{}) (error) {
-
-	modelName := ModelName(dest)
-
-	if stmt, ok := this.stmts[modelName][queryName]; !ok {
-		return fmt.Errorf(`statement %q not found`, queryName)
-	} else if err := stmt.Get(dest, arg); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// do executes a non-SELECT Named Statement and returns a sql.Result object.
-// Called by Insert(), Update(), and Delete().
-func (this *dataStore) do(queryName string, arg interface{}) (sql.Result, error) {
-
-	modelName := ModelName(arg)
-
-	if stmt, ok := this.stmts[modelName][queryName]; !ok {
-		return nil, fmt.Errorf(`statement %q not found`, queryName)
-	} else if res, err := stmt.Exec(arg); err != nil {
-		return nil, err
-	} else {
-		return res, nil
-	}
-}
-
-// Close closes the database handle.
-func (this *dataStore) Close() {
-
-	for modelName := range this.stmts {
-		for queryName := range this.stmts[modelName] {
-			this.stmts[modelName][queryName].Close()
-		}
-	}
-
-	this.Close()
-}
-
-// modelName derives the model name from the object's type.
-func ModelName(t interface{}) (string) {
-	return strings.TrimPrefix(fmt.Sprintf(`%T`, t), `*`)
+	return stmts, nil
 }

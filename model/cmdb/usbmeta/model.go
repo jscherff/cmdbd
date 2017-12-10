@@ -16,9 +16,10 @@ package usbmeta
 
 import (
 	`time`
-	`github.com/jscherff/cmdbd/model`
-	`github.com/jscherff/cmdbd/store`
+	`github.com/jscherff/cmdbd/model/cmdb`
 )
+
+var Model = cmdb.Model
 
 type Class struct {
 	ClassID		string		`db:"class_id"`

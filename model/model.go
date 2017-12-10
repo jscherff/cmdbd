@@ -12,19 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmdb
+package model
 
 import `github.com/jscherff/cmdbd/store`
 
-var dataStore store.DataStore
+type Model interface {
+	Init(store.Statements)
+	Stmts() store.Statements
+	Close()
+}
 
-func Prepare(ds store.DataStore, queryFile string) (error) {
+type model struct {
+	stmts store.Statements
+}
 
-	if err := ds.Prepare(queryFile); err != nil {
-		return err
-	} else {
-		dataStore = ds
+func New() Model {
+	return &model{}
+}
+
+func (this *model) Init(stmts store.Statements) {
+	this.stmts = stmts
+}
+
+func (this *model) Stmts() (store.Statements) {
+	return this.stmts
+}
+
+func (this *model) Close() {
+	if this.stmts != nil {
+		this.stmts.Close()
 	}
-
-	return nil
 }
