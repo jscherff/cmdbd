@@ -28,13 +28,8 @@ type serialNumService struct {
 }
 
 // NewSerialNumService returns an object that implements the SerialNumService interface.
-func NewSerialNumService(conf *Config) (SerialNumService, error) {
-
-	if conf.SerialFormat == nil || len(conf.SerialFormat) == 0 {
-		return nil, fmt.Errorf(`empty serial format map`)
-	}
-
-	return &serialNumService{conf.SerialFormat}, nil
+func NewSerialNumService(serialFormat map[string]string) (SerialNumService, error) {
+	return &serialNumService{serialFormat}, nil
 }
 
 // Format returns the format string of the provided format key.

@@ -1,0 +1,8 @@
+{
+	"Stdout": false,
+	"Stderr": false,
+	"Syslog": false,
+	"LogTag": "access",
+	"LogFile": "access.log",
+	"LogFlags": []
+}

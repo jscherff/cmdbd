@@ -31,8 +31,8 @@ type authCookieService struct {
 }
 
 // NewAuthCookieService returns an object that implements the AuthCookieService interface.
-func NewAuthCookieService(conf *Config) (AuthCookieService, error) {
-	return &authCookieService{conf.AuthMaxAge}, nil
+func NewAuthCookieService(maxAge time.Duration) (AuthCookieService, error) {
+	return &authCookieService{MaxAge: maxAge}, nil
 }
 
 // Create generates a new authentication http.Cookie from an auth token string.

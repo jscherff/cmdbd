@@ -17,7 +17,6 @@ package service
 import (
 	`crypto/rsa`
 	`fmt`
-	`io/ioutil`
 	`time`
 	jwt `github.com/dgrijalva/jwt-go`
 
@@ -61,32 +60,24 @@ type authTokenService struct {
 }
 
 // NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewAuthTokenService(conf *Config) (AuthTokenService, error) {
+func NewAuthTokenService(pubKey, priKey []byte, maxAge time.Duration) (AuthTokenService, error) {
 
-	this := &authTokenService{MaxAge: conf.AuthMaxAge}
-
-	// Process RSA private key.
-
-	if priKeyFile, ok := conf.CryptoFile[priKeyName]; !ok {
-		return nil, fmt.Errorf(`private key name %q not found`, priKeyName)
-	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
-		return nil, err
-	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
-		return nil, err
-	} else {
-		this.PriKey = rsaKey
-	}
+	this := &authTokenService{MaxAge: maxAge}
 
 	// Process RSA public key.
 
-	if pubKeyFile, ok := conf.CryptoFile[pubKeyName]; !ok {
-		return nil, fmt.Errorf(`public key name %q not found`, pubKeyName)
-	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
-		return nil, err
-	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
+	if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKey); err != nil {
 		return nil, err
 	} else {
 		this.PubKey = rsaKey
+	}
+
+	// Process RSA private key.
+
+	if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(priKey); err != nil {
+		return nil, err
+	} else {
+		this.PriKey = rsaKey
 	}
 
 	return this, nil

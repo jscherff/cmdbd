@@ -1,15 +1,20 @@
 {
 	"AuthMaxAge": 60,
 
+	"Console": false,
+	"Refresh": false,
+	"LogDir": "/var/log/cmdbd",
+
 	"ConfigFile": {
-		"Database": "store/mysql.json",
+		"SystemLog": "logger/system.json",
+		"AccessLog": "logger/system.json",
+		"ErrorLog": "logger/system.json",
 		"DataStore": "store/mysql.json",
-		"Queries": "queries.json",
+		"Queries": "model/queries.json",
+		"MetaUsb": "cache/metausb.json",
 		"Syslog": "server/syslog.json",
-		"Loggers": "server/loggers.json",
 		"Router": "server/router.json",
-		"Server": "server/httpd.json",
-		"MetaUsb": "model/metausb.json"
+		"Server": "server/httpd.json"
 	},
 
 	"CryptoFile": {

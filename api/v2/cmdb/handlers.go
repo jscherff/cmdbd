@@ -15,6 +15,7 @@
 package cmdb
 
 import (
+	`fmt`
 	`net/http`
 	`github.com/jscherff/gox/log`
 	`github.com/jscherff/cmdbd/model/cmdb`

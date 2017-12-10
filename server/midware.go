@@ -36,8 +36,8 @@ type middleWare struct {
 func NewMiddleWare(conf *Config) (MiddleWare, error) {
 
 	this := &middleWare{
-		AuthTokenSvc: conf.Services.AuthTokenSvc,
-		AuthCookieSvc: conf.Services.AuthCookieSvc,
+		AuthTokenSvc: confAuthTokenSvc,
+		AuthCookieSvc: confAuthCookieSvc,
 	}
 
 	return this, nil
