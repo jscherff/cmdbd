@@ -16,8 +16,8 @@ package usbci
 
 import `github.com/jscherff/cmdbd/server`
 
-// NewRoutesV2 returns a collection of REST APIv2 endpoints providing CMDB CI data.
-func NewRoutesV2(hf HandlersV2) server.Routes {
+// NewRoutes returns a collection of REST APIv2 endpoints providing CMDB CI data.
+func NewRoutes(hf Handlers) server.Routes {
 
 	return server.Routes {
 

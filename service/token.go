@@ -26,7 +26,7 @@ import (
 // AuthClaims is a custom claims object that contains user authentication
 // and authorization infomration.
 type AuthClaims struct {
-	cmdb.User
+	*cmdb.User
 }
 
 // Claims is a custom Claims object that extends jwt.StandardClaims.
@@ -47,7 +47,7 @@ func (this *Token) AuthClaims() (AuthClaims) {
 
 // AuthTokenService is an interface that creates, parses, and validates Tokens.
 type AuthTokenService interface {
-	Create(user cmdb.User) (token *Token)
+	Create(user *cmdb.User) (token *Token, err error)
 	String(token *Token) (tokenString string, err error)
 	Parse(tokenString string) (token *Token, err error)
 }
@@ -84,7 +84,7 @@ func NewAuthTokenService(pubKey, priKey []byte, maxAge time.Duration) (AuthToken
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(user cmdb.User) (*Token) {
+func (this *authTokenService) Create(user *cmdb.User) (*Token, error) {
 
 	claims := &Claims {
 
@@ -96,7 +96,7 @@ func (this *authTokenService) Create(user cmdb.User) (*Token) {
 		AuthClaims: AuthClaims{user},
 	}
 
-	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}
+	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}, nil
 }
 
 // Parse parses a token string and returns a Token.

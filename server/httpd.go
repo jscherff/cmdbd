@@ -27,14 +27,15 @@ type Server struct {
 }
 
 // NewServer creates and initializes a new Server instance.
-func NewServer(conf *Config) (*Server, error) {
+func NewServer(cf string, handler http.Handler) (*Server, error) {
 
 	this := &Server{}
 
-	if err := common.LoadConfig(this, conf.ConfigFile[`Server`]); err != nil {
+	if err := common.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
+	this.Handler = handler
 	this.ReadTimeout *= time.Second
 	this.WriteTimeout *= time.Second
 

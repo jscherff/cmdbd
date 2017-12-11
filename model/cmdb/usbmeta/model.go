@@ -16,10 +16,14 @@ package usbmeta
 
 import (
 	`time`
-	`github.com/jscherff/cmdbd/model/cmdb`
+	`github.com/jscherff/cmdbd/store`
 )
 
-var Model = cmdb.Model
+var Stmts store.Statements
+
+func Init(stmts store.Statements) {
+	Stmts = stmts
+}
 
 type Class struct {
 	ClassID		string		`db:"class_id"`

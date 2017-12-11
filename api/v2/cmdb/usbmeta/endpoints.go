@@ -18,8 +18,8 @@ import (
 	`github.com/jscherff/cmdbd/server`
 )
 
-// NewRoutesV2 returns a collection of REST API endpoints providing USB metadata.
-func NewRoutesV2(hf HandlersV2) server.Routes {
+// NewRoutes returns a collection of REST API endpoints providing USB metadata.
+func NewRoutes(hf Handlers) server.Routes {
 
 	return server.Routes {
 

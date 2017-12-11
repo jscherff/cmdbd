@@ -16,11 +16,15 @@ package cmdb
 
 import (
 	`time`
-	`github.com/jscherff/cmdbd/model`
+	`github.com/jscherff/cmdbd/store`
 	`golang.org/x/crypto/bcrypt`
 )
 
-var Model = model.New()
+var Stmts store.Statements
+
+func Init(stmts store.Statements) {
+	Stmts = stmts
+}
 
 type Error struct {
 	Id		interface{}	`db:"id,omitempty"`
@@ -45,19 +49,19 @@ type User struct {
 }
 
 func (this *Error) Create() (int64, error) {
-	return Model.Stmts().Insert(`Create`, this)
+	return Stmts.Insert(`Create`, this)
 }
 
 func (this *Sequence) Create() (int64, error) {
-	return Model.Stmts().Insert(`Create`, this)
+	return Stmts.Insert(`Create`, this)
 }
 
 func (this *User) Create() (int64, error) {
-	return Model.Stmts().Insert(`Create`, this)
+	return Stmts.Insert(`Create`, this)
 }
 
 func (this *User) Read(arg interface{}) (error) {
-	return Model.Stmts().Get(`Read`, this, arg)
+	return Stmts.Get(`Read`, this, arg)
 }
 
 func (this *User) Verify(passwd string) (error) {

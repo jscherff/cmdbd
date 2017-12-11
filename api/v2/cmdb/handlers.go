@@ -15,37 +15,36 @@
 package cmdb
 
 import (
-	`fmt`
 	`net/http`
-	`github.com/jscherff/gox/log`
 	`github.com/jscherff/cmdbd/model/cmdb`
-	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/service`
 )
 
-// HandlersV2 contains http.HandleFunc signatures of CMDBd APIv2.
-type HandlersV2 interface {
+// Handlers contains http.HandleFunc signatures of CMDBd APIv2.
+type Handlers interface {
 	SetAuthToken(http.ResponseWriter, *http.Request)
 }
 
-// handlersV2 implements the HandlersV2 interface.
-type handlersV2 struct {
-	ErrorLog log.Logger
-	SystemLog log.MLogger
+// handlers implements the Handlers interface.
+type handlers struct {
+	ErrorLog service.Logger
+	SystemLog service.Logger
 	AuthTokenSvc service.AuthTokenService
+	AuthCookieSvc service.AuthCookieService
 }
 
-// NewHandlersV2 returns a new handlersV2 instance.
-func NewHandlersV2(errLog, sysLog log.MLogger) HandlersV2 {
-	return &handlersV2{
-		this.ErrorLog: errLog,
-		this.SystemLog: sysLog,
+// NewHandlers returns a new handlers instance.
+func NewHandlers(errLog, sysLog service.Logger, ats service.AuthTokenService, acs service.AuthCookieService) Handlers {
+	return &handlers{
+		ErrorLog: errLog,
+		SystemLog: sysLog,
+		AuthTokenSvc: ats,
 	}
 }
 
 // SetAuthToken authenticates client using basic authentication and
 // issues a token for API authentication if successful.
-func (this *handlersV2) SetAuthToken(w http.ResponseWriter, r *http.Request) {
+func (this *handlers) SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	user := &cmdb.User{}
 
@@ -58,30 +57,25 @@ func (this *handlersV2) SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	user.Username = username
 
-	if err := user.Read(); err != nil {
+	if err := user.Read(user); err != nil {
 		this.ErrorLog.Printf(`user %q not found`, username)
-		http.Error(w, `user not found` http.StatusNotFound)
+		http.Error(w, `user not found`, http.StatusNotFound)
 	} else if err := user.Verify(password); err != nil {
 		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 	}
 
-
-
-		user.Passif token, err := createAuthToken(user, pass, r.URL.Host); err != nil {
-
-		this.ErrorLog.Print(err)
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-
-	} else if cookie, err := createAuthCookie(token); err != nil {
-
+	if token, err := this.AuthTokenSvc.Create(user); err != nil {
 		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-
+	} else if tokenString, err := this.AuthTokenSvc.String(token); err != nil {
+		this.ErrorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else if cookie, err := this.AuthCookieSvc.Create(tokenString); err != nil {
+		this.ErrorLog.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-
-		this.SystemLog.Printf(`issuing auth token to %q at %q`, user, r.RemoteAddr)
+		this.SystemLog.Printf(`issuing auth token to %q at %q`, user.Username, r.RemoteAddr)
 		http.SetCookie(w, cookie)
-
 	}
 }

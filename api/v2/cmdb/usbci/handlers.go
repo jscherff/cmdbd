@@ -22,37 +22,36 @@ import (
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/model/cmdb/usbci`
-	`github.com/jscherff/gox/log`
 )
 
 const HttpBodySizeLimit = 1048576
 
-// HandlersV2 contains http.HandleFunc signatures of CMDBd APIv2.
-type HandlersV2 interface {
+// Handlers contains http.HandleFunc signatures of CMDBd APIv2.
+type Handlers interface {
 	Checkin(http.ResponseWriter, *http.Request)
 	NewSn(http.ResponseWriter, *http.Request)
 	Audit(http.ResponseWriter, *http.Request)
 	CheckOut(http.ResponseWriter, *http.Request)
 }
 
-// handlersV2 implements the HandlersV2 interface.
-type handlersV2 struct {
-	errorLog log.MLogger
-	systemLog log.MLogger
-	serialNumSvc service.SerialNumService
+// handlers implements the Handlers interface.
+type handlers struct {
+	ErrorLog service.Logger
+	SystemLog service.Logger
+	SerialNumSvc service.SerialNumService
 }
 
-// NewHandlersV2 returns a new handlersV2 instance.
-func NewHandlersV2(errLog, sysLog log.MLogger, snSvc service.SerialNumService) HandlersV2 {
-	return &handlersV2{
-		errorLog: errLog,
-		systemLog: sysLog,
-		serialNumSvc: snSvc,
+// NewHandlers returns a new handlers instance.
+func NewHandlers(errLog, sysLog service.Logger, sns service.SerialNumService) Handlers {
+	return &handlers{
+		ErrorLog: errLog,
+		SystemLog: sysLog,
+		SerialNumSvc: sns,
 	}
 }
 
 // Checkin records a device checkin.
-func (this *handlersV2) Checkin(w http.ResponseWriter, r *http.Request) {
+func (this *handlers) Checkin(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.Checkin{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -61,17 +60,17 @@ func (this *handlersV2) Checkin(w http.ResponseWriter, r *http.Request) {
 
 	if err := this.decode(dev, w, r); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := dev.Create(); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		this.systemLog.Printf(`checked in USB device %s %s SN %q on host %s`,
+		this.SystemLog.Printf(`checked in USB device %s %s SN %q on host %s`,
 			dev.VendorID, dev.ProductID, dev.SerialNum, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
@@ -79,7 +78,7 @@ func (this *handlersV2) Checkin(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewSn generates a new serial number for an unserialized device.
-func (this *handlersV2) NewSn(w http.ResponseWriter, r *http.Request) {
+func (this *handlers) NewSn(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.SnRequest{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -88,34 +87,34 @@ func (this *handlersV2) NewSn(w http.ResponseWriter, r *http.Request) {
 
 	if err := this.decode(dev, w, r); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if id, err := dev.Create(); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if sn, err := this.serialNumSvc.Create(dev.ObjectType, id); err != nil {
+	} else if sn, err := this.SerialNumSvc.Create(dev.ObjectType, id); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		this.systemLog.Printf(`issued SN %q for USB device %s %s on host %s`,
+		this.SystemLog.Printf(`issued SN %q for USB device %s %s on host %s`,
 			dev.SerialNum, dev.VendorID, dev.ProductID, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(sn); err != nil {
-			this.errorLog.Panic(err)
+			this.ErrorLog.Panic(err)
 		}
 	}
 }
 
 // Audit accepts the results of a device self-audit and stores the results.
-func (this *handlersV2) Audit(w http.ResponseWriter, r *http.Request) {
+func (this *handlers) Audit(w http.ResponseWriter, r *http.Request) {
 
 	dev := &usbci.Audit{}
 	dev.RemoteAddr = r.RemoteAddr
@@ -124,17 +123,17 @@ func (this *handlersV2) Audit(w http.ResponseWriter, r *http.Request) {
 
 	if err := this.decode(dev, w, r); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := dev.Create(); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		this.systemLog.Printf(`audited USB device %s %s SN %q on host %s`,
+		this.SystemLog.Printf(`audited USB device %s %s SN %q on host %s`,
 			dev.VendorID, dev.ProductID, dev.SerialNum, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
@@ -142,7 +141,7 @@ func (this *handlersV2) Audit(w http.ResponseWriter, r *http.Request) {
 }
 
 // CheckOut retrieves a serialized device and returns it as a JSON object.
-func (this *handlersV2) CheckOut(w http.ResponseWriter, r *http.Request) {
+func (this *handlers) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	dev := &usbci.Serialized{}
@@ -152,34 +151,34 @@ func (this *handlersV2) CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	if err := dev.Read(dev); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if j, err := dev.JSON(); err != nil {
 
-		this.errorLog.Print(err)
+		this.ErrorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else {
 
-		this.systemLog.Printf(`checked out USB device %s %s SN %q for host %s`,
+		this.SystemLog.Printf(`checked out USB device %s %s SN %q for host %s`,
 			dev.VendorID, dev.ProductID, dev.SerialNum, vars[`host`])
 
 		w.WriteHeader(http.StatusOK)
 
 		if _, err = w.Write(j); err != nil {
-			this.errorLog.Panic(err)
+			this.ErrorLog.Panic(err)
 		}
 	}
 }
 
 // decode unmarshals the JSON object in the HTTP request body to an object.
-func (this *handlersV2) decode(i interface{}, w http.ResponseWriter, r *http.Request) (error) {
+func (this *handlers) decode(i interface{}, w http.ResponseWriter, r *http.Request) (error) {
 
 	if body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit)); err != nil {
-		this.errorLog.Panic(err)
+		this.ErrorLog.Panic(err)
 	} else if err := r.Body.Close(); err != nil {
-		this.errorLog.Panic(err)
+		this.ErrorLog.Panic(err)
 	} else if err := json.Unmarshal(body, &i); err != nil {
 		return err
 	}

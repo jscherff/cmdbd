@@ -14,37 +14,21 @@
 
 package server
 
-
-package service
-
 import (
+	`fmt`
+	`io/ioutil`
+	`os`
 	`path/filepath`
 	`time`
 
-	`github.com/jscherff/cmdbd/common`
-)
-
-const (
-	priKeyName	string = `PriKey`
-	pubKeyName	string = `PubKey`
-)
-
-
-import (
-	`fmt`
-	`os`
-	`path/filepath`
-
 	//`github.com/jscherff/cmdbd/legacy`
 	`github.com/jscherff/cmdbd/common`
-	`github.com/jscherff/cmdbd/server`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 
-	//`github.com/jscherff/cmdbd/model`
-	//`github.com/jscherff/cmdbd/model/cmdb`
-	//`github.com/jscherff/cmdbd/model/cmdb/usbci`
-	//`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
+	`github.com/jscherff/cmdbd/model/cmdb`
+	`github.com/jscherff/cmdbd/model/cmdb/usbci`
+	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
 
 	//v1cmdb `github.com/jscherff/cmdbd/api/v1/cmdb`
 	//v1usbci `github.com/jscherff/cmdbd/api/v1/cmdb/usbci`
@@ -55,6 +39,11 @@ import (
 	//v2usbmeta `github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
+const (
+	priKeyName	string = `PriKey`
+	pubKeyName	string = `PubKey`
+)
+
 // Global variables.
 var (
 	program		string = filepath.Base(os.Args[0])
@@ -62,7 +51,7 @@ var (
 )
 
 // Master configuration settings.
-type Master struct {
+type Config struct {
 
 	AuthMaxAge	time.Duration
 
@@ -77,15 +66,16 @@ type Master struct {
 	PublicKey	[]byte
 	PrivateKey	[]byte
 
-	AuthTokenSvc	AuthTokenService
-	AuthCookieSvc	AuthCookieService
-	SerialNumSvc	SerialNumService
+	AuthTokenSvc	service.AuthTokenService
+	AuthCookieSvc	service.AuthCookieService
+	SerialNumSvc	service.SerialNumService
+	LoggerSvc	service.LoggerService
 
 	DataStore	store.DataStore
 	MiddleWare	MiddleWare
-	SystemLog	Logger
-	AccessLog	Logger
-	ErrorLog	Logger
+	SystemLog	service.Logger
+	AccessLog	service.Logger
+	ErrorLog	service.Logger
 	Syslog		Syslog
 
 	//MetaUsb	*legacy.MetaUsb
@@ -132,7 +122,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
 		return nil, err
 	} else {
-		this.PubKey = pemKey
+		this.PublicKey = pemKey
 	}
 
 	if priKeyFile, ok := this.ConfigFile[priKeyName]; !ok {
@@ -140,39 +130,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
 		return nil, err
 	} else {
-		this.PriKey = pemKey
-	}
-
-	// -------------------------------
-	// Create and initialize services.
-	// -------------------------------
-
-	if ts, err := NewAuthTokenService(this.pubKey, this.priKey, this.AuthMaxAge); err != nil {
-		return nil, err
-	} else {
-		this.AuthTokenSvc = ts
-	}
-
-	if cs, err := NewAuthCookieService(this); err != nil {
-		return nil, err
-	} else {
-		this.AuthCookieSvc = cs
-	}
-
-	if ss, err := NewSerialNumService(this); err != nil {
-		return nil, err
-	} else {
-		this.SerialNumSvc = ss
-	}
-
-	// ------------------------------------
-	// Create and initialize the DataStore.
-	// ------------------------------------
-
-	if ds, err := store.New(`mysql`, this.ConfigFile[`DataStore`]); err != nil {
-		return nil, err
-	} else {
-		this.DataStore = ds
+		this.PrivateKey = pemKey
 	}
 
 	// ----------------------------------------
@@ -185,39 +143,83 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.Syslog = sl
 	}
 
-	// -----------------------------------------------------
-	// Create and initialize the loggers and create aliases.
-	// -----------------------------------------------------
+	// -------------------------------
+	// Create and initialize services.
+	// -------------------------------
 
-	if ls, err := NewLoggers(this); err != nil {
+	if ats, err := service.NewAuthTokenService(this.PublicKey, this.PrivateKey, this.AuthMaxAge); err != nil {
 		return nil, err
 	} else {
-		this.Loggers = ls
+		this.AuthTokenSvc = ats
 	}
 
-	if sl, err := this.Loggers.Logger(`System`); err != nil {
+	if acs, err := service.NewAuthCookieService(this.AuthMaxAge); err != nil {
+		return nil, err
+	} else {
+		this.AuthCookieSvc = acs
+	}
+
+	if sns, err := service.NewSerialNumService(this.SerialFormat); err != nil {
+		return nil, err
+	} else {
+		this.SerialNumSvc = sns
+	}
+
+	if ls, err := service.NewLoggerService(this.LogDir, this.Console, this.Syslog); err != nil {
+		return nil, err
+	} else {
+		this.LoggerSvc = ls
+	}
+
+	// ----------------------------------
+	// Create and initialize the Loggers.
+	// ----------------------------------
+
+	if sl, err := this.LoggerSvc.Create(this.ConfigFile[`SystemLog`]); err != nil {
 		return nil, err
 	} else {
 		this.SystemLog = sl
 	}
 
-	if al, err := this.Loggers.Logger(`Access`); err != nil {
+	if al, err := this.LoggerSvc.Create(this.ConfigFile[`AccessLog`]); err != nil {
 		return nil, err
 	} else {
 		this.AccessLog = al
 	}
 
-	if el, err := this.Loggers.Logger(`Error`); err != nil {
+	if el, err := this.LoggerSvc.Create(this.ConfigFile[`ErrorLog`]); err != nil {
 		return nil, err
 	} else {
 		this.ErrorLog = el
+	}
+
+	// ------------------------------------
+	// Create and initialize the DataStore.
+	// ------------------------------------
+
+	if ds, err := store.New(`mysql`, this.ConfigFile[`DataStore`]); err != nil {
+		return nil, err
+	} else {
+		this.DataStore = ds
+	}
+
+	// --------------------------------
+	// Create and initialize the Model.
+	// --------------------------------
+
+	if stmts, err := this.DataStore.Prepare(this.ConfigFile[`Queries`]); err != nil {
+		return nil, err
+	} else {
+		cmdb.Init(stmts)
+		usbci.Init(stmts)
+		usbmeta.Init(stmts)
 	}
 
 	// ---------------------------------
 	// Create and initialize MiddleWare.
 	// ---------------------------------
 
-	if mw, err := NewMiddleWare(this); err != nil {
+	if mw, err := NewMiddleWare(this.AuthTokenSvc, this.AuthCookieSvc); err != nil {
 		return nil, err
 	} else {
 		this.MiddleWare = mw
@@ -227,7 +229,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize Router.
 	// -----------------------------
 
-	if rt, err := NewRouter(this); err != nil {
+	if rt, err := NewRouter(this.ConfigFile[`Router`], this.MiddleWare, this.AccessLog, this.ErrorLog); err != nil {
 		return nil, err
 	} else {
 		this.Router = rt
@@ -266,10 +268,9 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize Server.
 	// -----------------------------
 
-	if ws, err := NewServer(this); err != nil {
+	if ws, err := NewServer(this.ConfigFile[`Server`], this.Router); err != nil {
 		return nil, err
 	} else {
-		ws.Handler = this.Router
 		this.Server = ws
 	}
 

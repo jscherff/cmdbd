@@ -33,11 +33,11 @@ type middleWare struct {
 }
 
 // NewMiddleWare implements a new MiddleWare instance.
-func NewMiddleWare(conf *Config) (MiddleWare, error) {
+func NewMiddleWare(ats service.AuthTokenService, acs service.AuthCookieService) (MiddleWare, error) {
 
 	this := &middleWare{
-		AuthTokenSvc: confAuthTokenSvc,
-		AuthCookieSvc: confAuthCookieSvc,
+		AuthTokenSvc: ats,
+		AuthCookieSvc: acs,
 	}
 
 	return this, nil

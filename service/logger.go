@@ -15,6 +15,7 @@
 package service
 
 import (
+	`fmt`
 	`io`
 	`path/filepath`
 	`github.com/jscherff/gox/log`
@@ -24,6 +25,7 @@ import (
 // LoggerService is a collection of LoggerService with a getter method.
 type LoggerService interface {
 	Create(configFile string) (Logger, error)
+	Get(name string) (Logger, error)
 	Close()
 }
 
@@ -37,15 +39,15 @@ type loggerService struct {
 	LogDir string
 	Stdout bool
 	Syslog io.Writer
-	Logger []Logger
+	Logger map[string]Logger
 }
 
 // logger contains the configuration of a MLogger instance.
 type logger struct {
+	Name string
 	Stdout bool
 	Stderr bool
 	Syslog bool
-	LogTag string
 	LogFile string
 	LogFlags []string
 }
@@ -65,7 +67,7 @@ func (this *loggerService) Create(cf string) (Logger, error) {
 	}
 
 	newLogger := log.NewMLogger(
-		conf.LogTag,
+		conf.Name,
 		log.LoggerFlags(conf.LogFlags...),
 		this.Stdout || conf.Stdout,
 		conf.Stderr,
@@ -76,9 +78,18 @@ func (this *loggerService) Create(cf string) (Logger, error) {
 		newLogger.AddWriter(this.Syslog)
 	}
 
-	this.Logger = append(this.Logger, newLogger)
+	this.Logger[conf.Name] = newLogger
 
 	return newLogger, nil
+}
+
+// Retrieve logger by name.
+func (this *loggerService) Get (name string) (Logger, error) {
+	if logger, ok := this.Logger[name]; !ok {
+		return nil, fmt.Errorf(`logger %q not found`, name)
+	} else {
+		return logger, nil
+	}
 }
 
 // Sync and/or close writers within each logger as necessary.

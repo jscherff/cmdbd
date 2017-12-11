@@ -21,7 +21,7 @@ import (
 
 // AuthCookieService is an interface that create and extracts authentication cookies.
 type AuthCookieService interface {
-	Create(tokenString string) (cookie *http.Cookie)
+	Create(tokenString string) (cookie *http.Cookie, err error)
 	Read(request *http.Request) (tokenString string, err error)
 }
 
@@ -36,14 +36,14 @@ func NewAuthCookieService(maxAge time.Duration) (AuthCookieService, error) {
 }
 
 // Create generates a new authentication http.Cookie from an auth token string.
-func (this *authCookieService) Create(tokenString string) (*http.Cookie) {
+func (this *authCookieService) Create(tokenString string) (*http.Cookie, error) {
 
 	return &http.Cookie{
 		Name: `Auth`,
 		Value: tokenString,
 		Expires: time.Now().Add(this.MaxAge),
 		HttpOnly: true,
-	}
+	}, nil
 }
 
 // Read extracts the 'Auth' http.Cookie from an http.Request.
