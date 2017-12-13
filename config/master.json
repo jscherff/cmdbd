@@ -3,12 +3,9 @@
 
 	"Console": false,
 	"Refresh": false,
-	"LogDir": "/var/log/cmdbd",
 
 	"ConfigFile": {
-		"SystemLog": "logger/system.json",
-		"AccessLog": "logger/system.json",
-		"ErrorLog": "logger/system.json",
+		"Loggers": "service/loggers.json",
 		"DataStore": "store/mysql.json",
 		"Queries": "model/queries.json",
 		"MetaUsb": "cache/metausb.json",
@@ -18,8 +15,8 @@
 	},
 
 	"CryptoFile": {
-		"PriKey": "crypto/cmdbd.rsa",
-		"PubKey": "crypto/cmdbd.pub"
+		"PublicKey": "crypto/cmdbd.pub",
+		"PrivateKey": "crypto/cmdbd.rsa"
 	},
 
 	"SerialFormat": {

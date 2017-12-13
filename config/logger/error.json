@@ -1,8 +1,0 @@
-{
-	"Name": "Error",
-	"Stdout": false,
-	"Stderr": false,
-	"Syslog": false,
-	"LogFile": "error.log",
-	"LogFlags": ["date","time","shortfile"]
-}

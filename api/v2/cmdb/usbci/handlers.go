@@ -38,11 +38,11 @@ type Handlers interface {
 type handlers struct {
 	ErrorLog service.Logger
 	SystemLog service.Logger
-	SerialNumSvc service.SerialNumService
+	SerialNumSvc service.SerialNumSvc
 }
 
 // NewHandlers returns a new handlers instance.
-func NewHandlers(errLog, sysLog service.Logger, sns service.SerialNumService) Handlers {
+func NewHandlers(errLog, sysLog service.Logger, sns service.SerialNumSvc) Handlers {
 	return &handlers{
 		ErrorLog: errLog,
 		SystemLog: sysLog,

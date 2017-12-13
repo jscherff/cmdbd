@@ -1,8 +1,0 @@
-{
-	"Name": "System",
-	"Stdout": false,
-	"Stderr": false,
-	"Syslog": false,
-	"LogFile": "system.log",
-	"LogFlags": ["date","time"]
-}

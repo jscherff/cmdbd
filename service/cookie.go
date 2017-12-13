@@ -19,24 +19,24 @@ import (
 	`time`
 )
 
-// AuthCookieService is an interface that create and extracts authentication cookies.
-type AuthCookieService interface {
+// AuthCookieSvc is an interface that create and extracts authentication cookies.
+type AuthCookieSvc interface {
 	Create(tokenString string) (cookie *http.Cookie, err error)
 	Read(request *http.Request) (tokenString string, err error)
 }
 
-// authCookieService is a service that implements the AuthCookieService interface.
-type authCookieService struct {
+// authCookieSvc is a service that implements the AuthCookieSvc interface.
+type authCookieSvc struct {
 	MaxAge time.Duration
 }
 
-// NewAuthCookieService returns an object that implements the AuthCookieService interface.
-func NewAuthCookieService(maxAge time.Duration) (AuthCookieService, error) {
-	return &authCookieService{MaxAge: maxAge}, nil
+// NewAuthCookieSvc returns an object that implements the AuthCookieSvc interface.
+func NewAuthCookieSvc(maxAge time.Duration) (AuthCookieSvc, error) {
+	return &authCookieSvc{MaxAge: maxAge}, nil
 }
 
 // Create generates a new authentication http.Cookie from an auth token string.
-func (this *authCookieService) Create(tokenString string) (*http.Cookie, error) {
+func (this *authCookieSvc) Create(tokenString string) (*http.Cookie, error) {
 
 	return &http.Cookie{
 		Name: `Auth`,
@@ -47,7 +47,7 @@ func (this *authCookieService) Create(tokenString string) (*http.Cookie, error) 
 }
 
 // Read extracts the 'Auth' http.Cookie from an http.Request.
-func (this *authCookieService) Read(request *http.Request) (string, error) {
+func (this *authCookieSvc) Read(request *http.Request) (string, error) {
 
 	if cookie, err := request.Cookie(`Auth`); err != nil {
 		return ``, err

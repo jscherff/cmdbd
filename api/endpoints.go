@@ -15,10 +15,24 @@
 package cmdb
 
 import (
+	`net/http`
 	`github.com/gorilla/mux`
 )
 
-func (this *handlers) AddRoutes(router *mux.Router) {
+type Endpoint struct {
+	Name string
+	Path string
+	Method string
+	Handler http.Handler
+	Protected bool
+}
+
+type Endpoints []Endpoint
+
+type endpoint struct {
+
+
+func (this *handlers) AddRoutes(router *mux.Router, mware http.Handler) *mux.Router {
 
 	router.NewRoute().
 		Name(`CMDB Authenticator`).

@@ -40,11 +40,10 @@ import (
 )
 
 const (
-	priKeyName	string = `PriKey`
-	pubKeyName	string = `PubKey`
+	pubKeyName	string = `PublicKey`
+	priKeyName	string = `PrivateKey`
 )
 
-// Global variables.
 var (
 	program		string = filepath.Base(os.Args[0])
 	version		string = `undefined`
@@ -57,7 +56,6 @@ type Config struct {
 
 	Console		bool
 	Refresh		bool
-	LogDir		string
 
 	ConfigFile	map[string]string
 	CryptoFile	map[string]string
@@ -73,9 +71,7 @@ type Config struct {
 
 	DataStore	store.DataStore
 	MiddleWare	MiddleWare
-	SystemLog	service.Logger
-	AccessLog	service.Logger
-	ErrorLog	service.Logger
+	Loggers		service.Loggers
 	Syslog		Syslog
 
 	//MetaUsb	*legacy.MetaUsb

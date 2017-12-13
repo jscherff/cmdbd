@@ -45,24 +45,24 @@ func (this *Token) AuthClaims() (AuthClaims) {
 	return this.Claims.(Claims).AuthClaims
 }
 
-// AuthTokenService is an interface that creates, parses, and validates Tokens.
-type AuthTokenService interface {
+// AuthTokenSvc is an interface that creates, parses, and validates Tokens.
+type AuthTokenSvc interface {
 	Create(user *cmdb.User) (token *Token, err error)
 	String(token *Token) (tokenString string, err error)
 	Parse(tokenString string) (token *Token, err error)
 }
 
-// authTokenService is a service that implements the AuthTokenService interface.
-type authTokenService struct {
+// authTokenSvc is a service that implements the AuthTokenSvc interface.
+type authTokenSvc struct {
 	PriKey *rsa.PrivateKey
 	PubKey *rsa.PublicKey
 	MaxAge time.Duration
 }
 
-// NewAuthTokenService returns an object that implements the AuthTokenService interface.
-func NewAuthTokenService(pubKey, priKey []byte, maxAge time.Duration) (AuthTokenService, error) {
+// NewAuthTokenSvc returns an object that implements the AuthTokenSvc interface.
+func NewAuthTokenSvc(pubKey, priKey []byte, maxAge time.Duration) (AuthTokenSvc, error) {
 
-	this := &authTokenService{MaxAge: maxAge}
+	this := &authTokenSvc{MaxAge: maxAge}
 
 	// Process RSA public key.
 
@@ -84,7 +84,7 @@ func NewAuthTokenService(pubKey, priKey []byte, maxAge time.Duration) (AuthToken
 }
 
 // Create generates a new Token.
-func (this *authTokenService) Create(user *cmdb.User) (*Token, error) {
+func (this *authTokenSvc) Create(user *cmdb.User) (*Token, error) {
 
 	claims := &Claims {
 
@@ -100,7 +100,7 @@ func (this *authTokenService) Create(user *cmdb.User) (*Token, error) {
 }
 
 // Parse parses a token string and returns a Token.
-func (this *authTokenService) Parse(tokenString string) (*Token, error) {
+func (this *authTokenSvc) Parse(tokenString string) (*Token, error) {
 
 	token, err := jwt.ParseWithClaims(
 
@@ -128,6 +128,6 @@ func (this *authTokenService) Parse(tokenString string) (*Token, error) {
 }
 
 // String returns a token string suitable for cookies.
-func (this *authTokenService) String(token *Token) (string, error) {
+func (this *authTokenSvc) String(token *Token) (string, error) {
 	return token.SignedString(this.PriKey)
 }

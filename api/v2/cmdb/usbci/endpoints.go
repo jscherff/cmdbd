@@ -7,50 +7,41 @@
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS).
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
 package usbci
 
-import `github.com/jscherff/cmdbd/server`
+import `github.com/gorilla/mux`
 
 // NewRoutes returns a collection of REST APIv2 endpoints providing CMDB CI data.
-func NewRoutes(hf Handlers) server.Routes {
+func (this *handlers) AddRoutes(router *mux.Router) *mux.Router {
 
-	return server.Routes {
+	subRouter := router.PathPrefix(`/v2/cmdb/usbci`).Subrouter()
 
-		server.Route {
-			Name:		`USB CI Checkin Handler`,
-			Method:		`POST`,
-			Pattern:	`/v2/cmdb/usbci/checkin/{host}/{vid}/{pid}`,
-			HandlerFunc:	hf.Checkin,
-			Protected:	true,
-		},
+	subRouter.NewRoute().
+		Name(`USB CI Checkin Handler`).
+		Methods(`POST`).
+		Path(`/checkin/{host}/{vid}/{pid}`).
+		HandlerFunc(this.Checkin)
 
-		server.Route {
-			Name:		`USB CI Checkout Handler`,
-			Method:		`GET`,
-			Pattern:	`/v2/cmdb/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
-			HandlerFunc:	hf.CheckOut,
-			Protected:	true,
-		},
+	subRouter.NewRoute().
+		Name(`USB CI Checkout Handler`).
+		Methods(`GET`).
+		Path(`/checkout/{host}/{vid}/{pid}/{sn}`).
+		HandlerFunc(this.CheckOut)
 
-		server.Route {
-			Name:		`USB CI NewSn Handler`,
-			Method:		`POST`,
-			Pattern:	`/v2/cmdb/usbci/newsn/{host}/{vid}/{pid}`,
-			HandlerFunc:	hf.NewSn,
-			Protected:	true,
-		},
+	subRouter.NewRoute().
+		Name(`USB CI NewSn Handler`).
+		Methods(`POST`).
+		Path(`/newsn/{host}/{vid}/{pid}`).
+		HandlerFunc(this.NewSn)
 
-		server.Route {
-			Name:		`USB CI Audit Handler`,
-			Method:		`POST`,
-			Pattern:	`/v2/cmdb/usbci/audit/{host}/{vid}/{pid}/{sn}`,
-			HandlerFunc:	hf.Audit,
-			Protected:	true,
-		},
-	}
+	subRouter.NewRoute().
+		Name(`USB CI Audit Handler`).
+		Methods(`POST`).
+		Path(`/audit/{host}/{vid}/{pid}/{sn}`).
+		HandlerFunc(this.Audit)
 }

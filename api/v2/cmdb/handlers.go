@@ -1,3 +1,4 @@
+
 // Copyright 2017 John Scherff
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +17,7 @@ package cmdb
 
 import (
 	`net/http`
+	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/service`
 )
@@ -23,23 +25,38 @@ import (
 // Handlers contains http.HandleFunc signatures of CMDBd APIv2.
 type Handlers interface {
 	SetAuthToken(http.ResponseWriter, *http.Request)
+	AddRoutes(*mux.Router)
 }
 
 // handlers implements the Handlers interface.
 type handlers struct {
 	ErrorLog service.Logger
 	SystemLog service.Logger
-	AuthTokenSvc service.AuthTokenService
-	AuthCookieSvc service.AuthCookieService
+	AuthTokenSvc service.AuthTokenSvc
+	AuthCookieSvc service.AuthCookieSvc
 }
 
 // NewHandlers returns a new handlers instance.
-func NewHandlers(errLog, sysLog service.Logger, ats service.AuthTokenService, acs service.AuthCookieService) Handlers {
+func NewHandlers(errLog, sysLog service.Logger, ats service.AuthTokenSvc, acs service.AuthCookieSvc) Handlers {
+
 	return &handlers{
 		ErrorLog: errLog,
 		SystemLog: sysLog,
 		AuthTokenSvc: ats,
+		AuthCookieSvc: acs,
 	}
+}
+
+// AddRoutes associates URL paths with HTTP Methods and HTTP HandlerFuncs.
+func (this *handlers) AddRoutes(router *mux.Router) *mux.Router {
+
+	router.NewRoute().
+		Name(`CMDB Authenticator`).
+		Path(`/v2/cmdb/authenticate`).
+		Methods(`GET`).
+		HandlerFunc(SetAuthToken)
+
+	return router
 }
 
 // SetAuthToken authenticates client using basic authentication and

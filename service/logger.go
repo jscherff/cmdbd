@@ -15,36 +15,59 @@
 package service
 
 import (
-	`fmt`
 	`io`
 	`path/filepath`
 	`github.com/jscherff/gox/log`
 	`github.com/jscherff/cmdbd/common`
 )
 
-// LoggerService is a collection of LoggerService with a getter method.
-type LoggerService interface {
-	Create(configFile string) (Logger, error)
-	Get(name string) (Logger, error)
+// Loggers is a collection of Loggers with a getter method.
+type Loggers interface {
+	System() log.MLogger
+	Access() log.MLogger
+	Error() log.MLogger
 	Close()
 }
 
-// Logger reimplements the log.MLogger interface.
-type Logger interface {
-	log.MLogger
-}
-
-// loggerService is a collection of MLogger configurations with overrides.
-type loggerService struct {
+// loggers is a collection of MLogger configurations with overrides.
+type loggers struct {
 	LogDir string
 	Stdout bool
-	Syslog io.Writer
-	Logger map[string]Logger
+	Stderr bool
+	Syslog bool
+	Logger struct {
+		System *logger
+		Access *logger
+		Error *logger
+	}
+}
+
+// System returns the system logger.
+func (this *loggers) System() (log.MLogger) {
+	return this.Logger.System
+}
+
+// Access returns the access logger.
+func (this *loggers) Access() (log.MLogger) {
+	return this.Logger.Access
+}
+
+// Error returns the error logger.
+func (this *loggers) Error() (log.MLogger) {
+	return this.Logger.Error
+}
+
+// Close closes the system, access, and error loggers.
+func (this *loggers) Close() {
+	this.Logger.System.Close()
+	this.Logger.Access.Close()
+	this.Logger.Error.Close()
 }
 
 // logger contains the configuration of a MLogger instance.
 type logger struct {
-	Name string
+	log.MLogger
+	Tag string
 	Stdout bool
 	Stderr bool
 	Syslog bool
@@ -52,49 +75,37 @@ type logger struct {
 	LogFlags []string
 }
 
-// NewLoggerService creates and initializes a new collection of LoggerService.
-func NewLoggerService(logDir string, console bool, syslog io.Writer) (LoggerService, error) {
-	return &loggerService{LogDir: logDir, Stdout: console, Syslog: syslog}, nil
-}
 
-// Create creates a new logger from the provided JSON configuration file.
-func (this *loggerService) Create(cf string) (Logger, error) {
+// NewLoggers creates and initializes a new collection of Loggers.
+func NewLoggers(cf string, console bool, syslog io.Writer) (Loggers, error) {
 
-	conf := &logger{}
+	this := &loggers{}
 
-	if err := common.LoadConfig(conf, cf); err != nil {
+	if err := common.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
-	newLogger := log.NewMLogger(
-		conf.Name,
-		log.LoggerFlags(conf.LogFlags...),
-		this.Stdout || conf.Stdout,
-		conf.Stderr,
-		filepath.Join(this.LogDir, conf.LogFile),
-	)
+	init := func(l *logger) {
 
-	if conf.Syslog && this.Syslog != nil {
-		newLogger.AddWriter(this.Syslog)
+		flags := log.LoggerFlags(l.LogFlags...)
+		file := filepath.Join(this.LogDir, l.LogFile)
+
+		l.MLogger = log.NewMLogger(
+			l.Tag,
+			flags,
+			l.Stdout || this.Stdout || console,
+			l.Stderr || this.Stderr,
+			file,
+		)
+
+		if (l.Syslog || this.Syslog) && syslog != nil {
+			l.AddWriter(syslog)
+		}
 	}
 
-	this.Logger[conf.Name] = newLogger
+	init(this.Logger.System)
+	init(this.Logger.Access)
+	init(this.Logger.Error)
 
-	return newLogger, nil
-}
-
-// Retrieve logger by name.
-func (this *loggerService) Get (name string) (Logger, error) {
-	if logger, ok := this.Logger[name]; !ok {
-		return nil, fmt.Errorf(`logger %q not found`, name)
-	} else {
-		return logger, nil
-	}
-}
-
-// Sync and/or close writers within each logger as necessary.
-func (this *loggerService) Close() {
-	for _, logger := range this.Logger {
-		logger.Close()
-	}
+	return this, nil
 }
