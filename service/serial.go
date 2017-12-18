@@ -16,24 +16,24 @@ package service
 
 import `fmt`
 
-// SerialNumSvc is an interface that creates serial numbers from seed values.
-type SerialNumSvc interface {
+// SerialSvc is an interface that creates serial numbers from seed values.
+type SerialSvc interface {
 	Create(key string, seed int64) (serialNum string, err error)
 	Format(key string) (serialFmt string, err error)
 }
 
-// serialNumSvc is a service that implements the SerialNumSvc interface.
-type serialNumSvc struct {
+// serialSvc is a service that implements the SerialSvc interface.
+type serialSvc struct {
 	SerialFormat map[string]string
 }
 
-// NewSerialNumSvc returns an object that implements the SerialNumSvc interface.
-func NewSerialNumSvc(serialFormat map[string]string) (SerialNumSvc, error) {
-	return &serialNumSvc{serialFormat}, nil
+// NewSerialSvc returns an object that implements the SerialSvc interface.
+func NewSerialSvc(serialFormat map[string]string) (SerialSvc, error) {
+	return &serialSvc{serialFormat}, nil
 }
 
 // Format returns the format string of the provided format key.
-func (this *serialNumSvc) Format(key string) (string, error) {
+func (this *serialSvc) Format(key string) (string, error) {
 
 	if format, ok := this.SerialFormat[key]; ok {
 		return format, nil
@@ -45,7 +45,7 @@ func (this *serialNumSvc) Format(key string) (string, error) {
 }
 
 // Create generates a new serial number using the provided format key and seed.
-func (this *serialNumSvc) Create(key string, seed int64) (string, error) {
+func (this *serialSvc) Create(key string, seed int64) (string, error) {
 
 	if format, err := this.Format(key); err != nil {
 		return ``, err

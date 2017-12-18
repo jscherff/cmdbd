@@ -42,7 +42,7 @@ func NewServer(cf string, handler http.Handler) (*Server, error) {
 	return this, nil
 }
 
-// Info provides identifying information about the server.
-func (this *Server) Info() (string) {
-	return fmt.Sprintf(`HTTP Server started and listening on %q`, this.Addr)
+// String provides identifying information about the server.
+func (this *Server) String() (string) {
+	return fmt.Sprintf(`server started and listening on %q`, this.Addr)
 }

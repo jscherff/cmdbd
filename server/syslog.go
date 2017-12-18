@@ -16,7 +16,6 @@ package server
 
 import (
 	`fmt`
-	`io`
 	`github.com/RackSec/srslog`
 	`github.com/jscherff/cmdbd/common`
 )
@@ -59,13 +58,9 @@ var (
 	}
 )
 
-// Syslog is a syslog client that implements the io.Writer interface.
-type Syslog interface {
-	io.Writer
-}
-
-// syslog contains the Syslog configuration.
-type syslog struct {
+// Syslog contains the Syslog configuration.
+type Syslog struct {
+	*srslog.Writer
 	Protocol	string
 	Port		string
 	Host		string
@@ -75,11 +70,11 @@ type syslog struct {
 }
 
 // NewSyslog creates and initializes a new Syslog instance.
-func NewSyslog(conf *Config) (Syslog, error) {
+func NewSyslog(cf string) (*Syslog, error) {
 
-	this := &syslog{}
+	this := &Syslog{}
 
-	if err := common.LoadConfig(this, conf.ConfigFile[`Syslog`]); err != nil {
+	if err := common.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
@@ -97,10 +92,13 @@ func NewSyslog(conf *Config) (Syslog, error) {
 		severity = sev
 	}
 
-	return srslog.Dial(
-		this.Protocol,
-		fmt.Sprintf(`%s:%s`, this.Host, this.Port),
-		facility|severity,
-		this.Tag,
-	)
+	raddr := fmt.Sprintf(`%s:%s`, this.Host, this.Port)
+
+	if writer, err := srslog.Dial(this.Protocol, raddr, facility|severity, this.Tag); err != nil {
+		return nil, err
+	} else {
+		this.Writer = writer
+	}
+
+	return this, nil
 }

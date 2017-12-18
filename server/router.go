@@ -18,28 +18,28 @@ import (
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
+	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/midware`
 	`github.com/jscherff/cmdbd/service`
 )
 
 // Router is a Gorilla Mux router with additional methods.
 type Router struct {
 	*mux.Router
-	MiddleWare MiddleWare
-	AccessLog service.Logger
-	RecoveryLog service.Logger
 	RecoveryStack bool
+	AuthSvc service.AuthSvc
+	LoggerSvc service.LoggerSvc
 }
 
 // NewRouter creates and initializes a new Router instance.
-func NewRouter(cf string, mWare MiddleWare, accLog, recLog service.Logger) (*Router, error) {
+func NewRouter(cf string, authSvc service.AuthSvc, logSvc service.LoggerSvc) (*Router, error) {
 
 	this := &Router{
 		Router: mux.NewRouter().StrictSlash(true),
-		MiddleWare: mWare,
-		AccessLog: accLog,
-		RecoveryLog: recLog,
 		RecoveryStack: false,
+		AuthSvc: authSvc,
+		LoggerSvc: logSvc,
 	}
 
 	if err := common.LoadConfig(this, cf); err != nil {
@@ -49,29 +49,30 @@ func NewRouter(cf string, mWare MiddleWare, accLog, recLog service.Logger) (*Rou
 	return this, nil
 }
 
-// AddRoutes adds a collection of one or more routes to the Router.
-func (this *Router) AddRoutes(routes Routes) *Router {
+// AddEndpoints adds a collection of one or more endpoints to the Router.
+func (this *Router) AddEndpoints(endpoints []api.Endpoint) *Router {
 
-	for _, route := range routes {
+	accessLog := this.LoggerSvc.AccessLog()
+	recoveryLog := this.LoggerSvc.ErrorLog()
 
-		var handler http.Handler
+	for _, endpoint := range endpoints {
 
-		handler = route.HandlerFunc
-
-		if route.Protected {
-			handler = this.MiddleWare.AuthTokenValidator(handler)
-		}
+		var handler http.Handler = endpoint.HandlerFunc
 
 		handler = handlers.RecoveryHandler(
 			handlers.PrintRecoveryStack(this.RecoveryStack),
-			handlers.RecoveryLogger(this.RecoveryLog))(handler)
+			handlers.RecoveryLogger(recoveryLog))(handler)
 
-		handler = handlers.CombinedLoggingHandler(
-			this.AccessLog, handler)
+		if endpoint.Protected {
+			handler = midware.AuthTokenValidator(this.AuthSvc, handler)
+		}
 
-		this.	Methods(route.Method).
-			Path(route.Pattern).
-			Name(route.Name).
+		handler = handlers.CombinedLoggingHandler(accessLog, handler)
+
+		this.NewRoute().
+			Name(endpoint.Name).
+			Path(endpoint.Path).
+			Methods(endpoint.Method).
 			Handler(handler)
 	}
 

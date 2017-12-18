@@ -16,6 +16,7 @@ package usbmeta
 
 import (
 	`time`
+	`github.com/jscherff/cmdb/meta/peripheral`
 	`github.com/jscherff/cmdbd/store`
 )
 
@@ -26,35 +27,165 @@ func Init(stmts store.Statements) {
 }
 
 type Class struct {
-	ClassID		string		`db:"class_id"`
-	ClassDesc	string		`db:"class_desc"`
-	LastUpdate	time.Time	`db:"last_update"`
+	ClassID		string		`db:"class_id,omitempty"`
+	ClassDesc	string		`db:"class_desc,omitempty"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"`
 }
 
 type SubClass struct {
-	ClassID		string		`db:"class_id"`
-	SubClassID	string		`db:"subclass_id"`
-	SubClassDesc	string		`db:"subclass_desc"`
-	LastUpdate	time.Time	`db:"last_update"`
+	ClassID		string		`db:"class_id,omitempty"`
+	SubClassID	string		`db:"subclass_id,omitempty"`
+	SubClassDesc	string		`db:"subclass_desc,omitempty"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"`
 }
 
 type Protocol struct {
-	ClassID		string		`db:"class_id"`
-	SubClassID	string		`db:"subclass_id"`
-	ProtocolID	string		`db:"protocol_id"`
-	ProtocolDesc	string		`db:"protocol_desc"`
-	LastUpdate	time.Time	`db:"last_update"`
+	ClassID		string		`db:"class_id,omitempty"`
+	SubClassID	string		`db:"subclass_id,omitempty"`
+	ProtocolID	string		`db:"protocol_id,omitempty"`
+	ProtocolDesc	string		`db:"protocol_desc,omitempty"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"`
 }
 
 type Vendor struct {
-	VendorID	string		`db:"vendor_id"`
-	VendorName	string		`db:"vendor_name"`
-	LastUpdate	time.Time	`db:"last_update"`
+	VendorID	string		`db:"vendor_id,omitempty"`
+	VendorName	string		`db:"vendor_name,omitempty"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"`
 }
 
 type Product struct {
-	VendorID	string		`db:"vendor_id"`
-	ProductID	string		`db:"product_id"`
-	ProductName	string		`db:"product_name"`
-	LastUpdate	time.Time	`db:"last_update"`
+	VendorID	string		`db:"vendor_id,omitempty"`
+	ProductID	string		`db:"product_id,omitempty"`
+	ProductName	string		`db:"product_name,omitempty"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"`
+}
+
+func (this *Vendor) Create() (int64, error) {
+	return Stmts.Insert(`Create`, this)
+}
+
+func (this *Product) Create() (int64, error) {
+	return Stmts.Insert(`Create`, this)
+}
+
+func (this *Class) Create() (int64, error) {
+	return Stmts.Insert(`Create`, this)
+}
+
+func (this *SubClass) Create() (int64, error) {
+	return Stmts.Insert(`Create`, this)
+}
+
+func (this *Protocol) Create() (int64, error) {
+	return Stmts.Insert(`Create`, this)
+}
+
+func (this *Vendor) Read(arg interface{}) (error) {
+	return Stmts.Get(`Read`, this, arg)
+}
+
+func (this *Product) Read(arg interface{}) (error) {
+	return Stmts.Get(`Read`, this, arg)
+}
+
+func (this *Class) Read(arg interface{}) (error) {
+	return Stmts.Get(`Read`, this, arg)
+}
+
+func (this *SubClass) Read(arg interface{}) (error) {
+	return Stmts.Get(`Read`, this, arg)
+}
+
+func (this *Protocol) Read(arg interface{}) (error) {
+	return Stmts.Get(`Read`, this, arg)
+}
+
+func (this *Vendor) String() (string) {
+	return this.VendorName
+}
+
+func (this *Product) String() (string) {
+	return this.ProductName
+}
+
+func (this *Class) String() (string) {
+	return this.ClassDesc
+}
+
+func (this *SubClass) String() (string) {
+	return this.SubClassDesc
+}
+
+func (this *Protocol) String() (string) {
+	return this.ProtocolDesc
+}
+
+// Load updates the USB metadata tables in the database.
+func Load(usb *peripheral.Usb) (error) {
+
+	for vid, v := range usb.Vendors {
+
+		vendor := &Vendor{
+			VendorID: vid,
+			VendorName: v.String(),
+		}
+
+		if _, err := vendor.Create(); err != nil {
+			return err
+		}
+
+		for pid, p := range v.Product {
+
+			product := &Product{
+				VendorID: vid,
+				ProductID: pid,
+				ProductName: p.String(),
+			}
+
+			if _, err := product.Create(); err != nil {
+				return err
+			}
+		}
+	}
+
+	for cid, c := range usb.Classes {
+
+		class := &Class{
+			ClassID: cid,
+			ClassDesc: c.String(),
+		}
+
+		if _, err := class.Create(); err != nil {
+			return err
+		}
+
+		for sid, s := range c.SubClass {
+
+			subClass := &SubClass{
+				ClassID: cid,
+				SubClassID: sid,
+				SubClassDesc: s.String(),
+			}
+
+			if _, err := subClass.Create(); err != nil {
+				return err
+			}
+
+			for pid, p := range s.Protocol {
+
+				protocol := &Protocol{
+					ClassID: cid,
+					SubClassID: sid,
+					ProtocolID: pid,
+					ProtocolDesc: p.String(),
+				}
+
+				if _, err := protocol.Create(); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }

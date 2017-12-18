@@ -21,22 +21,23 @@ import (
 	`path/filepath`
 	`time`
 
-	//`github.com/jscherff/cmdbd/legacy`
+	`github.com/jscherff/cmdb/meta/peripheral`
+
 	`github.com/jscherff/cmdbd/common`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 
-	`github.com/jscherff/cmdbd/model/cmdb`
-	`github.com/jscherff/cmdbd/model/cmdb/usbci`
-	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
+	model_cmdb	`github.com/jscherff/cmdbd/model/cmdb`
+	model_usbci	`github.com/jscherff/cmdbd/model/cmdb/usbci`
+	model_usbmeta	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
 
 	//v1cmdb `github.com/jscherff/cmdbd/api/v1/cmdb`
 	//v1usbci `github.com/jscherff/cmdbd/api/v1/cmdb/usbci`
 	//v1usbmeta `github.com/jscherff/cmdbd/api/v1/cmdb/usbmeta`
 
-	//v2cmdb `github.com/jscherff/cmdbd/api/v2/cmdb`
-	//v2usbci `github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
-	//v2usbmeta `github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
+	api_cmdb_v2	`github.com/jscherff/cmdbd/api/v2/cmdb`
+	api_usbci_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
+	api_usbmeta_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
 const (
@@ -64,19 +65,16 @@ type Config struct {
 	PublicKey	[]byte
 	PrivateKey	[]byte
 
-	AuthTokenSvc	service.AuthTokenService
-	AuthCookieSvc	service.AuthCookieService
-	SerialNumSvc	service.SerialNumService
-	LoggerSvc	service.LoggerService
-
+	AuthSvc		service.AuthSvc
+	SerialSvc	service.SerialSvc
+	LoggerSvc	service.LoggerSvc
 	DataStore	store.DataStore
-	MiddleWare	MiddleWare
-	Loggers		service.Loggers
-	Syslog		Syslog
 
-	//MetaUsb	*legacy.MetaUsb
 	//Database	*legacy.Database
 	//Queries	*legacy.Queries
+
+	UsbMeta		*peripheral.Usb
+	Syslog		*Syslog
 	Router		*Router
 	Server		*Server
 }
@@ -89,11 +87,14 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Load the master configuration.
 	// ------------------------------
 
-	this := &Config{Console: console, Refresh: refresh}
+	this := &Config{}
 
 	if err := common.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
+
+	this.Console = this.Console || console
+	this.Refresh = this.Refresh || refresh
 
 	// Prepend the master config directory to other filenames.
 
@@ -113,7 +114,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Load the public and private key files.
 	// --------------------------------------
 
-	if pubKeyFile, ok := this.ConfigFile[pubKeyName]; !ok {
+	if pubKeyFile, ok := this.CryptoFile[pubKeyName]; !ok {
 		return nil, fmt.Errorf(`public key config %q not found`, pubKeyName)
 	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
 		return nil, err
@@ -121,7 +122,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.PublicKey = pemKey
 	}
 
-	if priKeyFile, ok := this.ConfigFile[priKeyName]; !ok {
+	if priKeyFile, ok := this.CryptoFile[priKeyName]; !ok {
 		return nil, fmt.Errorf(`private key config %q not found`, priKeyName)
 	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
 		return nil, err
@@ -133,7 +134,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize the Syslog client.
 	// ----------------------------------------
 
-	if sl, err := NewSyslog(this); err != nil {
+	if sl, err := NewSyslog(this.ConfigFile[`Syslog`]); err != nil {
 		return nil, err
 	} else {
 		this.Syslog = sl
@@ -143,57 +144,29 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize services.
 	// -------------------------------
 
-	if ats, err := service.NewAuthTokenService(this.PublicKey, this.PrivateKey, this.AuthMaxAge); err != nil {
+	if as, err := service.NewAuthSvc(this.PublicKey, this.PrivateKey, this.AuthMaxAge); err != nil {
 		return nil, err
 	} else {
-		this.AuthTokenSvc = ats
+		this.AuthSvc = as
 	}
 
-	if acs, err := service.NewAuthCookieService(this.AuthMaxAge); err != nil {
+	if ss, err := service.NewSerialSvc(this.SerialFormat); err != nil {
 		return nil, err
 	} else {
-		this.AuthCookieSvc = acs
+		this.SerialSvc = ss
 	}
 
-	if sns, err := service.NewSerialNumService(this.SerialFormat); err != nil {
-		return nil, err
-	} else {
-		this.SerialNumSvc = sns
-	}
-
-	if ls, err := service.NewLoggerService(this.LogDir, this.Console, this.Syslog); err != nil {
+	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], this.Console, this.Syslog); err != nil {
 		return nil, err
 	} else {
 		this.LoggerSvc = ls
-	}
-
-	// ----------------------------------
-	// Create and initialize the Loggers.
-	// ----------------------------------
-
-	if sl, err := this.LoggerSvc.Create(this.ConfigFile[`SystemLog`]); err != nil {
-		return nil, err
-	} else {
-		this.SystemLog = sl
-	}
-
-	if al, err := this.LoggerSvc.Create(this.ConfigFile[`AccessLog`]); err != nil {
-		return nil, err
-	} else {
-		this.AccessLog = al
-	}
-
-	if el, err := this.LoggerSvc.Create(this.ConfigFile[`ErrorLog`]); err != nil {
-		return nil, err
-	} else {
-		this.ErrorLog = el
 	}
 
 	// ------------------------------------
 	// Create and initialize the DataStore.
 	// ------------------------------------
 
-	if ds, err := store.New(`mysql`, this.ConfigFile[`DataStore`]); err != nil {
+	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
 	} else {
 		this.DataStore = ds
@@ -206,43 +179,49 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	if stmts, err := this.DataStore.Prepare(this.ConfigFile[`Queries`]); err != nil {
 		return nil, err
 	} else {
-		cmdb.Init(stmts)
-		usbci.Init(stmts)
-		usbmeta.Init(stmts)
+		model_cmdb.Init(stmts)
+		model_usbci.Init(stmts)
+		model_usbmeta.Init(stmts)
 	}
 
-	// ---------------------------------
-	// Create and initialize MiddleWare.
-	// ---------------------------------
+	// -----------------------------------
+	// Create and initialize USB metadata.
+	// -----------------------------------
 
-	if mw, err := NewMiddleWare(this.AuthTokenSvc, this.AuthCookieSvc); err != nil {
+	if um, err := NewUsbMeta(this.ConfigFile[`UsbMeta`], refresh); err != nil {
 		return nil, err
 	} else {
-		this.MiddleWare = mw
+		this.UsbMeta = um
 	}
 
 	// -----------------------------
 	// Create and initialize Router.
 	// -----------------------------
 
-	if rt, err := NewRouter(this.ConfigFile[`Router`], this.MiddleWare, this.AccessLog, this.ErrorLog); err != nil {
+	if rt, err := NewRouter(this.ConfigFile[`Router`], this.AuthSvc, this.LoggerSvc); err != nil {
 		return nil, err
 	} else {
 		this.Router = rt
 	}
+
+	// -----------------------------------------------------
+	// Initialize API Endpoints and add Endpoints to Router.
+	// -----------------------------------------------------
+
+	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
+	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
+	api_usbmeta_v2.Init(this.UsbMeta, this.LoggerSvc)
+
+	this.Router.
+		AddEndpoints(api_cmdb_v2.Endpoints).
+		AddEndpoints(api_usbci_v2.Endpoints).
+		AddEndpoints(api_usbmeta_v2.Endpoints)
+
 /*
 	this.Router.
 		AddRoutes(usbCiRoutes).
 		AddRoutes(usbMetaRoutes).
 		AddRoutes(cmdbAuthRoutes)
-
-	// Create and initialize MetaUsb object.
-
-	if mu, err := NewMetaUsb(this); err != nil {
-		return nil, err
-	} else {
-		this.MetaUsb = mu
-	}
 
 	// Create and initialize Database object.
 

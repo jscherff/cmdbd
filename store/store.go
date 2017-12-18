@@ -15,55 +15,55 @@
 package store
 
 import (
-	`fmt`
-
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/common`
 )
-
-// driverName is the database driver name for the dataStore.
-var driverName = `undefined`
 
 // DataStore provides an enhanced CRUD interface for the dataStore.
 type DataStore interface {
 	Register(schemaName string)
 	Prepare(queryFile string) (stmts Statements, err error)
-	String() (info string)
+	Beginx() (trans *sqlx.Tx, err error)
+	DriverName() (driver string)
+	String() (version string)
 	Close() (error)
 }
 
-// New creates a new DataStore instance using the registered factory
-// method associated with the provided driver name.
-func New(driver, config string) (DataStore, error) {
-	if factory, ok := factories[driver]; !ok {
-		return nil, fmt.Errorf(`driver %q not found`, driver)
-	} else {
-		return factory(config)
-	}
+// dataStore is an implementation of the DataStore interface.
+type dataStore struct {
+	*sqlx.DB
+	queries map[string]map[string]*query
+	statements map[string]map[string]*sqlx.NamedStmt
 }
 
 // NewDataStore creates a new instance of DataStore.
 func NewDataStore(driver, dsn string) (DataStore, error) {
 
+	if ds, err := newDataStore(driver, dsn); err != nil {
+		return nil, err
+	} else {
+		return ds, nil
+	}
+}
+
+// newDataStore performs common tasks for creating a DataStore instance.
+func newDataStore(driver, dsn string) (*dataStore, error) {
+
 	var this *dataStore
-	driverName = driver
 
 	if db, err := sqlx.Open(driver, dsn); err != nil {
 		return nil, err
 	} else if err := db.Ping(); err != nil {
 		return nil, err
 	} else {
-		this = &dataStore{db}
+		this = &dataStore{
+			DB: db,
+			queries: make(map[string]map[string]*query),
+			statements: make(map[string]map[string]*sqlx.NamedStmt),
+		}
 	}
 
-	this.Register(dsn)
-
 	return this, nil
-}
-
-// dataStore is an implementation of the DataStore interface.
-type dataStore struct {
-	*sqlx.DB
 }
 
 // Register registers the DataStore in the registry using arbitrary names.
@@ -73,10 +73,10 @@ func (this *dataStore) Register(name string) {
 
 // String returns database version, schema, and other information.
 func (this *dataStore) String() (string) {
-	return driverName
+	return this.DriverName()
 }
 
-// Prepareconverts a collection of JSON-encoded Query objects into 
+// Prepare converts a collection of JSON-encoded Query objects into 
 // a collection of Named Statements.
 func (this *dataStore) Prepare(queryFile string) (Statements, error) {
 

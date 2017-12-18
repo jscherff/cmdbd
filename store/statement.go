@@ -91,7 +91,13 @@ type statements map[string]map[string]*statement
 // Statement looks up a Statement by query name and model name and returns it.
 func (this statements) Statement(queryName string, obj interface{}) (Statement, error) {
 
-	modelName := strings.TrimPrefix(fmt.Sprintf(`%T`, obj), `*`)
+	var modelName string
+
+	if mn, ok := obj.(string); !ok {
+		modelName = strings.TrimPrefix(fmt.Sprintf(`%T`, obj), `*`)
+	} else {
+		modelName = mn
+	}
 
 	if stmt, ok := this[modelName][queryName]; !ok {
 		return nil, fmt.Errorf(`statement %q for %q not found`, queryName, modelName)

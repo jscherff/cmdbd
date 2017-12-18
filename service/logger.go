@@ -21,16 +21,16 @@ import (
 	`github.com/jscherff/cmdbd/common`
 )
 
-// Loggers is a collection of Loggers with a getter method.
-type Loggers interface {
-	System() log.MLogger
-	Access() log.MLogger
-	Error() log.MLogger
+// LoggerSvc is a collection of LoggerSvc with a getter method.
+type LoggerSvc interface {
+	SystemLog() log.MLogger
+	AccessLog() log.MLogger
+	ErrorLog() log.MLogger
 	Close()
 }
 
-// loggers is a collection of MLogger configurations with overrides.
-type loggers struct {
+// loggerSvc is a collection of MLogger configurations with overrides.
+type loggerSvc struct {
 	LogDir string
 	Stdout bool
 	Stderr bool
@@ -43,22 +43,22 @@ type loggers struct {
 }
 
 // System returns the system logger.
-func (this *loggers) System() (log.MLogger) {
+func (this *loggerSvc) SystemLog() (log.MLogger) {
 	return this.Logger.System
 }
 
 // Access returns the access logger.
-func (this *loggers) Access() (log.MLogger) {
+func (this *loggerSvc) AccessLog() (log.MLogger) {
 	return this.Logger.Access
 }
 
 // Error returns the error logger.
-func (this *loggers) Error() (log.MLogger) {
+func (this *loggerSvc) ErrorLog() (log.MLogger) {
 	return this.Logger.Error
 }
 
-// Close closes the system, access, and error loggers.
-func (this *loggers) Close() {
+// Close closes the system, access, and error loggerSvc.
+func (this *loggerSvc) Close() {
 	this.Logger.System.Close()
 	this.Logger.Access.Close()
 	this.Logger.Error.Close()
@@ -76,10 +76,10 @@ type logger struct {
 }
 
 
-// NewLoggers creates and initializes a new collection of Loggers.
-func NewLoggers(cf string, console bool, syslog io.Writer) (Loggers, error) {
+// NewLoggerSvc creates and initializes a new collection of LoggerSvc.
+func NewLoggerSvc(cf string, console bool, syslog io.Writer) (LoggerSvc, error) {
 
-	this := &loggers{}
+	this := &loggerSvc{}
 
 	if err := common.LoadConfig(this, cf); err != nil {
 		return nil, err

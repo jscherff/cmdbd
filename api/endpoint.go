@@ -12,31 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmdb
+package api
 
-import (
-	`net/http`
-	`github.com/gorilla/mux`
-)
+import `net/http`
 
 type Endpoint struct {
 	Name string
 	Path string
 	Method string
-	Handler http.Handler
 	Protected bool
-}
-
-type Endpoints []Endpoint
-
-type endpoint struct {
-
-
-func (this *handlers) AddRoutes(router *mux.Router, mware http.Handler) *mux.Router {
-
-	router.NewRoute().
-		Name(`CMDB Authenticator`).
-		Path(`/v2/cmdb/authenticate`).
-		HandlerFunc(SetAuthToken).
-		Methods(`GET`)
+	HandlerFunc http.HandlerFunc
 }

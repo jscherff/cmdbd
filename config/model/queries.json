@@ -192,7 +192,8 @@
 			"Filters": [
 				"vendor_id",
 			       	"product_id",
-			       	"serial_number"],
+			       	"serial_number"
+			],
 			"Columns": [
 				"*"
 			]
@@ -222,6 +223,17 @@
 				"vendor_id",
 			       	"vendor_name"
 			]
+		},
+
+		"Read": {
+			"Table": "usbmeta_vendor",
+			"Command": "select",
+			"Filters": [
+				"vendor_id"
+			],
+			"Columns": [
+				"vendor_name"
+			]
 		}
 	},
 
@@ -236,6 +248,18 @@
 			       	"product_id",
 			       	"product_name"
 			]
+		},
+
+		"Read": {
+			"Table": "usbmeta_product",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id"
+			],
+			"Columns": [
+				"product_name"
+			]
 		}
 	},
 
@@ -248,6 +272,17 @@
 			"Columns": [
 				"class_id",
 			       	"class_desc"
+			]
+		},
+
+		"Read": {
+			"Table": "usbmeta_class",
+			"Command": "select",
+			"Filters": [
+				"class_id"
+			],
+			"Columns": [
+				"class_desc"
 			]
 		}
 	},
@@ -263,6 +298,18 @@
 			       	"subclass_id",
 			       	"subclass_desc"
 			]
+		},
+
+		"Read": {
+			"Table": "usbmeta_subclass",
+			"Command": "select",
+			"Filters": [
+				"class_id",
+			       	"subclass_id"
+			],
+			"Columns": [
+				"subclass_desc"
+			]
 		}
 	},
 
@@ -277,6 +324,19 @@
 			       	"subclass_id",
 			       	"protocol_id",
 			       	"protocol_desc"
+			]
+		},
+
+		"Read": {
+			"Table": "usbmeta_protocol",
+			"Command": "select",
+			"Filters": [
+				"class_id",
+			       	"subclass_id",
+			       	"protocol_id"
+			],
+			"Columns": [
+				"protocol_desc"
 			]
 		}
 	}

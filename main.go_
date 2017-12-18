@@ -18,12 +18,12 @@ import (
 	`flag`
 	`log`
 	`os`
-	`github.com/jscherff/cmdbd/server`
-	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
+
+	`github.com/jscherff/cmdbd/legacy`
 )
 
 // Systemwide configuration.
-var conf *server.Config
+var conf *legacy.Config
 
 // Systemwide initialization.
 func init() {
@@ -34,29 +34,30 @@ func init() {
 	log.SetFlags(log.Flags() | log.Lshortfile)
 
 	if *FVersion {
-		server.DisplayVersion()
+		legacy.DisplayVersion()
 		os.Exit(0)
 	}
 
-	if conf, err = server.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
+	if conf, err = legacy.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
 		log.Fatal(err)
 	}
 
 	if *FRefresh {
-		if err := usbmeta.Load(conf.UsbMeta); err != nil {
-			conf.LoggerSvc.ErrorLog().Fatal(err)
+		if err := legacy.SaveUsbMeta(); err != nil {
+			conf.Logger.Error.Fatal(err)
 		} else {
-			conf.LoggerSvc.SystemLog().Println(`USB Metadata refreshed.`)
+			conf.Logger.System.Println(`USB Metadata refreshed.`)
 			os.Exit(0)
 		}
 	}
 
-	conf.LoggerSvc.SystemLog().Print(conf.DataStore.String())
-	conf.LoggerSvc.SystemLog().Print(conf.Server.String())
+	conf.Logger.System.Print(conf.Database.Info())
+	conf.Logger.System.Print(conf.Server.Info())
 }
 
 func main() {
-	defer conf.LoggerSvc.Close()
-	defer conf.DataStore.Close()
+	defer conf.Logger.Close()
+	defer conf.Database.Close()
+	defer conf.Queries.Close()
 	log.Fatal(conf.Server.ListenAndServe())
 }

@@ -31,11 +31,6 @@ type mysqlDataStore struct {
 	*dataStore
 }
 
-// init registers the driver name and factory method with the DataStore registry.
-func init() {
-	registerFactory(mysqlDriver, NewMysqlDataStore)
-}
-
 // NewmysqlDataStore creates a new instance of mysqlDataStore.
 func NewMysqlDataStore(configFile string) (DataStore, error) {
 
@@ -51,33 +46,36 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 		conf.Loc = loc
 	}
 
-	if this, err := NewDataStore(mysqlDriver, conf.FormatDSN()); err != nil {
+	var this *mysqlDataStore
+
+	if ds, err := newDataStore(mysqlDriver, conf.FormatDSN()); err != nil {
 		return nil, err
 	} else {
-		return this, nil
+		this = &mysqlDataStore{ds}
 	}
+
+	return this, nil
 }
 
-// String returns database version, schema, and other information.
 func (this *mysqlDataStore) String() (string) {
 
-	sql := `SELECT VERSION() AS 'version',
-		DATABASE() AS 'schema',
-		USER() AS 'user'`
+	info := this.DriverName()
 
-	var v struct {
+	var ver struct {
 		Version	string	`db:"version"`
 		Schema	string	`db:"schema"`
 		User	string	`db:"user"`
 	}
 
-	if row := this.QueryRowx(sql); row.Err() != nil {
-		return mysqlDriver
-	} else if err := row.StructScan(&v); err != nil {
-		return mysqlDriver
+	sql := `SELECT VERSION() AS 'version',
+		DATABASE() AS 'schema',
+		USER() AS 'user'`
+
+	if err := this.Get(&ver, sql); err != nil {
+		return info
 	} else {
-		return fmt.Sprintf(`%s version %s (%s/%s)`,
-			mysqlDriver, v.Version, v.User, v.Schema,
+		return fmt.Sprintf(`%s %s %s/%s`,
+			info, ver.Version, ver.User, ver.Schema,
 		)
 	}
 }

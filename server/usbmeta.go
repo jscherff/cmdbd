@@ -14,18 +14,26 @@
 
 package server
 
-import (
-	`net/http`
-)
+import `github.com/jscherff/cmdb/meta/peripheral`
 
-// Route contains information about a REST API enpoint.
-type Route struct {
-	Name		string
-	Method		string
-	Pattern		string
-	Protected	bool
-	HandlerFunc	http.HandlerFunc
+// NewUsbMeta creates and initializes a new UsbMeta instance.
+func NewUsbMeta (cf string, refresh bool) (*peripheral.Usb, error) {
+
+	this := &peripheral.Usb{}
+
+	if usb, err := peripheral.NewUsb(cf); err != nil {
+		return nil, err
+	} else {
+		this = usb
+	}
+
+	if refresh {
+		if err := this.Refresh(); err != nil {
+			return this, err
+		} else if err := this.Save(cf); err != nil {
+			return this, err
+		}
+	}
+
+	return this, nil
 }
-
-// Routes contains a collection of Route instances.
-type Routes []Route

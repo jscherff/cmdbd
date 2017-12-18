@@ -17,6 +17,7 @@ package service
 import (
 	`crypto/rsa`
 	`fmt`
+	`net/http`
 	`time`
 	jwt `github.com/dgrijalva/jwt-go`
 
@@ -45,31 +46,33 @@ func (this *Token) AuthClaims() (AuthClaims) {
 	return this.Claims.(Claims).AuthClaims
 }
 
-// AuthTokenSvc is an interface that creates, parses, and validates Tokens.
-type AuthTokenSvc interface {
-	Create(user *cmdb.User) (token *Token, err error)
-	String(token *Token) (tokenString string, err error)
-	Parse(tokenString string) (token *Token, err error)
+// AuthSvc is an interface that creates, parses, and validates Tokens.
+type AuthSvc interface {
+	CreateToken(user *cmdb.User) (token *Token, err error)
+	CreateTokenString(token *Token) (tokenString string, err error)
+	ParseTokenString(tokenString string) (token *Token, err error)
+	CreateCookie(tokenString string) (cookie *http.Cookie, err error)
+	ReadCookie(request *http.Request) (tokenString string, err error)
 }
 
-// authTokenSvc is a service that implements the AuthTokenSvc interface.
-type authTokenSvc struct {
-	PriKey *rsa.PrivateKey
-	PubKey *rsa.PublicKey
-	MaxAge time.Duration
+// authSvc is a service that implements the AuthSvc interface.
+type authSvc struct {
+	PrivateKey *rsa.PrivateKey
+	PublicKey *rsa.PublicKey
+	AuthMaxAge time.Duration
 }
 
-// NewAuthTokenSvc returns an object that implements the AuthTokenSvc interface.
-func NewAuthTokenSvc(pubKey, priKey []byte, maxAge time.Duration) (AuthTokenSvc, error) {
+// NewAuthSvc returns an object that implements the AuthSvc interface.
+func NewAuthSvc(pubKey, priKey []byte, authMaxAge time.Duration) (AuthSvc, error) {
 
-	this := &authTokenSvc{MaxAge: maxAge}
+	this := &authSvc{AuthMaxAge: authMaxAge}
 
 	// Process RSA public key.
 
 	if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKey); err != nil {
 		return nil, err
 	} else {
-		this.PubKey = rsaKey
+		this.PublicKey = rsaKey
 	}
 
 	// Process RSA private key.
@@ -77,20 +80,20 @@ func NewAuthTokenSvc(pubKey, priKey []byte, maxAge time.Duration) (AuthTokenSvc,
 	if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(priKey); err != nil {
 		return nil, err
 	} else {
-		this.PriKey = rsaKey
+		this.PrivateKey = rsaKey
 	}
 
 	return this, nil
 }
 
-// Create generates a new Token.
-func (this *authTokenSvc) Create(user *cmdb.User) (*Token, error) {
+// CreateToken generates a new Token.
+func (this *authSvc) CreateToken(user *cmdb.User) (*Token, error) {
 
 	claims := &Claims {
 
 		StandardClaims: jwt.StandardClaims {
 			IssuedAt: time.Now().Unix(),
-			ExpiresAt: time.Now().Add(this.MaxAge).Unix(),
+			ExpiresAt: time.Now().Add(this.AuthMaxAge).Unix(),
 		},
 
 		AuthClaims: AuthClaims{user},
@@ -99,8 +102,8 @@ func (this *authTokenSvc) Create(user *cmdb.User) (*Token, error) {
 	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}, nil
 }
 
-// Parse parses a token string and returns a Token.
-func (this *authTokenSvc) Parse(tokenString string) (*Token, error) {
+// ParseTokenString parses a token string and returns a Token.
+func (this *authSvc) ParseTokenString(tokenString string) (*Token, error) {
 
 	token, err := jwt.ParseWithClaims(
 
@@ -112,7 +115,7 @@ func (this *authTokenSvc) Parse(tokenString string) (*Token, error) {
 				return nil, fmt.Errorf(`unexpected signing method: %v`, t.Header[`alg`])
 			}
 
-			return this.PubKey, nil
+			return this.PublicKey, nil
 		},
 	)
 
@@ -127,7 +130,29 @@ func (this *authTokenSvc) Parse(tokenString string) (*Token, error) {
 	return &Token{token}, nil
 }
 
-// String returns a token string suitable for cookies.
-func (this *authTokenSvc) String(token *Token) (string, error) {
-	return token.SignedString(this.PriKey)
+// CreateTokenString returns a token string suitable for cookies.
+func (this *authSvc) CreateTokenString(token *Token) (string, error) {
+	return token.SignedString(this.PrivateKey)
+}
+
+
+// CreateCookie generates a new authentication http.Cookie from an auth token string.
+func (this *authSvc) CreateCookie(tokenString string) (*http.Cookie, error) {
+
+	return &http.Cookie{
+		Name: `Auth`,
+		Value: tokenString,
+		Expires: time.Now().Add(this.AuthMaxAge),
+		HttpOnly: true,
+	}, nil
+}
+
+// ReadCookie extracts the 'Auth' http.Cookie from an http.Request.
+func (this *authSvc) ReadCookie(request *http.Request) (string, error) {
+
+	if cookie, err := request.Cookie(`Auth`); err != nil {
+		return ``, err
+	} else {
+		return cookie.Value, nil
+	}
 }
