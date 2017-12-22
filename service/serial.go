@@ -18,8 +18,7 @@ import `fmt`
 
 // SerialSvc is an interface that creates serial numbers from seed values.
 type SerialSvc interface {
-	Create(key string, seed int64) (serialNum string, err error)
-	Format(key string) (serialFmt string, err error)
+	CreateSerial(key string, seed int64) (serialNum string, err error)
 }
 
 // serialSvc is a service that implements the SerialSvc interface.
@@ -33,7 +32,7 @@ func NewSerialSvc(serialFormat map[string]string) (SerialSvc, error) {
 }
 
 // Format returns the format string of the provided format key.
-func (this *serialSvc) Format(key string) (string, error) {
+func (this *serialSvc) serialFormat(key string) (string, error) {
 
 	if format, ok := this.SerialFormat[key]; ok {
 		return format, nil
@@ -45,9 +44,9 @@ func (this *serialSvc) Format(key string) (string, error) {
 }
 
 // Create generates a new serial number using the provided format key and seed.
-func (this *serialSvc) Create(key string, seed int64) (string, error) {
+func (this *serialSvc) CreateSerial(key string, seed int64) (string, error) {
 
-	if format, err := this.Format(key); err != nil {
+	if format, err := this.serialFormat(key); err != nil {
 		return ``, err
 	} else {
 		return fmt.Sprintf(format, seed), nil

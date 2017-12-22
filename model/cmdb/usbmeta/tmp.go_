@@ -123,6 +123,18 @@ func (this *Protocol) String() (string) {
 // Load updates the USB metadata tables in the database.
 func Load(usb *peripheral.Usb) (error) {
 
+	tx, err := dataStore.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	createVendor := tx.NamedStmt(dataStore.Statement(`Create`, `usbmeta.Vendor`))
+	createProduct := tx.NamedStmt(dataStore.Statement(`Create`, `usbmeta.Product`))
+	createClass := tx.NamedStmt(dataStore.Statement(`Create`, `usbmeta.Class`))
+	createSubClass := tx.NamedStmt(dataStore.Statement(`Create`, `usbmeta.SubClass`))
+	createProtocol := tx.NamedStmt(dataStore.Statement(`Create`, `usbmeta.Protocol`))
+
 	for vid, v := range usb.Vendors {
 
 		vendor := &Vendor{
@@ -130,7 +142,8 @@ func Load(usb *peripheral.Usb) (error) {
 			VendorName: v.String(),
 		}
 
-		if _, err := vendor.Create(); err != nil {
+		//if _, err := vendor.Create(); err != nil {
+		if _, err := createVendor(vendor); err != nil {
 			return err
 		}
 
@@ -142,7 +155,8 @@ func Load(usb *peripheral.Usb) (error) {
 				ProductName: p.String(),
 			}
 
-			if _, err := product.Create(); err != nil {
+			//if _, err := product.Create(); err != nil {
+			if _, err := createProduct(product); err != nil {
 				return err
 			}
 		}
@@ -155,7 +169,8 @@ func Load(usb *peripheral.Usb) (error) {
 			ClassDesc: c.String(),
 		}
 
-		if _, err := class.Create(); err != nil {
+		//if _, err := class.Create(); err != nil {
+		if _, err := createClass(class); err != nil {
 			return err
 		}
 
@@ -167,7 +182,8 @@ func Load(usb *peripheral.Usb) (error) {
 				SubClassDesc: s.String(),
 			}
 
-			if _, err := subClass.Create(); err != nil {
+			//if _, err := subClass.Create(); err != nil {
+			if _, err := createSubClass(subclass); err != nil {
 				return err
 			}
 
@@ -180,7 +196,8 @@ func Load(usb *peripheral.Usb) (error) {
 					ProtocolDesc: p.String(),
 				}
 
-				if _, err := protocol.Create(); err != nil {
+				//if _, err := protocol.Create(); err != nil {
+				if _, err := createProtocol(protocol); err != nil {
 					return err
 				}
 			}

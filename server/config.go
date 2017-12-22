@@ -162,26 +162,19 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.LoggerSvc = ls
 	}
 
-	// ------------------------------------
-	// Create and initialize the DataStore.
-	// ------------------------------------
+	// -----------------------------------------------
+	// Create and initialize the DataStore and models.
+	// -----------------------------------------------
 
 	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
-	} else {
-		this.DataStore = ds
-	}
-
-	// --------------------------------
-	// Create and initialize the Model.
-	// --------------------------------
-
-	if stmts, err := this.DataStore.Prepare(this.ConfigFile[`Queries`]); err != nil {
+	} else if err := ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
 		return nil, err
 	} else {
-		model_cmdb.Init(stmts)
-		model_usbci.Init(stmts)
-		model_usbmeta.Init(stmts)
+		model_cmdb.Init(ds)
+		model_usbci.Init(ds)
+		model_usbmeta.Init(ds)
+		this.DataStore = ds
 	}
 
 	// -----------------------------------

@@ -20,7 +20,6 @@ import (
 	`github.com/gorilla/handlers`
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/common`
-	`github.com/jscherff/cmdbd/midware`
 	`github.com/jscherff/cmdbd/service`
 )
 
@@ -64,7 +63,7 @@ func (this *Router) AddEndpoints(endpoints []api.Endpoint) *Router {
 			handlers.RecoveryLogger(recoveryLog))(handler)
 
 		if endpoint.Protected {
-			handler = midware.AuthTokenValidator(this.AuthSvc, handler)
+			handler = AuthTokenValidator(this.AuthSvc, handler)
 		}
 
 		handler = handlers.CombinedLoggingHandler(accessLog, handler)

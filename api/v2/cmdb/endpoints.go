@@ -61,23 +61,33 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 	user.Username = username
 
 	if err := user.Read(user); err != nil {
+
 		loggerSvc.ErrorLog().Printf(`user %q not found`, username)
 		http.Error(w, `user not found`, http.StatusNotFound)
+
 	} else if err := user.Verify(password); err != nil {
+
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 	}
 
 	if token, err := authSvc.CreateToken(user); err != nil {
+
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if tokenString, err := authSvc.CreateTokenString(token); err != nil {
+
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else if cookie, err := authSvc.CreateCookie(tokenString); err != nil {
+
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 	} else {
+
 		loggerSvc.SystemLog().Printf(`issuing auth token to %q at %q`, user.Username, r.RemoteAddr)
 		http.SetCookie(w, cookie)
 	}

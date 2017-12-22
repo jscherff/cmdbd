@@ -120,7 +120,7 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if sn, err := serialSvc.Create(dev.ObjectType, id); err != nil {
+	} else if sn, err := serialSvc.CreateSerial(dev.ObjectType, id); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -46,15 +46,11 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 		conf.Loc = loc
 	}
 
-	var this *mysqlDataStore
-
 	if ds, err := newDataStore(mysqlDriver, conf.FormatDSN()); err != nil {
 		return nil, err
 	} else {
-		this = &mysqlDataStore{ds}
+		return &mysqlDataStore{ds}, nil
 	}
-
-	return this, nil
 }
 
 func (this *mysqlDataStore) String() (string) {

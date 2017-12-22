@@ -20,10 +20,10 @@ import (
 	`golang.org/x/crypto/bcrypt`
 )
 
-var Stmts store.Statements
+var dataStore store.DataStore
 
-func Init(stmts store.Statements) {
-	Stmts = stmts
+func Init(ds store.DataStore) {
+	dataStore = ds
 }
 
 type Error struct {
@@ -49,19 +49,19 @@ type User struct {
 }
 
 func (this *Error) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *Sequence) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *User) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *User) Read(arg interface{}) (error) {
-	return Stmts.Get(`Read`, this, arg)
+	return dataStore.Read(`Read`, this, arg)
 }
 
 func (this *User) Verify(passwd string) (error) {

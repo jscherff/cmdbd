@@ -20,10 +20,10 @@ import (
 	`github.com/jscherff/cmdbd/store`
 )
 
-var Stmts store.Statements
+var dataStore store.DataStore
 
-func Init(stmts store.Statements) {
-	Stmts = stmts
+func Init(ds store.DataStore) {
+	dataStore = ds
 }
 
 type Ident struct {
@@ -117,27 +117,27 @@ type Change struct {
 type Changes []Change
 
 func (this *Audit) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *Change) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *Checkin) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *SnRequest) Create() (int64, error) {
-	return Stmts.Insert(`Create`, this)
+	return dataStore.Create(`Create`, this)
 }
 
 func (this *SnRequest) Update() (int64, error) {
-	return Stmts.Update(`Update`, this)
+	return dataStore.Update(`Update`, this)
 }
 
 func (this *Serialized) Read(arg interface{}) (error) {
-	return Stmts.Get(`Read`, this, arg)
+	return dataStore.Read(`Read`, this, arg)
 }
 
 func (this *Serialized) JSON() ([]byte, error) {

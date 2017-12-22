@@ -15,38 +15,37 @@
 package store
 
 import (
+	`fmt`
+	`strings`
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/common`
 )
 
-// DataStore provides an enhanced CRUD interface for the dataStore.
 type DataStore interface {
-	Register(schemaName string)
-	Prepare(queryFile string) (stmts Statements, err error)
-	Beginx() (trans *sqlx.Tx, err error)
-	DriverName() (driver string)
-	String() (version string)
+	String() (string)
+	Prepare(queryFile string) (error)
+	Statement(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
+	Read(queryName string, dest, arg interface{}) (error)
+	Create(queryName string, arg interface{}) (int64, error)
+	Update(queryName string, arg interface{}) (int64, error)
+	Delete(queryName string, arg interface{}) (int64, error)
+	Begin() (*sqlx.Tx, error)
 	Close() (error)
 }
 
-// dataStore is an implementation of the DataStore interface.
+// dataStore is an implementation of the dataStore interface.
 type dataStore struct {
 	*sqlx.DB
 	queries map[string]map[string]*query
-	statements map[string]map[string]*sqlx.NamedStmt
+	namedStmts map[string]map[string]*sqlx.NamedStmt
 }
 
-// NewDataStore creates a new instance of DataStore.
+// NewDataStore returns a DataStore interface.
 func NewDataStore(driver, dsn string) (DataStore, error) {
-
-	if ds, err := newDataStore(driver, dsn); err != nil {
-		return nil, err
-	} else {
-		return ds, nil
-	}
+	return newDataStore(driver, dsn)
 }
 
-// newDataStore performs common tasks for creating a DataStore instance.
+// newDataStore performs common tasks for creating a dataStore instance.
 func newDataStore(driver, dsn string) (*dataStore, error) {
 
 	var this *dataStore
@@ -59,16 +58,11 @@ func newDataStore(driver, dsn string) (*dataStore, error) {
 		this = &dataStore{
 			DB: db,
 			queries: make(map[string]map[string]*query),
-			statements: make(map[string]map[string]*sqlx.NamedStmt),
+			namedStmts: make(map[string]map[string]*sqlx.NamedStmt),
 		}
 	}
 
 	return this, nil
-}
-
-// Register registers the DataStore in the registry using arbitrary names.
-func (this *dataStore) Register(name string) {
-	registerDataStore(name, this)
 }
 
 // String returns database version, schema, and other information.
@@ -77,31 +71,110 @@ func (this *dataStore) String() (string) {
 }
 
 // Prepare converts a collection of JSON-encoded Query objects into 
-// a collection of Named Statements.
-func (this *dataStore) Prepare(queryFile string) (Statements, error) {
+// a collection of Named NamedStmts.
+func (this *dataStore) Prepare(queryFile string) (error) {
 
-	qries := make(queries)
-	stmts := make(statements)
-
-	if err := common.LoadConfig(&qries, queryFile); err != nil {
-		return nil, err
+	if err := common.LoadConfig(&this.queries, queryFile); err != nil {
+		return err
 	}
 
-	for modelName := range qries {
+	for modelName := range this.queries {
 
-		if stmts[modelName] == nil {
-			stmts[modelName] = make(map[string]*statement)
+		if this.namedStmts[modelName] == nil {
+			this.namedStmts[modelName] = make(map[string]*sqlx.NamedStmt)
 		}
 
-		for queryName, query := range qries[modelName] {
+		for queryName, query := range this.queries[modelName] {
 
-			if stmt, err := this.PrepareNamed(query.String()); err != nil {
-				return nil, err
+			if namedStmt, err := this.PrepareNamed(query.String()); err != nil {
+				return err
 			} else {
-				stmts[modelName][queryName] = &statement{stmt}
+				this.namedStmts[modelName][queryName] = namedStmt
 			}
 		}
 	}
 
-	return stmts, nil
+	return nil
+}
+
+// NamedStmt looks up a NamedStmt by query name and model name and returns it.
+func (this *dataStore) Statement(queryName string, obj interface{}) (*sqlx.NamedStmt, error) {
+
+	var modelName string
+
+	if mn, ok := obj.(string); !ok {
+		modelName = strings.TrimPrefix(fmt.Sprintf(`%T`, obj), `*`)
+	} else {
+		modelName = mn
+	}
+
+	if stmt, ok := this.namedStmts[modelName][queryName]; !ok {
+		return nil, fmt.Errorf(`statement %q for %q not found`, queryName, modelName)
+	} else {
+		return stmt, nil
+	}
+}
+
+// Read executes a Named SELECT NamedStmt and returns the results in the 
+// destination object.
+func (this *dataStore) Read(queryName string, dest, arg interface{}) (error) {
+
+	if stmt, err := this.Statement(queryName, dest); err != nil {
+		return err
+	} else {
+		return stmt.Select(dest, arg)
+	}
+}
+
+// Insert executes a Named INSERT NamedStmt and returns the last insert ID.
+func (this *dataStore) Create(queryName string, arg interface{}) (int64, error) {
+
+	if stmt, err := this.Statement(queryName, arg); err != nil {
+		return 0, err
+	} else if res, err := stmt.Exec(arg); err != nil {
+		return 0, err
+	} else {
+		return res.LastInsertId()
+	}
+}
+
+// Update executes a Named UPDATE NamedStmt and returns number of rows affected.
+func (this *dataStore) Update(queryName string, arg interface{}) (int64, error) {
+
+	if stmt, err := this.Statement(queryName, arg); err != nil {
+		return 0, err
+	} else if res, err := stmt.Exec(arg); err != nil {
+		return 0, err
+	} else {
+		return res.RowsAffected()
+	}
+}
+
+// Delete executes a Named DELETE NamedStmt and returns number of rows affected.
+func (this *dataStore) Delete(queryName string, arg interface{}) (int64, error) {
+
+	if stmt, err := this.Statement(queryName, arg); err != nil {
+		return 0, err
+	} else if res, err := stmt.Exec(arg); err != nil {
+		return 0, err
+	} else {
+		return res.RowsAffected()
+	}
+}
+
+// Begin beings a transaction and returns an *sqlx.Tx.
+func (this *dataStore) Begin() (*sqlx.Tx, error) {
+	return this.Beginx()
+}
+
+// Close closes all the statements.
+func (this *dataStore) Close() (error) {
+
+	for modelName := range this.namedStmts {
+		for queryName := range this.namedStmts[modelName] {
+			this.namedStmts[modelName][queryName].Close()
+		}
+	}
+
+	return this.Close()
 }
