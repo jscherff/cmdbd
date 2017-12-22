@@ -1,8 +1,0 @@
-John@John-SurfacePro MINGW64 ~/go/src/github.com/jscherff/cmdbd
-$ time ./cmdbd.exe -console -config config/master.json  -refresh
-System 2017/12/18 07:34:38 USB Metadata refreshed.
-
-real    1m26.766s
-user    0m0.000s
-sys     0m0.015s
-
