@@ -12,7 +12,7 @@
 		],
 		"usbCiInsertChanges": [
 			"INSERT_ALL",
-			"usbci_changes"
+			"usbci_audits"
 		],
 		"usbCiInsertCheckin": [
 		       	"INSERT_ALL",
