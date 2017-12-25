@@ -90,14 +90,15 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 
 // SaveDeviceChanges records changes reported in a device audit in the 'changes'
 // table in JSON format.
-func SaveDeviceChanges(host, vid, pid, sn string, chgs []byte) (err error) {
+func SaveDeviceChanges(vid, pid, sn, host, addr string, chgs []byte) (err error) {
 
 	_, err = dq.Stmt[`usbCiInsertChanges`].Exec(
 		nil,		// id
-		host,		// host_name
 		vid,		// vendor_id
 		pid,		// product_id
 		sn,		// serial_number
+		host,		// host_name
+		addr,		// remote_addr
 		chgs,		// changes
 		time.Now(),	// audit_date
 	)

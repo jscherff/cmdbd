@@ -149,7 +149,7 @@ func usbCiNewSnV1(w http.ResponseWriter, r *http.Request) {
 func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
+	var vid, pid, sn, host, addr = vars[`vid`], vars[`pid`], vars[`sn`], vars[`host`], r.RemoteAddr
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, ws.HttpBodySizeLimit))
 
@@ -163,14 +163,14 @@ func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
+	if err = SaveDeviceChanges(vid, pid, sn, host, addr, body); err != nil {
 
 		el.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		sl.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, host, vid, pid, sn)
+		sl.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, vid, pid, sn, host, addr)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
