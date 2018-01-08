@@ -44,5 +44,5 @@ func NewServer(cf string, handler http.Handler) (*Server, error) {
 
 // String provides identifying information about the server.
 func (this *Server) String() (string) {
-	return fmt.Sprintf(`server started and listening on %q`, this.Addr)
+	return fmt.Sprintf(`http daemon listening on %q`, this.Addr)
 }

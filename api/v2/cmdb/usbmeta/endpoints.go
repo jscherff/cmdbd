@@ -14,29 +14,10 @@
 
 package usbmeta
 
-import (
-	`encoding/json`
-	`net/http`
-	`github.com/gorilla/mux`
-	`github.com/jscherff/cmdb/meta/peripheral`
-	`github.com/jscherff/cmdbd/api`
-	`github.com/jscherff/cmdbd/service`
-
-)
-
-// Package variables required for operation.
-var (
-	usbMetadata *peripheral.Usb
-	loggerSvc service.LoggerSvc
-)
-
-// Init initializes the package variables required for operation.
-func Init(um *peripheral.Usb, ls service.LoggerSvc) {
-	usbMetadata, loggerSvc = um, ls
-}
+import `github.com/jscherff/cmdbd/api`
 
 // Endpoints is a collection of URL path to handler function mappings.
-var Endpoints = []api.Endpoint {
+var Endpoints = api.Endpoints {
 
 	api.Endpoint {
 		Name:		`USB Metadata Vendor Handler`,
@@ -77,127 +58,4 @@ var Endpoints = []api.Endpoint {
 		HandlerFunc:	Protocol,
 		Protected:	false,
 	},
-}
-
-// Vendor returns the USB vendor name associated with a vendor ID.
-func Vendor(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if v, err := usbMetadata.GetVendor(vars[`vid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else {
-
-		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(v.String()); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
-	}
-}
-
-// Product returns the USB vendor and product names associated with
-// a vendor and product ID.
-func Product(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if v, err := usbMetadata.GetVendor(vars[`vid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if p, err := v.GetProduct(vars[`pid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else {
-
-		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
-	}
-}
-
-// Class returns the USB class description associated with a class ID.
-func Class(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if c, err := usbMetadata.GetClass(vars[`cid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else {
-
-		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(c.String()); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
-	}
-}
-
-// SubClass returns the USB class and subclass descriptions associated
-// with a class and subclass ID.
-func SubClass(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if c, err := usbMetadata.GetClass(vars[`cid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if s, err := c.GetSubClass(vars[`sid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else {
-
-		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(s.String()); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
-	}
-}
-
-// Protocol returns the USB class, subclass, and protocol descriptions
-// associated with a class, subclass, and protocol ID.
-func Protocol(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if c, err := usbMetadata.GetClass(vars[`cid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if s, err := c.GetSubClass(vars[`sid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if p, err := s.GetProtocol(vars[`pid`]); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else {
-
-		w.WriteHeader(http.StatusOK)
-		if err = json.NewEncoder(w).Encode(p.String()); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
-	}
 }

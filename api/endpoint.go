@@ -23,3 +23,5 @@ type Endpoint struct {
 	Protected bool
 	HandlerFunc http.HandlerFunc
 }
+
+type Endpoints []Endpoint

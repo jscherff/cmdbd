@@ -16,6 +16,7 @@ package usbmeta
 
 import (
 	`time`
+	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdb/meta/peripheral`
 	`github.com/jscherff/cmdbd/store`
 )
@@ -27,37 +28,37 @@ func Init(ds store.DataStore) {
 }
 
 type Class struct {
-	ClassID		string		`db:"class_id,omitempty"`
-	ClassDesc	string		`db:"class_desc,omitempty"`
-	LastUpdate	time.Time	`db:"last_update,omitempty"`
+	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
+	ClassDesc	string		`db:"class_desc,omitempty" json:"class_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
 }
 
 type SubClass struct {
-	ClassID		string		`db:"class_id,omitempty"`
-	SubClassID	string		`db:"subclass_id,omitempty"`
-	SubClassDesc	string		`db:"subclass_desc,omitempty"`
-	LastUpdate	time.Time	`db:"last_update,omitempty"`
+	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
+	SubClassId	string		`db:"subclass_id,omitempty" json:"subclass_id"`
+	SubClassDesc	string		`db:"subclass_desc,omitempty" json:"subclass_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
 }
 
 type Protocol struct {
-	ClassID		string		`db:"class_id,omitempty"`
-	SubClassID	string		`db:"subclass_id,omitempty"`
-	ProtocolID	string		`db:"protocol_id,omitempty"`
-	ProtocolDesc	string		`db:"protocol_desc,omitempty"`
-	LastUpdate	time.Time	`db:"last_update,omitempty"`
+	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
+	SubClassId	string		`db:"subclass_id,omitempty" json:"subclass_id"`
+	ProtocolId	string		`db:"protocol_id,omitempty" json:"protocol_id"`
+	ProtocolDesc	string		`db:"protocol_desc,omitempty" json:"protocol_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
 }
 
 type Vendor struct {
-	VendorID	string		`db:"vendor_id,omitempty"`
-	VendorName	string		`db:"vendor_name,omitempty"`
-	LastUpdate	time.Time	`db:"last_update,omitempty"`
+	VendorId	string		`db:"vendor_id,omitempty" json:"vendor_id"`
+	VendorName	string		`db:"vendor_name,omitempty" json:"vendor_name"`
+	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
 }
 
 type Product struct {
-	VendorID	string		`db:"vendor_id,omitempty"`
-	ProductID	string		`db:"product_id,omitempty"`
-	ProductName	string		`db:"product_name,omitempty"`
-	LastUpdate	time.Time	`db:"last_update,omitempty"`
+	VendorId	string		`db:"vendor_id,omitempty" json:"vendor_id"`
+	ProductId	string		`db:"product_id,omitempty" json:"product_id"`
+	ProductName	string		`db:"product_name,omitempty" json:"product_name"`
+	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
 }
 
 func (this *Vendor) Create() (int64, error) {
@@ -123,26 +124,71 @@ func (this *Protocol) String() (string) {
 // Load updates the USB metadata tables in the database.
 func Load(usb *peripheral.Usb) (error) {
 
+	tx, err := dataStore.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	var (
+		vendor *Vendor
+		product *Product
+		class *Class
+		subClass *SubClass
+		protocol *Protocol
+		createVendor, createProduct, createClass, createSubClass, createProtocol *sqlx.NamedStmt
+	)
+
+	if stmt, err := dataStore.Statement(`Create`, vendor); err != nil {
+		return err
+	} else {
+		createVendor = tx.NamedStmt(stmt)
+	}
+
+	if stmt, err := dataStore.Statement(`Create`, product); err != nil {
+		return err
+	} else {
+		createProduct = tx.NamedStmt(stmt)
+	}
+
+	if stmt, err := dataStore.Statement(`Create`, class); err != nil {
+		return err
+	} else {
+		createClass = tx.NamedStmt(stmt)
+	}
+
+	if stmt, err := dataStore.Statement(`Create`, subClass); err != nil {
+		return err
+	} else {
+		createSubClass = tx.NamedStmt(stmt)
+	}
+
+	if stmt, err := dataStore.Statement(`Create`, protocol); err != nil {
+		return err
+	} else {
+		createProtocol = tx.NamedStmt(stmt)
+	}
+
 	for vid, v := range usb.Vendors {
 
-		vendor := &Vendor{
-			VendorID: vid,
+		vendor = &Vendor{
+			VendorId: vid,
 			VendorName: v.String(),
 		}
 
-		if _, err := vendor.Create(); err != nil {
+		if _, err := createVendor.Exec(vendor); err != nil {
 			return err
 		}
 
 		for pid, p := range v.Product {
 
-			product := &Product{
-				VendorID: vid,
-				ProductID: pid,
+			product = &Product{
+				VendorId: vid,
+				ProductId: pid,
 				ProductName: p.String(),
 			}
 
-			if _, err := product.Create(); err != nil {
+			if _, err := createProduct.Exec(product); err != nil {
 				return err
 			}
 		}
@@ -150,41 +196,45 @@ func Load(usb *peripheral.Usb) (error) {
 
 	for cid, c := range usb.Classes {
 
-		class := &Class{
-			ClassID: cid,
+		class = &Class{
+			ClassId: cid,
 			ClassDesc: c.String(),
 		}
 
-		if _, err := class.Create(); err != nil {
+		if _, err := createClass.Exec(class); err != nil {
 			return err
 		}
 
 		for sid, s := range c.SubClass {
 
-			subClass := &SubClass{
-				ClassID: cid,
-				SubClassID: sid,
+			subClass = &SubClass{
+				ClassId: cid,
+				SubClassId: sid,
 				SubClassDesc: s.String(),
 			}
 
-			if _, err := subClass.Create(); err != nil {
+			if _, err := createSubClass.Exec(subClass); err != nil {
 				return err
 			}
 
 			for pid, p := range s.Protocol {
 
-				protocol := &Protocol{
-					ClassID: cid,
-					SubClassID: sid,
-					ProtocolID: pid,
+				protocol = &Protocol{
+					ClassId: cid,
+					SubClassId: sid,
+					ProtocolId: pid,
 					ProtocolDesc: p.String(),
 				}
 
-				if _, err := protocol.Create(); err != nil {
+				if _, err := createProtocol.Exec(protocol); err != nil {
 					return err
 				}
 			}
 		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
 	}
 
 	return nil

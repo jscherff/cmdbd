@@ -122,7 +122,7 @@ func (this *dataStore) Read(queryName string, dest, arg interface{}) (error) {
 	if stmt, err := this.Statement(queryName, dest); err != nil {
 		return err
 	} else {
-		return stmt.Select(dest, arg)
+		return stmt.Get(dest, arg)
 	}
 }
 

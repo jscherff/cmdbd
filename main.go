@@ -1,6 +1,6 @@
 // Copyright 2017 John Scherff
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -16,14 +16,20 @@ package main
 
 import (
 	`flag`
+	`fmt`
 	`log`
 	`os`
+	`path/filepath`
 	`github.com/jscherff/cmdbd/server`
 	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
 )
 
 // Systemwide configuration.
-var conf *server.Config
+var (
+	program	string = filepath.Base(os.Args[0])
+	version	string = `undefined`
+	config	*server.Config
+)
 
 // Systemwide initialization.
 func init() {
@@ -34,29 +40,30 @@ func init() {
 	log.SetFlags(log.Flags() | log.Lshortfile)
 
 	if *FVersion {
-		server.DisplayVersion()
+		fmt.Fprintf(os.Stderr, "%s version %s\n", program, version)
 		os.Exit(0)
 	}
 
-	if conf, err = server.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
+	if config, err = server.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
 		log.Fatal(err)
 	}
 
 	if *FRefresh {
-		if err := usbmeta.Load(conf.UsbMeta); err != nil {
-			conf.LoggerSvc.ErrorLog().Fatal(err)
+		if err := usbmeta.Load(config.MetaUsbSvc.Raw()); err != nil {
+			config.LoggerSvc.ErrorLog().Fatal(err)
 		} else {
-			conf.LoggerSvc.SystemLog().Println(`USB Metadata refreshed.`)
+			config.LoggerSvc.SystemLog().Println(`USB Metadata refreshed.`)
 			os.Exit(0)
 		}
 	}
 
-	conf.LoggerSvc.SystemLog().Print(conf.DataStore.String())
-	conf.LoggerSvc.SystemLog().Print(conf.Server.String())
+	config.LoggerSvc.SystemLog().Printf(`%s version %s`, program, version)
+	config.LoggerSvc.SystemLog().Print(config.DataStore.String())
+	config.LoggerSvc.SystemLog().Print(config.Server.String())
 }
 
 func main() {
-	defer conf.LoggerSvc.Close()
-	defer conf.DataStore.Close()
-	log.Fatal(conf.Server.ListenAndServe())
+	defer config.LoggerSvc.Close()
+	defer config.DataStore.Close()
+	log.Fatal(config.Server.ListenAndServe())
 }

@@ -17,11 +17,8 @@ package server
 import (
 	`fmt`
 	`io/ioutil`
-	`os`
 	`path/filepath`
 	`time`
-
-	`github.com/jscherff/cmdb/meta/peripheral`
 
 	`github.com/jscherff/cmdbd/common`
 	`github.com/jscherff/cmdbd/service`
@@ -31,9 +28,9 @@ import (
 	model_usbci	`github.com/jscherff/cmdbd/model/cmdb/usbci`
 	model_usbmeta	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
 
-	//v1cmdb `github.com/jscherff/cmdbd/api/v1/cmdb`
-	//v1usbci `github.com/jscherff/cmdbd/api/v1/cmdb/usbci`
-	//v1usbmeta `github.com/jscherff/cmdbd/api/v1/cmdb/usbmeta`
+	api_cmdb_v1	`github.com/jscherff/cmdbd/api/v1/cmdb`
+	api_usbci_v1	`github.com/jscherff/cmdbd/api/v1/cmdb/usbci`
+	api_usbmeta_v1	`github.com/jscherff/cmdbd/api/v1/cmdb/usbmeta`
 
 	api_cmdb_v2	`github.com/jscherff/cmdbd/api/v2/cmdb`
 	api_usbci_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
@@ -43,11 +40,6 @@ import (
 const (
 	pubKeyName	string = `PublicKey`
 	priKeyName	string = `PrivateKey`
-)
-
-var (
-	program		string = filepath.Base(os.Args[0])
-	version		string = `undefined`
 )
 
 // Master configuration settings.
@@ -68,12 +60,9 @@ type Config struct {
 	AuthSvc		service.AuthSvc
 	SerialSvc	service.SerialSvc
 	LoggerSvc	service.LoggerSvc
+	MetaUsbSvc	service.MetaUsbSvc
 	DataStore	store.DataStore
 
-	//Database	*legacy.Database
-	//Queries	*legacy.Queries
-
-	UsbMeta		*peripheral.Usb
 	Syslog		*Syslog
 	Router		*Router
 	Server		*Server
@@ -162,6 +151,12 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.LoggerSvc = ls
 	}
 
+	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsb`], refresh); err != nil {
+		return nil, err
+	} else {
+		this.MetaUsbSvc = mus
+	}
+
 	// -----------------------------------------------
 	// Create and initialize the DataStore and models.
 	// -----------------------------------------------
@@ -175,16 +170,6 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		model_usbci.Init(ds)
 		model_usbmeta.Init(ds)
 		this.DataStore = ds
-	}
-
-	// -----------------------------------
-	// Create and initialize USB metadata.
-	// -----------------------------------
-
-	if um, err := NewUsbMeta(this.ConfigFile[`UsbMeta`], refresh); err != nil {
-		return nil, err
-	} else {
-		this.UsbMeta = um
 	}
 
 	// -----------------------------
@@ -201,37 +186,19 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Initialize API Endpoints and add Endpoints to Router.
 	// -----------------------------------------------------
 
+	api_usbci_v1.Init(this.LoggerSvc)
 	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
 	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
-	api_usbmeta_v2.Init(this.UsbMeta, this.LoggerSvc)
+	api_usbmeta_v2.Init(this.MetaUsbSvc, this.LoggerSvc)
 
 	this.Router.
+		AddEndpoints(api_cmdb_v1.Endpoints).
+		AddEndpoints(api_usbci_v1.Endpoints).
+		AddEndpoints(api_usbmeta_v1.Endpoints).
 		AddEndpoints(api_cmdb_v2.Endpoints).
 		AddEndpoints(api_usbci_v2.Endpoints).
 		AddEndpoints(api_usbmeta_v2.Endpoints)
 
-/*
-	this.Router.
-		AddRoutes(usbCiRoutes).
-		AddRoutes(usbMetaRoutes).
-		AddRoutes(cmdbAuthRoutes)
-
-	// Create and initialize Database object.
-
-	if db, err := NewDatabase(this); err != nil {
-		return nil, err
-	} else {
-		this.Database = db
-	}
-
-	// Create and initialize Queries object.
-
-	if qs, err := NewQueries(this); err != nil {
-		return nil, err
-	} else {
-		this.Queries = qs
-	}
-*/
 	// -----------------------------
 	// Create and initialize Server.
 	// -----------------------------
@@ -243,9 +210,4 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	}
 
 	return this, nil
-}
-
-// displayVersion displays the program version.
-func DisplayVersion() {
-	fmt.Fprintf(os.Stderr, "%s version %s\n", program, version)
 }

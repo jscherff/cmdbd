@@ -14,40 +14,43 @@
 
 package usbci
 
-import `github.com/jscherff/cmdbd/server`
+import (
+	`github.com/jscherff/cmdbd/api`
+	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
+)
 
-// Routes is a collection of REST API enpoints supporting USB CIs.
-var Routes = server.Routes {
+// Endpoints is a collection of URL path to handler function mappings.
+var Endpoints = api.Endpoints {
 
-	server.Route {
-		Name:		`USBCI Checkin Handler`,
+	api.Endpoint {
+		Name:		`USBCI CheckIn Handler`,
+		Path:		`/v1/usbci/checkin/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		Pattern:	`/v1/usbci/checkin/{host}/{vid}/{pid}`,
-		HandlerFunc:	CheckinV1,
+		HandlerFunc:	usbci.CheckIn,
 		Protected:	true,
 	},
 
-	server.Route {
-		Name:		`USBCI Checkout Handler`,
+	api.Endpoint {
+		Name:		`USBCI CheckOut Handler`,
+		Path:		`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
-		HandlerFunc:	CheckoutV1,
+		HandlerFunc:	usbci.CheckOut,
 		Protected:	true,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`USBCI NewSn Handler`,
+		Path:		`/v1/usbci/newsn/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		Pattern:	`/v1/usbci/newsn/{host}/{vid}/{pid}`,
-		HandlerFunc:	NewSnV1,
+		HandlerFunc:	usbci.NewSn,
 		Protected:	true,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`USBCI Audit Handler`,
+		Path:		`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
 		Method:		`POST`,
-		Pattern:	`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
-		HandlerFunc:	AuditV1,
+		HandlerFunc:	Audit,
 		Protected:	true,
 	},
 }

@@ -14,16 +14,18 @@
 -- truncate all tables
 TRUNCATE TABLE `cmdb_errors`;
 TRUNCATE TABLE `cmdb_sequence`;
+-- TRUNCATE TABLE `cmdb_users`;
+TRUNCATE TABLE `usbci_audits`;
 TRUNCATE TABLE `usbci_changes`;
 TRUNCATE TABLE `usbci_checkins`;
 TRUNCATE TABLE `usbci_serialized`;
 TRUNCATE TABLE `usbci_snrequests`;
 TRUNCATE TABLE `usbci_unserialized`;
-TRUNCATE TABLE `usbmeta_vendor`;
-TRUNCATE TABLE `usbmeta_product`;
-TRUNCATE TABLE `usbmeta_class`;
-TRUNCATE TABLE `usbmeta_subclass`;
-TRUNCATE TABLE `usbmeta_protocol`;
+-- TRUNCATE TABLE `usbmeta_vendor`;
+-- TRUNCATE TABLE `usbmeta_product`;
+-- TRUNCATE TABLE `usbmeta_class`;
+-- TRUNCATE TABLE `usbmeta_subclass`;
+-- TRUNCATE TABLE `usbmeta_protocol`;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

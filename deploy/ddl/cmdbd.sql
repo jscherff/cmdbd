@@ -2,7 +2,7 @@
 -- Host:                         127.0.0.1
 -- Server version:               5.7.20-log - MySQL Community Server (GPL)
 -- Server OS:                    Win64
--- HeidiSQL Version:             9.4.0.5125
+-- HeidiSQL Version:             9.5.0.5200
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -21,10 +21,10 @@ USE `gocmdb`;
 DROP TABLE IF EXISTS `cmdb_errors`;
 CREATE TABLE IF NOT EXISTS `cmdb_errors` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `error_source` varchar(64) NOT NULL,
-  `error_code` int(10) unsigned NOT NULL DEFAULT '1',
-  `error_desc` varchar(255) NOT NULL,
-  `error_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `code` int(10) unsigned NOT NULL DEFAULT '1',
+  `source` varchar(64) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
   `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `issue_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`ord`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.cmdb_users
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `cmdb_users` (
   `role` enum('agent','user','admin') NOT NULL DEFAULT 'user',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for function gocmdb.func_usbci_serial_exists
@@ -348,21 +348,42 @@ BEGIN
 END//
 DELIMITER ;
 
+-- Dumping structure for table gocmdb.usbci_audits
+DROP TABLE IF EXISTS `usbci_audits`;
+CREATE TABLE IF NOT EXISTS `usbci_audits` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `vendor_id` varchar(4) NOT NULL,
+  `product_id` varchar(4) NOT NULL,
+  `serial_number` varchar(127) NOT NULL,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
+  `changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `audit_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `FK_usbci_audits_usbci_serialized` (`vendor_id`,`product_id`,`serial_number`),
+  CONSTRAINT `FK_usbci_audits_usbci_serialized` FOREIGN KEY (`vendor_id`, `product_id`, `serial_number`) REFERENCES `usbci_serialized` (`vendor_id`, `product_id`, `serial_number`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+
+-- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_changes
 DROP TABLE IF EXISTS `usbci_changes`;
 CREATE TABLE IF NOT EXISTS `usbci_changes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
+  `audit_id` int(10) unsigned NOT NULL DEFAULT '0',
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `serial_number` varchar(127) NOT NULL,
-  `changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `audit_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
+  `property_name` varchar(255) NOT NULL,
+  `previous_value` varchar(255) NOT NULL,
+  `current_value` varchar(255) NOT NULL,
+  `change_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `host_name` (`host_name`),
-  KEY `vendor_id` (`vendor_id`),
-  KEY `product_id` (`product_id`),
-  KEY `serial_number` (`serial_number`)
+  KEY `FK_usbci_changes_usbci_serialized` (`vendor_id`,`product_id`,`serial_number`),
+  KEY `FK_usbci_changes_usbci_audits` (`audit_id`),
+  CONSTRAINT `FK_usbci_changes_usbci_audits` FOREIGN KEY (`audit_id`) REFERENCES `usbci_audits` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_usbci_changes_usbci_serialized` FOREIGN KEY (`vendor_id`, `product_id`, `serial_number`) REFERENCES `usbci_serialized` (`vendor_id`, `product_id`, `serial_number`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
@@ -370,10 +391,11 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
 DROP TABLE IF EXISTS `usbci_checkins`;
 CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `serial_number` varchar(127) NOT NULL,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `vendor_name` varchar(127) NOT NULL,
   `product_name` varchar(127) NOT NULL,
   `product_ver` varchar(255) NOT NULL,
@@ -394,8 +416,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   `factory_sn` varchar(127) NOT NULL,
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
+  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `checkin_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
@@ -407,17 +428,18 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
 DROP TABLE IF EXISTS `usbci_serialized`;
 CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `serial_number` varchar(127) NOT NULL,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `vendor_name` varchar(127) NOT NULL,
   `product_name` varchar(127) NOT NULL,
   `product_ver` varchar(255) NOT NULL,
@@ -438,8 +460,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   `factory_sn` varchar(127) NOT NULL,
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
+  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `first_seen` datetime NOT NULL,
   `last_seen` datetime NOT NULL,
   `checkins` int(10) unsigned NOT NULL DEFAULT '1',
@@ -451,17 +472,18 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`),
   KEY `firmware_ver` (`firmware_ver`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
 DROP TABLE IF EXISTS `usbci_snrequests`;
 CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `serial_number` varchar(127) NOT NULL,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `vendor_name` varchar(127) NOT NULL,
   `product_name` varchar(127) NOT NULL,
   `product_ver` varchar(255) NOT NULL,
@@ -482,8 +504,7 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   `factory_sn` varchar(127) NOT NULL,
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
+  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `request_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `host_name` (`host_name`),
@@ -495,17 +516,18 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
 DROP TABLE IF EXISTS `usbci_unserialized`;
 CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host_name` varchar(255) NOT NULL,
   `vendor_id` varchar(4) NOT NULL,
   `product_id` varchar(4) NOT NULL,
   `serial_number` varchar(127) DEFAULT NULL,
+  `host_name` varchar(255) NOT NULL,
+  `remote_addr` varchar(255) NOT NULL,
   `vendor_name` varchar(127) DEFAULT NULL,
   `product_name` varchar(127) DEFAULT NULL,
   `product_ver` varchar(255) NOT NULL,
@@ -526,8 +548,7 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   `factory_sn` varchar(127) NOT NULL,
   `descriptor_sn` varchar(127) NOT NULL,
   `object_type` varchar(255) NOT NULL,
-  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `remote_addr` varchar(255) NOT NULL,
+  `object_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `first_seen` datetime NOT NULL,
   `last_seen` datetime NOT NULL,
   `checkins` int(10) unsigned NOT NULL DEFAULT '1',
@@ -538,7 +559,7 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_class

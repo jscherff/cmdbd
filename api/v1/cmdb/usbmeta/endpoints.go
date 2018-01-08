@@ -14,48 +14,51 @@
 
 package usbmeta
 
-import `github.com/jscherff/cmdbd/server`
+import (
+	`github.com/jscherff/cmdbd/api`
+	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
+)
 
 // Routes is a collection of REST API enpoints providing USB metadata.
-var Routes = server.Routes {
+var Endpoints = api.Endpoints {
 
-	server.Route {
+	api.Endpoint {
 		Name:		`Metadata USB Vendor Handler`,
+		Path:		`/v1/usbmeta/vendor/{vid}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbmeta/vendor/{vid}`,
-		HandlerFunc:	VendorV1,
+		HandlerFunc:	usbmeta.Vendor,
 		Protected:	false,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`Metadata USB Product Handler`,
+		Path:		`/v1/usbmeta/vendor/{vid}/{pid}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbmeta/vendor/{vid}/{pid}`,
-		HandlerFunc:	ProductV1,
+		HandlerFunc:	usbmeta.Product,
 		Protected:	false,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`Metadata USB Class Handler`,
+		Path:		`/v1/usbmeta/class/{cid}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbmeta/class/{cid}`,
-		HandlerFunc:	ClassV1,
+		HandlerFunc:	usbmeta.Class,
 		Protected:	false,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`Metadata USB SubClass Handler`,
+		Path:		`/v1/usbmeta/subclass/{cid}/{sid}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbmeta/subclass/{cid}/{sid}`,
-		HandlerFunc:	SubClassV1,
+		HandlerFunc:	usbmeta.SubClass,
 		Protected:	false,
 	},
 
-	server.Route {
+	api.Endpoint {
 		Name:		`Metadata USB Protocol Handler`,
+		Path:		`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
 		Method:		`GET`,
-		Pattern:	`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
-		HandlerFunc:	ProtocolV1,
+		HandlerFunc:	usbmeta.Protocol,
 		Protected:	false,
 	},
 }

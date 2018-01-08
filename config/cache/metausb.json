@@ -1,6 +1,6 @@
 {
 	"Source": "http://www.linux-usb.org/usb.ids",
-	"Updated": "2017-12-18T07:33:15.2617522-08:00",
+	"Updated": "2017-12-29T21:06:54.643257-08:00",
 	"Vendors": {
 		"0001": {
 			"Name": "Fry's Electronics",
@@ -60229,6 +60229,47 @@
 				},
 				"3005": {
 					"Name": "Radius"
+				}
+			}
+		},
+		"2516": {
+			"Name": "Cooler Master Co., Ltd.",
+			"Product": {
+				"0003": {
+					"Name": "Storm Xornet"
+				},
+				"0004": {
+					"Name": "Storm QuickFire Rapid Mechanical Keyboard"
+				},
+				"0006": {
+					"Name": "Storm Recon"
+				},
+				"0007": {
+					"Name": "Storm Sentinel Advance II"
+				},
+				"0009": {
+					"Name": "Storm Quick Fire PRO"
+				},
+				"0011": {
+					"Name": "Storm Quick Fire TK"
+				},
+				"0017": {
+					"Name": "CM Storm Quick Fire Stealth"
+				},
+				"0020": {
+					"Name": "QuickFire Rapid-i Keyboard"
+				},
+				"0027": {
+					"Name": "CM Storm Coolermaster Novatouch TKL"
+				},
+				"002d": {
+					"Name": "Alcor mouse"
+				},
+				"0047": {
+					"Name": "MasterKeys Pro L"
+				},
+				"9494": {
+					"Name": "Sirus Headset"
 				}
 			}
 		},

@@ -15,6 +15,7 @@
 package cmdb
 
 import (
+	`fmt`
 	`time`
 	`github.com/jscherff/cmdbd/store`
 	`golang.org/x/crypto/bcrypt`
@@ -27,25 +28,25 @@ func Init(ds store.DataStore) {
 }
 
 type Error struct {
-	Id		interface{}	`db:"id,omitempty"`
-	Code		int		`db:"code,omitempty"`
-	Source		string		`db:"source,omitempty"`
-	Description	string		`db:"description,omitempty"`
-	EventDate	time.Time	`db:"event_date,omitempty"`
+	Id		int64		`db:"id,omitempty"             json:"id"`
+	Code		int		`db:"code,omitempty"           json:"code"`
+	Source		string		`db:"source,omitempty"         json:"source"`
+	Description	string		`db:"description,omitempty"    json:"description"`
+	EventDate	time.Time	`db:"event_date,omitempty"     json:"event_date"`
 }
 
 type Sequence struct {
-	Ord		interface{}	`db:"ord,omitempty"`
-	IssueDate	time.Time	`db:"issue_date,omitempty"`
+	Ord		int64		`db:"ord,omitempty"            json:"ord"`
+	IssueDate	time.Time	`db:"issue_date,omitempty"     json:"issue_date"`
 }
 
 type User struct {
-	Id		interface{}	`db:"id,omitempty"`
-	Username	string		`db:"username,omitempty"`
-	Password	string		`db:"password,omitempty"`
-	Created		time.Time	`db:"created,omitempty"`
-	Locked		bool		`db:"locked,omitempty"`
-	Role		string		`db:"role,omitempty"`
+	Id		int64		`db:"id,omitempty"             json:"id"`
+	Username	string		`db:"username,omitempty"       json:"username"`
+	Password	string		`db:"password,omitempty"       json:"password"`
+	Created		time.Time	`db:"created,omitempty"        json:"created"`
+	Locked		bool		`db:"locked,omitempty"         json:"locked"`
+	Role		string		`db:"role,omitempty"           json:"role"`
 }
 
 func (this *Error) Create() (int64, error) {
@@ -60,10 +61,19 @@ func (this *User) Create() (int64, error) {
 	return dataStore.Create(`Create`, this)
 }
 
-func (this *User) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+func (this *User) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
 }
 
 func (this *User) Verify(passwd string) (error) {
 	return bcrypt.CompareHashAndPassword([]byte(this.Password), []byte(passwd))
 }
+
+func (this *User) Allowed() (error) {
+	if this.Locked {
+		return fmt.Errorf(`user %q account locked`, this.Username)
+	} else {
+		return nil
+	}
+}
+

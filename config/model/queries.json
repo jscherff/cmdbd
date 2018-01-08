@@ -74,6 +74,17 @@
 				"changes",
 				"audit_date"
 			]
+		},
+
+		"Read": {
+			"Table": "usbci_audits",
+			"Command": "select",
+			"Filters": [
+				"id"
+			],
+			"Columns": [
+				"*"
+			]
 		}
 	},
 
@@ -84,6 +95,7 @@
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
+				"audit_id",
 				"vendor_id",
 				"product_id",
 				"serial_number",
@@ -92,12 +104,12 @@
 				"property_name",
 				"previous_value",
 				"current_value",
-				"audit_date"
+				"change_date"
 			]
 		}
 	},
 
-	"usbci.CheckIn": {
+	"usbci.Checkin": {
 	
 		"Create": {
 			"Table": "usbci_checkins",

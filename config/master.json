@@ -8,7 +8,7 @@
 		"LoggerSvc": "service/logger.json",
 		"DataStore": "store/mysql.json",
 		"Queries": "model/queries.json",
-		"UsbMeta": "cache/metausb.json",
+		"MetaUsb": "cache/metausb.json",
 		"Syslog": "server/syslog.json",
 		"Router": "server/router.json",
 		"Server": "server/httpd.json"

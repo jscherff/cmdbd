@@ -44,17 +44,17 @@ type loggerSvc struct {
 
 // System returns the system logger.
 func (this *loggerSvc) SystemLog() (log.MLogger) {
-	return this.Logger.System
+	return this.Logger.System.MLogger
 }
 
 // Access returns the access logger.
 func (this *loggerSvc) AccessLog() (log.MLogger) {
-	return this.Logger.Access
+	return this.Logger.Access.MLogger
 }
 
 // Error returns the error logger.
 func (this *loggerSvc) ErrorLog() (log.MLogger) {
-	return this.Logger.Error
+	return this.Logger.Error.MLogger
 }
 
 // Close closes the system, access, and error loggerSvc.

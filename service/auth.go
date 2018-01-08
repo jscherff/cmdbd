@@ -27,7 +27,9 @@ import (
 // AuthClaims is a custom claims object that contains user authentication
 // and authorization infomration.
 type AuthClaims struct {
-	*cmdb.User
+	Username	string	`json:"user_name"`
+	Locked		bool	`json:"locked"`
+	Role		string	`json:"role"`
 }
 
 // Claims is a custom Claims object that extends jwt.StandardClaims.
@@ -43,7 +45,7 @@ type Token struct {
 
 // AuthClaims extracts the AuthClaim claim from the token.
 func (this *Token) AuthClaims() (AuthClaims) {
-	return this.Claims.(Claims).AuthClaims
+	return this.Claims.(*Claims).AuthClaims
 }
 
 // AuthSvc is an interface that creates, parses, and validates Tokens.
@@ -96,7 +98,11 @@ func (this *authSvc) CreateToken(user *cmdb.User) (*Token, error) {
 			ExpiresAt: time.Now().Add(this.AuthMaxAge).Unix(),
 		},
 
-		AuthClaims: AuthClaims{user},
+		AuthClaims: AuthClaims {
+			Username: user.Username,
+			Locked: user.Locked,
+			Role: user.Role,
+		},
 	}
 
 	return &Token{jwt.NewWithClaims(jwt.GetSigningMethod(`RS256`), claims)}, nil

@@ -39,7 +39,6 @@ func AuthTokenValidator(authSvc service.AuthSvc, next http.Handler) (http.Handle
 				panic(err)
 
 			} else {
-
 				claims := token.AuthClaims()
 				context := context.WithValue(r.Context(), `AuthClaims`, claims)
 				next.ServeHTTP(w, r.WithContext(context))

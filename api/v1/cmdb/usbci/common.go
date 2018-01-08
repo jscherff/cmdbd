@@ -12,28 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package usbci
 
-import `github.com/jscherff/cmdb/meta/peripheral`
+import `github.com/jscherff/cmdbd/service`
 
-// NewUsbMeta creates and initializes a new UsbMeta instance.
-func NewUsbMeta (cf string, refresh bool) (*peripheral.Usb, error) {
+// Package variables required for operation.
+var (
+	loggerSvc service.LoggerSvc
+)
 
-	this := &peripheral.Usb{}
-
-	if usb, err := peripheral.NewUsb(cf); err != nil {
-		return nil, err
-	} else {
-		this = usb
-	}
-
-	if refresh {
-		if err := this.Refresh(); err != nil {
-			return this, err
-		} else if err := this.Save(cf); err != nil {
-			return this, err
-		}
-	}
-
-	return this, nil
+// Init initializes the package variables required for operation.
+func Init(ls service.LoggerSvc) {
+	loggerSvc = ls
 }

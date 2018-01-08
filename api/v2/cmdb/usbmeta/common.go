@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmdb
+package usbmeta
 
-import `github.com/jscherff/cmdbd/api`
+import	(
+	`github.com/jscherff/cmdbd/service`
+)
 
-// Endpoints is a collection of URL path to handler function mappings.
-var Endpoints = api.Endpoints {
+// Package variables required for operation.
+var (
+	loggerSvc service.LoggerSvc
+	metaUsbSvc service.MetaUsbSvc
+)
 
-	api.Endpoint {
-		Name:		`CMDB Authenticator`,
-		Path:		`/v2/cmdb/authenticate`,
-		Method:		`GET`,
-		HandlerFunc:	SetAuthToken,
-		Protected:	false,
-	},
+// Init initializes the package variables required for operation.
+func Init(ms service.MetaUsbSvc, ls service.LoggerSvc) {
+	metaUsbSvc, loggerSvc = ms, ls
 }

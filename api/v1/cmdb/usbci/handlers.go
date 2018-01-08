@@ -16,176 +16,41 @@ package usbci
 
 import (
 	`encoding/json`
-	`io`
-	`io/ioutil`
 	`net/http`
 	`github.com/gorilla/mux`
-	`github.com/jscherff/gox/log`
+	`github.com/jscherff/cmdbd/api`
+	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
 )
 
-const HttpBodySizeLimit = 1048576
-
-var errLog, sysLog log.MLogger
-
-func SetLoggers(eLog, sLog log.MLogger) {
-	errLog, sysLog = eLog, sLog
-}
-
-// Checkin records a device checkin.
-func CheckinV1(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
-
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
-
-	if err != nil {
-		errLog.Panic(err)
-	}
-
-	if err = r.Body.Close(); err != nil {
-		errLog.Panic(err)
-	}
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	dev := make(map[string]interface{})
-
-	if err = json.Unmarshal(body, &dev); err != nil {
-
-		errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-
-		if err = json.NewEncoder(w).Encode(err); err != nil {
-			errLog.Panic(err)
-		}
-
-		return
-	}
-
-	dev[`object_json`] = body
-	dev[`remote_addr`] = r.RemoteAddr
-
-	if err = SaveDeviceCheckin(dev); err != nil {
-
-		errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-	} else {
-
-		sysLog.Printf(`saved checkin for host %q device VID %q PID %q`, host, vid, pid)
-		w.WriteHeader(http.StatusCreated)
-	}
-}
-
-// NewSn generates a new serial number for an unserialized device.
-func NewSnV1(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	var host, vid, pid = vars[`host`], vars[`pid`], vars[`vid`]
-
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
-
-	if err != nil {
-		errLog.Panic(err)
-	}
-
-	if err = r.Body.Close(); err != nil {
-		errLog.Panic(err)
-	}
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	dev := make(map[string]interface{})
-
-	if err = json.Unmarshal(body, &dev); err != nil {
-
-		errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-
-		if err = json.NewEncoder(w).Encode(err); err != nil {
-			errLog.Panic(err)
-		}
-
-		return
-	}
-
-	dev[`object_json`] = body
-	dev[`remote_addr`] = r.RemoteAddr
-
-	var sn string = dev[`serial_number`].(string)
-
-	if len(sn) > 0 {
-		sysLog.Printf(`host %q device VID %q PID %q SN was already set to %q`, host, vid, pid, sn)
-	}
-
-	if sn, err = GetNewSerialNumber(dev); err != nil {
-
-		errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-	} else {
-
-		sysLog.Printf(`generated SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
-		w.WriteHeader(http.StatusCreated)
-	}
-
-	if err = json.NewEncoder(w).Encode(sn); err != nil {
-		errLog.Panic(err)
-	}
-}
-
 // Audit accepts the results of a device self-audit and stores the results.
-func AuditV1(w http.ResponseWriter, r *http.Request) {
+func Audit(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, HttpBodySizeLimit))
-
-	if err != nil {
-		errLog.Panic(err)
+	dev := struct {
+		VendorId	string	`json:"vendor_id"`
+		ProductId	string	`json:"product_id"`
+		SerialNum	string	`json:"serial_number"`
+		HostName	string	`json:"host_name"`
+		Changes		[]byte	`json:"changes"`
+	} {
+		VendorId:	vars[`vid`],
+		ProductId:	vars[`pid`],
+		SerialNum:	vars[`sn`],
+		HostName:	vars[`host`],
 	}
 
-	if err = r.Body.Close(); err != nil {
-		errLog.Panic(err)
-	}
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if err = SaveDeviceChanges(host, vid, pid, sn, body); err != nil {
-
-		errLog.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
+	if body, err := api.ReadBody(r); err != nil {
+		loggerSvc.ErrorLog().Panic(err)
 	} else {
-
-		sysLog.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, host, vid, pid, sn)
-		w.WriteHeader(http.StatusCreated)
+		dev.Changes = body
 	}
-}
 
-// Checkout retrieves a device from the serialized device database as a
-// JSON object and returns it to the caller.
-func CheckoutV1(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	var host, vid, pid, sn = vars[`host`], vars[`vid`], vars[`pid`], vars[`sn`]
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if j, err := GetDeviceJSONObject(vid, pid, sn); err != nil {
-
-		errLog.Print(err)
+	if body, err := json.Marshal(dev); err != nil {
+		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-
 	} else {
-
-		sysLog.Printf(`found SN %q for host %q device VID %q PID %q`, sn, host, vid, pid)
-		w.WriteHeader(http.StatusOK)
-
-		if _, err = w.Write(j); err != nil {
-			errLog.Panic(err)
-		}
+		api.WriteBody(r, body)
+		usbci.Audit(w, r)
 	}
 }
