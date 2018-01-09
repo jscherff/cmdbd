@@ -20,7 +20,18 @@ import (
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
+	`github.com/jscherff/cmdbd/service`
 )
+
+// Package variables required for operation.
+var (
+	loggerSvc service.LoggerSvc
+)
+
+// Init initializes the package variables required for operation.
+func Init(ls service.LoggerSvc) {
+	loggerSvc = ls
+}
 
 // Audit accepts the results of a device self-audit and stores the results.
 func Audit(w http.ResponseWriter, r *http.Request) {

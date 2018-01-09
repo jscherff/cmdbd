@@ -16,9 +16,22 @@
 package cmdb
 
 import (
+	`fmt`
 	`net/http`
 	`github.com/jscherff/cmdbd/model/cmdb`
+	`github.com/jscherff/cmdbd/service`
 )
+
+// Package variables required for operation.
+var (
+	authSvc service.AuthSvc
+	loggerSvc service.LoggerSvc
+)
+
+// Init initializes the package variables required for operation.
+func Init(as service.AuthSvc, ls service.LoggerSvc) {
+	authSvc, loggerSvc = as, ls
+}
 
 // SetauthToken authenticates client using basic authentication and
 // issues a token for API authentication if successful.
@@ -37,8 +50,9 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	if err := user.Read(); err != nil {
 
-		loggerSvc.ErrorLog().Printf(`user %q not found: %v`, username, err)
-		http.Error(w, `user not found`, http.StatusNotFound)
+		err = fmt.Errorf(`user %q not found: %v`, username, err)
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if err := user.Verify(password); err != nil {
 

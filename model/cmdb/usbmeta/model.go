@@ -28,37 +28,37 @@ func Init(ds store.DataStore) {
 }
 
 type Class struct {
-	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
-	ClassDesc	string		`db:"class_desc,omitempty" json:"class_desc"`
-	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
+	ClassId		string		`db:"class_id,omitempty"       json:"class_id"`
+	ClassDesc	string		`db:"class_desc,omitempty"     json:"class_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"    json:"last_update"`
 }
 
 type SubClass struct {
-	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
-	SubClassId	string		`db:"subclass_id,omitempty" json:"subclass_id"`
-	SubClassDesc	string		`db:"subclass_desc,omitempty" json:"subclass_desc"`
-	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
+	ClassId		string		`db:"class_id,omitempty"       json:"class_id"`
+	SubClassId	string		`db:"subclass_id,omitempty"    json:"subclass_id"`
+	SubClassDesc	string		`db:"subclass_desc,omitempty"  json:"subclass_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"    json:"last_update"`
 }
 
 type Protocol struct {
-	ClassId		string		`db:"class_id,omitempty" json:"class_id"`
-	SubClassId	string		`db:"subclass_id,omitempty" json:"subclass_id"`
-	ProtocolId	string		`db:"protocol_id,omitempty" json:"protocol_id"`
-	ProtocolDesc	string		`db:"protocol_desc,omitempty" json:"protocol_desc"`
-	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
+	ClassId		string		`db:"class_id,omitempty"       json:"class_id"`
+	SubClassId	string		`db:"subclass_id,omitempty"    json:"subclass_id"`
+	ProtocolId	string		`db:"protocol_id,omitempty"    json:"protocol_id"`
+	ProtocolDesc	string		`db:"protocol_desc,omitempty"  json:"protocol_desc"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"    json:"last_update"`
 }
 
 type Vendor struct {
-	VendorId	string		`db:"vendor_id,omitempty" json:"vendor_id"`
-	VendorName	string		`db:"vendor_name,omitempty" json:"vendor_name"`
-	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
+	VendorId	string		`db:"vendor_id,omitempty"      json:"vendor_id"`
+	VendorName	string		`db:"vendor_name,omitempty"    json:"vendor_name"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"    json:"last_update"`
 }
 
 type Product struct {
-	VendorId	string		`db:"vendor_id,omitempty" json:"vendor_id"`
-	ProductId	string		`db:"product_id,omitempty" json:"product_id"`
-	ProductName	string		`db:"product_name,omitempty" json:"product_name"`
-	LastUpdate	time.Time	`db:"last_update,omitempty" json:"last_update"`
+	VendorId	string		`db:"vendor_id,omitempty"      json:"vendor_id"`
+	ProductId	string		`db:"product_id,omitempty"     json:"product_id"`
+	ProductName	string		`db:"product_name,omitempty"   json:"product_name"`
+	LastUpdate	time.Time	`db:"last_update,omitempty"    json:"last_update"`
 }
 
 func (this *Vendor) Create() (int64, error) {

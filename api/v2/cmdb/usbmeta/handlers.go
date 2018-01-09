@@ -19,7 +19,19 @@ import (
 	`encoding/json`
 	`net/http`
 	`github.com/gorilla/mux`
+	`github.com/jscherff/cmdbd/service`
 )
+
+// Package variables required for operation.
+var (
+	loggerSvc service.LoggerSvc
+	metaUsbSvc service.MetaUsbSvc
+)
+
+// Init initializes the package variables required for operation.
+func Init(ms service.MetaUsbSvc, ls service.LoggerSvc) {
+	metaUsbSvc, loggerSvc = ms, ls
+}
 
 // Vendor returns the USB vendor name associated with a vendor Id.
 func Vendor(w http.ResponseWriter, r *http.Request) {

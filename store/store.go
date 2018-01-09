@@ -18,7 +18,7 @@ import (
 	`fmt`
 	`strings`
 	`github.com/jmoiron/sqlx`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 type DataStore interface {
@@ -74,7 +74,7 @@ func (this *dataStore) String() (string) {
 // a collection of Named NamedStmts.
 func (this *dataStore) Prepare(queryFile string) (error) {
 
-	if err := common.LoadConfig(&this.queries, queryFile); err != nil {
+	if err := utils.LoadConfig(&this.queries, queryFile); err != nil {
 		return err
 	}
 

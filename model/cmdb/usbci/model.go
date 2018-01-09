@@ -19,6 +19,7 @@ import (
 	`time`
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/store`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 var dataStore store.DataStore
@@ -118,32 +119,61 @@ type Change struct {
 
 type Changes []*Change
 
-func (this *Audit) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+// ----------------------
+// Standard CRUD methods.
+// ----------------------
+
+func (this *Audit) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
+}
+
+func (this *Change) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
+}
+
+func (this *Checkin) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
+}
+
+func (this *SnRequest) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
 }
 
 func (this *Audit) Read() (error) {
 	return dataStore.Read(`Read`, this, this)
 }
 
-func (this *Change) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
-}
-
-func (this *Checkin) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
-}
-
-func (this *SnRequest) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+func (this *Serialized) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
 }
 
 func (this *SnRequest) Update() (int64, error) {
 	return dataStore.Update(`Update`, this)
 }
 
-func (this *Serialized) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+// --------------------
+// Specialized methods.
+// --------------------
+
+func (this *SnRequest) UpdateSn(sn string) (int64, error) {
+	this.SerialNum = sn
+	return this.Update()
+}
+
+func (this *SnRequest) Unique() (bool) {
+
+	dev := &Serialized{}
+	utils.DeepCopy(this, dev)
+
+	if err := dev.Read(); err != nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func (this *Serialized) JSON() ([]byte, error) {

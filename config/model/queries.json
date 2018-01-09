@@ -45,17 +45,6 @@
 			"Columns": [
 				"*"
 			]
-		},
-	
-		"ReadPassword": {
-			"Table": "cmdb_users",
-			"Command": "select",
-			"Filters": [
-				"username"
-			],
-			"Columns": [
-				"password"
-			]
 		}
 	},
 
@@ -106,6 +95,19 @@
 				"current_value",
 				"change_date"
 			]
+		},
+
+		"Read": {
+			"Table": "usbci_changes",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
 		}
 	},
 
@@ -143,6 +145,19 @@
 				"object_type",
 				"object_json",
 				"checkin_date"
+			]
+		},
+
+		"Read": {
+			"Table": "usbci_checkins",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
 			]
 		}
 	},
@@ -184,6 +199,19 @@
 			]
 		},
 	
+		"Read": {
+			"Table": "usbci_snrequests",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		},
+
 		"Update": {
 			"Table": "usbci_snrequests",
 			"Command": "update",
@@ -197,6 +225,43 @@
 	},
 
 	"usbci.Serialized": {
+	
+		"Create": {
+			"Table": "usbci_serialized",
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"first_seen",
+				"last_seen",
+				"checkins"
+			]
+		},
 	
 		"Read": {
 		       	"Table": "usbci_serialized",
@@ -213,6 +278,72 @@
 	
 		"ReadJSON": {
 			"Table": "usbci_serialized",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id",
+			       	"serial_number"
+			],
+			"Columns": [
+				"object_json"
+			]
+		}
+	},
+
+	"usbci.Unserialized": {
+	
+		"Create": {
+			"Table": "usbci_unserialized",
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"first_seen",
+				"last_seen",
+				"checkins"
+			]
+		},
+	
+		"Read": {
+		       	"Table": "usbci_unserialized",
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id",
+			       	"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		},
+	
+		"ReadJSON": {
+			"Table": "usbci_unserialized",
 			"Command": "select",
 			"Filters": [
 				"vendor_id",

@@ -20,9 +20,9 @@ import (
 	`path/filepath`
 	`time`
 
-	`github.com/jscherff/cmdbd/common`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
+	`github.com/jscherff/cmdbd/utils`
 
 	model_cmdb	`github.com/jscherff/cmdbd/model/cmdb`
 	model_usbci	`github.com/jscherff/cmdbd/model/cmdb/usbci`
@@ -78,7 +78,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	this := &Config{}
 
-	if err := common.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

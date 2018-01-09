@@ -18,7 +18,7 @@ import (
 	`fmt`
 	`net/http`
 	`time`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // server extends the http.Server object.
@@ -31,7 +31,7 @@ func NewServer(cf string, handler http.Handler) (*Server, error) {
 
 	this := &Server{}
 
-	if err := common.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

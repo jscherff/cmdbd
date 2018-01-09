@@ -17,7 +17,7 @@ package server
 import (
 	`fmt`
 	`github.com/RackSec/srslog`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 var (
@@ -74,7 +74,7 @@ func NewSyslog(cf string) (*Syslog, error) {
 
 	this := &Syslog{}
 
-	if err := common.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

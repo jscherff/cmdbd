@@ -18,7 +18,7 @@ import (
 	`io`
 	`path/filepath`
 	`github.com/jscherff/gox/log`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // LoggerSvc is a collection of LoggerSvc with a getter method.
@@ -81,7 +81,7 @@ func NewLoggerSvc(cf string, console bool, syslog io.Writer) (LoggerSvc, error) 
 
 	this := &loggerSvc{}
 
-	if err := common.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package common
+package utils
 
 import (
+	`bytes`
 	`encoding/json`
 	`os`
 	`path/filepath`
@@ -92,5 +93,19 @@ func CallerInfo() (*callerInfo) {
 		Function: filepath.ToSlash(frame.Function),
 		FilePath: filepath.ToSlash(filePath),
 		ExecPath: filepath.ToSlash(execPath),
+	}
+}
+
+// DeepCopy copies field values between similar objects.
+func DeepCopy(src, dst interface{}) (error) {
+
+	var buf bytes.Buffer
+
+	if err := json.NewEncoder(&buf).Encode(src); err != nil {
+		return err
+	} else if err := json.NewDecoder(&buf).Decode(dst); err != nil {
+		return err
+	} else {
+		return nil
 	}
 }

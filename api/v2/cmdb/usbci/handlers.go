@@ -17,11 +17,26 @@ package usbci
 
 import (
 	`encoding/json`
+	`fmt`
 	`net/http`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/api`
+	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/model/cmdb/usbci`
+	`github.com/jscherff/cmdbd/service`
 )
+
+// Package variables required for operation.
+var (
+	authSvc service.AuthSvc
+	serialSvc service.SerialSvc
+	loggerSvc service.LoggerSvc
+)
+
+// Init initializes the package variables required for operation.
+func Init(as service.AuthSvc, ss service.SerialSvc, ls service.LoggerSvc) {
+	authSvc, serialSvc, loggerSvc = as, ss, ls
+}
 
 // CheckIn records a device checkin.
 func CheckIn(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +68,7 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 // NewSn generates a new serial number for an unserialized device.
 func NewSn(w http.ResponseWriter, r *http.Request) {
 
+	seq := &cmdb.Sequence{}
 	dev := &usbci.SnRequest{}
 	dev.RemoteAddr = r.RemoteAddr
 
@@ -63,7 +79,12 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
-	} else if id, err := dev.Create(); err != nil {
+	} else if id, err := seq.Create(); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	} else if _, err := dev.Create(); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -72,6 +93,19 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	} else if _, err := dev.UpdateSn(sn); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	} else if unique := dev.Unique(); !unique {
+
+		err := fmt.Errorf(`SN %q already exists for USB device %s %s`,
+			dev.SerialNum, dev.VendorId, dev.ProductId)
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusConflict)
 
 	} else {
 
@@ -157,7 +191,7 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`checked out USB device %s %s SN %q for host %s`,
+		loggerSvc.SystemLog().Printf(`checked out USB device %s %s SN %q on host %s`,
 			dev.VendorId, dev.ProductId, dev.SerialNum, vars[`host`])
 
 		w.WriteHeader(http.StatusOK)

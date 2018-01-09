@@ -19,8 +19,8 @@ import (
 	`github.com/gorilla/mux`
 	`github.com/gorilla/handlers`
 	`github.com/jscherff/cmdbd/api`
-	`github.com/jscherff/cmdbd/common`
 	`github.com/jscherff/cmdbd/service`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // Router is a Gorilla Mux router with additional methods.
@@ -41,7 +41,7 @@ func NewRouter(cf string, authSvc service.AuthSvc, logSvc service.LoggerSvc) (*R
 		LoggerSvc: logSvc,
 	}
 
-	if err := common.LoadConfig(this, cf); err != nil {
+	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 

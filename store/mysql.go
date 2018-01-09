@@ -18,7 +18,7 @@ import (
 	`fmt`
 	`time`
 	`github.com/go-sql-driver/mysql`
-	`github.com/jscherff/cmdbd/common`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 const (
@@ -36,7 +36,7 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 
 	conf := &mysql.Config{}
 
-	if err := common.LoadConfig(conf, configFile); err != nil {
+	if err := utils.LoadConfig(conf, configFile); err != nil {
 		return nil, err
 	}
 

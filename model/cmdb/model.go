@@ -49,21 +49,32 @@ type User struct {
 	Role		string		`db:"role,omitempty"           json:"role"`
 }
 
-func (this *Error) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+// ----------------------
+// Standard CRUD Methods.
+// ----------------------
+
+func (this *Error) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
 }
 
-func (this *Sequence) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+func (this *Sequence) Create() (id int64, err error) {
+	this.Ord, err = dataStore.Create(`Create`, this)
+	return this.Ord, err
 }
 
-func (this *User) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+func (this *User) Create() (id int64, err error) {
+	this.Id, err = dataStore.Create(`Create`, this)
+	return this.Id, err
 }
 
 func (this *User) Read() (error) {
 	return dataStore.Read(`Read`, this, this)
 }
+
+// --------------------
+// Speicalized Methods.
+// --------------------
 
 func (this *User) Verify(passwd string) (error) {
 	return bcrypt.CompareHashAndPassword([]byte(this.Password), []byte(passwd))
