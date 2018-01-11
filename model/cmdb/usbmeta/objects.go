@@ -62,23 +62,23 @@ type Product struct {
 }
 
 func (this *Vendor) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+	return dataStore.Exec(`Create`, this)
 }
 
 func (this *Product) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+	return dataStore.Exec(`Create`, this)
 }
 
 func (this *Class) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+	return dataStore.Exec(`Create`, this)
 }
 
 func (this *SubClass) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+	return dataStore.Exec(`Create`, this)
 }
 
 func (this *Protocol) Create() (int64, error) {
-	return dataStore.Create(`Create`, this)
+	return dataStore.Exec(`Create`, this)
 }
 
 func (this *Vendor) Read(arg interface{}) (error) {
@@ -139,31 +139,31 @@ func Load(usb *peripheral.Usb) (error) {
 		createVendor, createProduct, createClass, createSubClass, createProtocol *sqlx.NamedStmt
 	)
 
-	if stmt, err := dataStore.Statement(`Create`, vendor); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, vendor); err != nil {
 		return err
 	} else {
 		createVendor = tx.NamedStmt(stmt)
 	}
 
-	if stmt, err := dataStore.Statement(`Create`, product); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, product); err != nil {
 		return err
 	} else {
 		createProduct = tx.NamedStmt(stmt)
 	}
 
-	if stmt, err := dataStore.Statement(`Create`, class); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, class); err != nil {
 		return err
 	} else {
 		createClass = tx.NamedStmt(stmt)
 	}
 
-	if stmt, err := dataStore.Statement(`Create`, subClass); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, subClass); err != nil {
 		return err
 	} else {
 		createSubClass = tx.NamedStmt(stmt)
 	}
 
-	if stmt, err := dataStore.Statement(`Create`, protocol); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, protocol); err != nil {
 		return err
 	} else {
 		createProtocol = tx.NamedStmt(stmt)

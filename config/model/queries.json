@@ -3,6 +3,7 @@
 
 		"Create": {
 			"Table": "cmdb_errors",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -17,6 +18,7 @@
 	
 		"Create": {
 			"Table": "cmdb_sequence",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": null
@@ -27,6 +29,7 @@
 	
 		"Create": {
 			"Table": "cmdb_users",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -38,6 +41,7 @@
 	
 		"Read": {
 			"Table": "cmdb_users",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"username"
@@ -52,6 +56,7 @@
 
 		"Create": {
 			"Table": "usbci_audits",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -67,6 +72,7 @@
 
 		"Read": {
 			"Table": "usbci_audits",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"id"
@@ -81,6 +87,7 @@
 	
 		"Create": {
 			"Table": "usbci_changes",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -99,6 +106,7 @@
 
 		"Read": {
 			"Table": "usbci_changes",
+			"MultiRow": true,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -115,6 +123,7 @@
 	
 		"Create": {
 			"Table": "usbci_checkins",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -150,6 +159,7 @@
 
 		"Read": {
 			"Table": "usbci_checkins",
+			"MultiRow": true,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -166,6 +176,7 @@
 	
 		"Create": {
 			"Table": "usbci_snrequests",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -201,6 +212,7 @@
 	
 		"Read": {
 			"Table": "usbci_snrequests",
+			"MultiRow": true,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -214,6 +226,7 @@
 
 		"Update": {
 			"Table": "usbci_snrequests",
+			"MultiRow": false,
 			"Command": "update",
 			"Filters": [
 				"id"
@@ -228,6 +241,7 @@
 	
 		"Create": {
 			"Table": "usbci_serialized",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -265,6 +279,7 @@
 	
 		"Read": {
 		       	"Table": "usbci_serialized",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -274,19 +289,6 @@
 			"Columns": [
 				"*"
 			]
-		},
-	
-		"ReadJSON": {
-			"Table": "usbci_serialized",
-			"Command": "select",
-			"Filters": [
-				"vendor_id",
-			       	"product_id",
-			       	"serial_number"
-			],
-			"Columns": [
-				"object_json"
-			]
 		}
 	},
 
@@ -294,6 +296,7 @@
 	
 		"Create": {
 			"Table": "usbci_unserialized",
+			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
@@ -331,27 +334,17 @@
 	
 		"Read": {
 		       	"Table": "usbci_unserialized",
+			"MultiRow": true,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
 			       	"product_id",
-			       	"serial_number"
+				"host_name",
+				"port_number",
+				"bus_number"
 			],
 			"Columns": [
 				"*"
-			]
-		},
-	
-		"ReadJSON": {
-			"Table": "usbci_unserialized",
-			"Command": "select",
-			"Filters": [
-				"vendor_id",
-			       	"product_id",
-			       	"serial_number"
-			],
-			"Columns": [
-				"object_json"
 			]
 		}
 	},
@@ -360,6 +353,7 @@
 
 		"Create": {
 			"Table": "usbmeta_vendor",
+			"MultiRow": false,
 			"Command": "replace",
 			"Filters": null,
 			"Columns": [
@@ -370,6 +364,7 @@
 
 		"Read": {
 			"Table": "usbmeta_vendor",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"vendor_id"
@@ -384,6 +379,7 @@
 	
 		"Create": {
 			"Table": "usbmeta_product",
+			"MultiRow": false,
 			"Command": "replace",
 			"Filters": null,
 			"Columns": [
@@ -395,6 +391,7 @@
 
 		"Read": {
 			"Table": "usbmeta_product",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -410,6 +407,7 @@
 	
 		"Create": {
 			"Table": "usbmeta_class",
+			"MultiRow": false,
 			"Command": "replace",
 			"Filters": null,
 			"Columns": [
@@ -420,6 +418,7 @@
 
 		"Read": {
 			"Table": "usbmeta_class",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"class_id"
@@ -434,6 +433,7 @@
 	
 		"Create": {
 			"Table": "usbmeta_subclass",
+			"MultiRow": false,
 			"Command": "replace",
 			"Filters": null,
 			"Columns": [
@@ -445,6 +445,7 @@
 
 		"Read": {
 			"Table": "usbmeta_subclass",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"class_id",
@@ -460,6 +461,7 @@
 	
 		"Create": {
 			"Table": "usbmeta_protocol",
+			"MultiRow": false,
 			"Command": "replace",
 			"Filters": null,
 			"Columns": [
@@ -472,6 +474,7 @@
 
 		"Read": {
 			"Table": "usbmeta_protocol",
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"class_id",

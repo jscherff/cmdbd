@@ -74,34 +74,6 @@ type Custom struct {
 	Custom10	string		`db:"custom_10,omitempty"      json:"custom_10"`
 }
 
-type Checkin struct {
-	Ident
-	Common
-	CheckinDate	time.Time	`db:"checkin_date,omitempty"   json:"checkin_date"`
-}
-
-type SnRequest struct {
-	Ident
-	Common
-	RequestDate	time.Time	`db:"request_date,omitempty"   json:"request_date"`
-}
-
-type Serialized struct {
-	Ident
-	Common
-	FirstSeen	time.Time	`db:"first_seen,omitempty"     json:"first_seen"`
-	LastSeen	time.Time	`db:"last_seen,omitempty"      json:"last_seen"`
-	Checkins	int		`db:"checkins,omitempty"       json:"checkins"`
-}
-
-type Unserialized struct {
-	Ident
-	Common
-	FirstSeen	time.Time	`db:"first_seen,omitempty"     json:"first_seen"`
-	LastSeen	time.Time	`db:"last_seen,omitempty"      json:"last_seen"`
-	Checkins	int		`db:"checkins,omitempty"       json:"checkins"`
-}
-
 type Audit struct {
 	Ident
 	Changes		[]byte		`db:"changes,omitempty"        json:"changes"`
@@ -117,6 +89,34 @@ type Change struct {
 	ChangeDate	time.Time	`db:"change_date,omitempty"    json:"change_date"`
 }
 
+type Checkin struct {
+	Ident
+	Common
+	CheckinDate	time.Time	`db:"checkin_date,omitempty"   json:"checkin_date"`
+}
+
+type Serialized struct {
+	Ident
+	Common
+	FirstSeen	time.Time	`db:"first_seen,omitempty"     json:"first_seen"`
+	LastSeen	time.Time	`db:"last_seen,omitempty"      json:"last_seen"`
+	Checkins	int		`db:"checkins,omitempty"       json:"checkins"`
+}
+
+type SnRequest struct {
+	Ident
+	Common
+	RequestDate	time.Time	`db:"request_date,omitempty"   json:"request_date"`
+}
+
+type Unserialized struct {
+	Ident
+	Common
+	FirstSeen	time.Time	`db:"first_seen,omitempty"     json:"first_seen"`
+	LastSeen	time.Time	`db:"last_seen,omitempty"      json:"last_seen"`
+	Checkins	int		`db:"checkins,omitempty"       json:"checkins"`
+}
+
 type Changes []*Change
 
 // ----------------------
@@ -124,22 +124,32 @@ type Changes []*Change
 // ----------------------
 
 func (this *Audit) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }
 
 func (this *Change) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }
 
 func (this *Checkin) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
+	return this.Id, err
+}
+
+func (this *Serialized) Create() (id int64, err error) {
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }
 
 func (this *SnRequest) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
+	return this.Id, err
+}
+
+func (this *Unserialized) Create() (id int64, err error) {
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }
 
@@ -147,12 +157,28 @@ func (this *Audit) Read() (error) {
 	return dataStore.Read(`Read`, this, this)
 }
 
+func (this *Change) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
+}
+
+func (this *Checkin) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
+}
+
 func (this *Serialized) Read() (error) {
 	return dataStore.Read(`Read`, this, this)
 }
 
+func (this *SnRequest) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
+}
+
+func (this *Unserialized) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
+}
+
 func (this *SnRequest) Update() (int64, error) {
-	return dataStore.Update(`Update`, this)
+	return dataStore.Exec(`Update`, this)
 }
 
 // --------------------
@@ -230,7 +256,7 @@ func (this Changes) Create() (int64, error) {
 		createChange *sqlx.NamedStmt
 	)
 
-	if stmt, err := dataStore.Statement(`Create`, change); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Create`, change); err != nil {
 		return 0, err
 	} else {
 		createChange = tx.NamedStmt(stmt)

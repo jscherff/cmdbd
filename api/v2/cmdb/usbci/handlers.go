@@ -58,7 +58,7 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`checked in USB device %s %s SN %q on host %s`,
+		loggerSvc.SystemLog().Printf(`checked in USB device %q %q SN %q for host %s`,
 			dev.VendorId, dev.ProductId, dev.SerialNum, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
@@ -101,7 +101,7 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 	} else if unique := dev.Unique(); !unique {
 
-		err := fmt.Errorf(`SN %q already exists for USB device %s %s`,
+		err := fmt.Errorf(`SN %q already exists for USB device %q %q`,
 			dev.SerialNum, dev.VendorId, dev.ProductId)
 
 		loggerSvc.ErrorLog().Print(err)
@@ -109,7 +109,7 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`issued SN %q for USB device %s %s on host %s`,
+		loggerSvc.SystemLog().Printf(`issued SN %q for USB device %q %q for host %s`,
 			dev.SerialNum, dev.VendorId, dev.ProductId, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
@@ -160,7 +160,7 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`audited USB device %s %s SN %q on host %s`,
+		loggerSvc.SystemLog().Printf(`audited USB device %q %q SN %q for host %s`,
 			dev.VendorId, dev.ProductId, dev.SerialNum, dev.HostName)
 
 		w.WriteHeader(http.StatusCreated)
@@ -191,7 +191,7 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`checked out USB device %s %s SN %q on host %s`,
+		loggerSvc.SystemLog().Printf(`checked out USB device %q %q SN %q for host %s`,
 			dev.VendorId, dev.ProductId, dev.SerialNum, vars[`host`])
 
 		w.WriteHeader(http.StatusOK)

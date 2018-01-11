@@ -24,20 +24,29 @@ import (
 type DataStore interface {
 	String() (string)
 	Prepare(queryFile string) (error)
+	/*
 	Statement(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
 	Read(queryName string, dest, arg interface{}) (error)
 	Create(queryName string, arg interface{}) (int64, error)
 	Update(queryName string, arg interface{}) (int64, error)
 	Delete(queryName string, arg interface{}) (int64, error)
+	*/
+	NamedStmt(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
+	Exec(queryName string, arg interface{}) (int64, error)
+	Read(queryName string, dest, arg interface{}) (error)
 	Begin() (*sqlx.Tx, error)
 	Close() (error)
+}
+
+type namedStmt struct {
+	*sqlx.NamedStmt
+	*query
 }
 
 // dataStore is an implementation of the dataStore interface.
 type dataStore struct {
 	*sqlx.DB
-	queries map[string]map[string]*query
-	namedStmts map[string]map[string]*sqlx.NamedStmt
+	namedStmts map[string]map[string]*namedStmt
 }
 
 // NewDataStore returns a DataStore interface.
@@ -57,8 +66,7 @@ func newDataStore(driver, dsn string) (*dataStore, error) {
 	} else {
 		this = &dataStore{
 			DB: db,
-			queries: make(map[string]map[string]*query),
-			namedStmts: make(map[string]map[string]*sqlx.NamedStmt),
+			namedStmts: make(map[string]map[string]*namedStmt),
 		}
 	}
 
@@ -74,22 +82,27 @@ func (this *dataStore) String() (string) {
 // a collection of Named NamedStmts.
 func (this *dataStore) Prepare(queryFile string) (error) {
 
-	if err := utils.LoadConfig(&this.queries, queryFile); err != nil {
+	var queries map[string]map[string]*query
+
+	if err := utils.LoadConfig(&queries, queryFile); err != nil {
 		return err
 	}
 
-	for modelName := range this.queries {
+	for modelName := range queries {
 
 		if this.namedStmts[modelName] == nil {
-			this.namedStmts[modelName] = make(map[string]*sqlx.NamedStmt)
+			this.namedStmts[modelName] = make(map[string]*namedStmt)
 		}
 
-		for queryName, query := range this.queries[modelName] {
+		for queryName, query := range queries[modelName] {
 
-			if namedStmt, err := this.PrepareNamed(query.String()); err != nil {
+			if stmt, err := this.PrepareNamed(query.String()); err != nil {
 				return err
 			} else {
-				this.namedStmts[modelName][queryName] = namedStmt
+				this.namedStmts[modelName][queryName] = &namedStmt{
+					NamedStmt: stmt,
+					query: query,
+				}
 			}
 		}
 	}
@@ -97,15 +110,15 @@ func (this *dataStore) Prepare(queryFile string) (error) {
 	return nil
 }
 
-// NamedStmt looks up a NamedStmt by query name and model name and returns it.
-func (this *dataStore) Statement(queryName string, obj interface{}) (*sqlx.NamedStmt, error) {
+// namedStmt looks up a namedStmt by query name and model name and returns it.
+func (this *dataStore) namedStmt(queryName string, obj interface{}) (*namedStmt, error) {
 
 	var modelName string
 
-	if mn, ok := obj.(string); !ok {
+	if mnString, ok := obj.(string); !ok {
 		modelName = strings.TrimPrefix(fmt.Sprintf(`%T`, obj), `*`)
 	} else {
-		modelName = mn
+		modelName = mnString
 	}
 
 	if stmt, ok := this.namedStmts[modelName][queryName]; !ok {
@@ -115,48 +128,41 @@ func (this *dataStore) Statement(queryName string, obj interface{}) (*sqlx.Named
 	}
 }
 
-// Read executes a Named SELECT NamedStmt and returns the results in the 
-// destination object.
+// NamedStmt looks up a NamedStmt by query name and model name and returns it.
+func (this *dataStore) NamedStmt(queryName string, obj interface{}) (*sqlx.NamedStmt, error) {
+
+	if stmt, err := this.namedStmt(queryName, obj); err != nil {
+		return nil, err
+	} else {
+		return stmt.NamedStmt, nil
+	}
+}
+
+// Read executes a SELECT NamedStmt and returns the result in a struct for a
+// single-row result or a slice of structs for a multi-row result.
 func (this *dataStore) Read(queryName string, dest, arg interface{}) (error) {
 
-	if stmt, err := this.Statement(queryName, dest); err != nil {
+	if stmt, err := this.namedStmt(queryName, dest); err != nil {
 		return err
+	} else if stmt.query.Command != `select` {
+		return fmt.Errorf(`invalid SQL command for Read: %s`, stmt.query.Command)
+	} else if stmt.query.MultiRow == true {
+		return stmt.Select(dest, arg)
 	} else {
 		return stmt.Get(dest, arg)
 	}
 }
 
-// Insert executes a Named INSERT NamedStmt and returns the last insert ID.
-func (this *dataStore) Create(queryName string, arg interface{}) (int64, error) {
+// Exec executes an INSERT, UPDATE, or DELETE NamedStmt and returns the last
+// insert ID (for INSERT) or number of rows affected (for UPDATE or DELETE).
+func (this *dataStore) Exec(queryName string, arg interface{}) (int64, error) {
 
-	if stmt, err := this.Statement(queryName, arg); err != nil {
+	if stmt, err := this.namedStmt(queryName, arg); err != nil {
 		return 0, err
-	} else if res, err := stmt.Exec(arg); err != nil {
+	} else if res, err := stmt.NamedStmt.Exec(arg); err != nil {
 		return 0, err
-	} else {
+	} else if stmt.query.Command == `insert` {
 		return res.LastInsertId()
-	}
-}
-
-// Update executes a Named UPDATE NamedStmt and returns number of rows affected.
-func (this *dataStore) Update(queryName string, arg interface{}) (int64, error) {
-
-	if stmt, err := this.Statement(queryName, arg); err != nil {
-		return 0, err
-	} else if res, err := stmt.Exec(arg); err != nil {
-		return 0, err
-	} else {
-		return res.RowsAffected()
-	}
-}
-
-// Delete executes a Named DELETE NamedStmt and returns number of rows affected.
-func (this *dataStore) Delete(queryName string, arg interface{}) (int64, error) {
-
-	if stmt, err := this.Statement(queryName, arg); err != nil {
-		return 0, err
-	} else if res, err := stmt.Exec(arg); err != nil {
-		return 0, err
 	} else {
 		return res.RowsAffected()
 	}

@@ -28,6 +28,7 @@ const (
 // query contains SQL query components needed for building prepared statements.
 type query struct {
 	Table string
+	MultiRow bool
 	Command string
 	Filters []string
 	Columns []string

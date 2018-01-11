@@ -54,18 +54,26 @@ type User struct {
 // ----------------------
 
 func (this *Error) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }
 
 func (this *Sequence) Create() (id int64, err error) {
-	this.Ord, err = dataStore.Create(`Create`, this)
+	this.Ord, err = dataStore.Exec(`Create`, this)
 	return this.Ord, err
 }
 
 func (this *User) Create() (id int64, err error) {
-	this.Id, err = dataStore.Create(`Create`, this)
+	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
+}
+
+func (this *Error) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
+}
+
+func (this *Sequence) Read() (error) {
+	return dataStore.Read(`Read`, this, this)
 }
 
 func (this *User) Read() (error) {
