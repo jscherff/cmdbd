@@ -5,7 +5,7 @@ General Enhancements
 	* [Echo](https://echo.labstack.com/)
 	* [Gin](https://gin-gonic.github.io/gin/)
 	* [Revel](https://revel.github.io/)
-- [ ] Add code to check if generated serial number is already taken.
+- [X] Add code to check if generated serial number is already taken.
 
 Logging
 -------
@@ -28,7 +28,7 @@ Model Enhancements
 - [X] Use enhanced database package like 'sqlx' or ORM package like 'gorp' to simplify database interactions.
 	* [sqlx](https://github.com/jmoiron/sqlx)
 	* [gorp](https://github.com/go-gorp/gorp)
-- [ ] Add code to record individual changes in database (cmdb_changes vs cmdb_audits)
+- [X] Add code to record individual changes in database (cmdb_changes vs cmdb_audits)
 - [ ] Use some kind of caching solution (sqlite memcache?) for metadata.
 
 Scaling Improvements
