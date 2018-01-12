@@ -79,27 +79,22 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
-	} else if id, err := seq.Create(); err != nil {
+	} else if seed, err := seq.Create(); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if _, err := dev.Create(); err != nil {
+	} else if sn, err := serialSvc.CreateSerial(dev.ObjectType, seed); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if sn, err := serialSvc.CreateSerial(dev.ObjectType, id); err != nil {
+	} else if _, err := dev.CreateWithSn(sn); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else if _, err := dev.UpdateSn(sn); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-	} else if unique := dev.Unique(); !unique {
+	} else if exists := dev.DeviceExists(); exists {
 
 		err := fmt.Errorf(`SN %q already exists for USB device %q %q`,
 			dev.SerialNum, dev.VendorId, dev.ProductId)

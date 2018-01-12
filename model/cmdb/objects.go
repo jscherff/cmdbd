@@ -68,31 +68,22 @@ func (this *User) Create() (id int64, err error) {
 	return this.Id, err
 }
 
-func (this *Error) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
-}
-
-func (this *Sequence) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
-}
-
 func (this *User) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+	return dataStore.Read(`SelectByUniqueId`, this, this)
 }
 
 // --------------------
 // Speicalized Methods.
 // --------------------
 
-func (this *User) Verify(passwd string) (error) {
+func (this *User) VerifyPassword(passwd string) (error) {
 	return bcrypt.CompareHashAndPassword([]byte(this.Password), []byte(passwd))
 }
 
-func (this *User) Allowed() (error) {
+func (this *User) VerifyAccess(/*TODO: provide and validate role*/) (error) {
 	if this.Locked {
 		return fmt.Errorf(`user %q account locked`, this.Username)
 	} else {
 		return nil
 	}
 }
-

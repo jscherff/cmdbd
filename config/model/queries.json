@@ -39,7 +39,7 @@
 			]
 		},
 	
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "cmdb_users",
 			"MultiRow": false,
 			"Command": "select",
@@ -70,12 +70,29 @@
 			]
 		},
 
-		"Read": {
+		"SelectByPrimaryKey": {
 			"Table": "usbci_audits",
 			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"id"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Audits": {
+
+		"SelectByDeviceKey": {
+			"Table": "usbci_audits",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
 			],
 			"Columns": [
 				"*"
@@ -102,9 +119,24 @@
 				"current_value",
 				"change_date"
 			]
+		}
+	},
+
+	"usbci.Changes": {
+
+		"SelectByAuditId": {
+			"Table": "usbci_changes",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"audit_id"
+			],
+			"Columns": [
+				"*"
+			]
 		},
 
-		"Read": {
+		"SelectByDeviceKey": {
 			"Table": "usbci_changes",
 			"MultiRow": true,
 			"Command": "select",
@@ -155,9 +187,12 @@
 				"object_json",
 				"checkin_date"
 			]
-		},
+		}
+	},
 
-		"Read": {
+	"usbci.Checkins": {
+
+		"SelectByDeviceKey": {
 			"Table": "usbci_checkins",
 			"MultiRow": true,
 			"Command": "select",
@@ -165,6 +200,61 @@
 				"vendor_id",
 				"product_id",
 				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Serialized": {
+	
+		"Create": {
+			"Table": "usbci_serialized",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"first_seen",
+				"last_seen",
+				"checkins"
+			]
+		},
+	
+		"SelectByUniqueId": {
+		       	"Table": "usbci_serialized",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id",
+			       	"serial_number"
 			],
 			"Columns": [
 				"*"
@@ -210,9 +300,9 @@
 			]
 		},
 	
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbci_snrequests",
-			"MultiRow": true,
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
 				"vendor_id",
@@ -224,7 +314,7 @@
 			]
 		},
 
-		"Update": {
+		"UpdateByPrimaryKey": {
 			"Table": "usbci_snrequests",
 			"MultiRow": false,
 			"Command": "update",
@@ -233,61 +323,6 @@
 			],
 			"Columns": [
 				"serial_number"
-			]
-		}
-	},
-
-	"usbci.Serialized": {
-	
-		"Create": {
-			"Table": "usbci_serialized",
-			"MultiRow": false,
-			"Command": "insert",
-			"Filters": null,
-			"Columns": [
-				"host_name",
-				"vendor_id",
-				"product_id",
-				"serial_number",
-				"remote_addr",
-				"vendor_name",
-				"product_name",
-				"product_ver",
-				"firmware_ver",
-				"software_id",
-				"port_number",
-				"bus_number",
-				"bus_address",
-				"buffer_size",
-				"max_pkt_size",
-				"usb_spec",
-				"usb_class",
-				"usb_subclass",
-				"usb_protocol",
-				"device_speed",
-				"device_ver",
-				"device_sn",
-				"factory_sn",
-				"descriptor_sn",
-				"object_type",
-				"object_json",
-				"first_seen",
-				"last_seen",
-				"checkins"
-			]
-		},
-	
-		"Read": {
-		       	"Table": "usbci_serialized",
-			"MultiRow": false,
-			"Command": "select",
-			"Filters": [
-				"vendor_id",
-			       	"product_id",
-			       	"serial_number"
-			],
-			"Columns": [
-				"*"
 			]
 		}
 	},
@@ -332,14 +367,14 @@
 			]
 		},
 	
-		"Read": {
+		"SelectByUniqueId": {
 		       	"Table": "usbci_unserialized",
-			"MultiRow": true,
+			"MultiRow": false,
 			"Command": "select",
 			"Filters": [
+				"host_name",
 				"vendor_id",
 			       	"product_id",
-				"host_name",
 				"port_number",
 				"bus_number"
 			],
@@ -362,7 +397,7 @@
 			]
 		},
 
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbmeta_vendor",
 			"MultiRow": false,
 			"Command": "select",
@@ -389,7 +424,7 @@
 			]
 		},
 
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbmeta_product",
 			"MultiRow": false,
 			"Command": "select",
@@ -416,7 +451,7 @@
 			]
 		},
 
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbmeta_class",
 			"MultiRow": false,
 			"Command": "select",
@@ -443,7 +478,7 @@
 			]
 		},
 
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbmeta_subclass",
 			"MultiRow": false,
 			"Command": "select",
@@ -472,7 +507,7 @@
 			]
 		},
 
-		"Read": {
+		"SelectByUniqueId": {
 			"Table": "usbmeta_protocol",
 			"MultiRow": false,
 			"Command": "select",

@@ -1,0 +1,48 @@
+cmdb.Error
+        Create
+cmdb.Sequence
+        Create
+cmdb.User
+        Create
+        SelectByUniqueId
+usbci.Audit
+        Create
+        SelectByPrimaryKey
+usbci.Audits
+        SelectByDeviceKey
+usbci.Change
+        Create
+usbci.Changes
+        SelectByAuditId
+        SelectByDeviceKey
+usbci.Checkin
+        Create
+usbci.Checkins
+        SelectByDeviceKey
+usbci.SnRequest
+        Create
+        SelectByUniqueId
+        UpdateByPrimaryKey
+usbci.Serialized
+        Create
+        SelectByUniqueId
+usbci.Unserialized
+        Create
+        SelectByUniqueId
+usbmeta.Vendor
+        Create
+        SelectByUniqueId
+usbmeta.Product
+        Create
+        SelectByUniqueId
+usbmeta.Class
+        Create
+        SelectByUniqueId
+usbmeta.SubClass
+        Create
+        SelectByUniqueId
+usbmeta.Protocol
+        Create
+        SelectByUniqueId
+
+

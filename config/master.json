@@ -1,28 +1,16 @@
 {
-	"AuthMaxAge": 60,
-
 	"Console": false,
 	"Refresh": false,
 
 	"ConfigFile": {
+		"AuthSvc": "service/auth.json",
 		"LoggerSvc": "service/logger.json",
+		"SerialSvc": "service/serial.json",
+		"MetaUsbSvc": "service/metausb.json",
 		"DataStore": "store/mysql.json",
 		"Queries": "model/queries.json",
-		"MetaUsb": "cache/metausb.json",
 		"Syslog": "server/syslog.json",
 		"Router": "server/router.json",
 		"Server": "server/httpd.json"
-	},
-
-	"CryptoFile": {
-		"PublicKey": "crypto/cmdbd.pub",
-		"PrivateKey": "crypto/cmdbd.rsa"
-	},
-
-	"SerialFormat": {
-		"*usb.Magtek": "24HF%04XMT",
-		"*usb.IDTech": "24HF%04XIT",
-		"*usbci.Magtek": "24HF%04XMT",
-		"Default": "24HF%06X"
 	}
 }

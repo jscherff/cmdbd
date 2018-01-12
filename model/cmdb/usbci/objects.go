@@ -19,7 +19,6 @@ import (
 	`time`
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/store`
-	`github.com/jscherff/cmdbd/utils`
 )
 
 var dataStore store.DataStore
@@ -117,7 +116,9 @@ type Unserialized struct {
 	Checkins	int		`db:"checkins,omitempty"       json:"checkins"`
 }
 
+type Audits []*Audit
 type Changes []*Change
+type Checkins []*Checkin
 
 // ----------------------
 // Standard CRUD methods.
@@ -154,51 +155,63 @@ func (this *Unserialized) Create() (id int64, err error) {
 }
 
 func (this *Audit) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+	return dataStore.Read(`SelectByPrimaryKey`, this, this)
 }
 
-func (this *Change) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+func (this *Audits) Read() (error) {
+	return dataStore.Read(`SelectByDeviceKey`, this, this)
 }
 
-func (this *Checkin) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+func (this *Changes) Read() (error) {
+	return dataStore.Read(`SelectByDeviceKey`, this, this)
+}
+
+func (this *Checkins) Read() (error) {
+	return dataStore.Read(`SelectByDeviceKey`, this, this)
 }
 
 func (this *Serialized) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+	return dataStore.Read(`SelectByUniqueId`, this, this)
 }
 
 func (this *SnRequest) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+	return dataStore.Read(`SelectByUniqueId`, this, this)
 }
 
 func (this *Unserialized) Read() (error) {
-	return dataStore.Read(`Read`, this, this)
+	return dataStore.Read(`SelectByUniqueId`, this, this)
 }
 
 func (this *SnRequest) Update() (int64, error) {
-	return dataStore.Exec(`Update`, this)
+	return dataStore.Exec(`UpdateByUniqueId`, this)
 }
 
 // --------------------
 // Specialized methods.
 // --------------------
 
-func (this *SnRequest) UpdateSn(sn string) (int64, error) {
+func (this *Changes) ReadByAuditId() (error) {
+	return dataStore.Read(`SelectByAuditId`, this, this)
+}
+
+func (this *SnRequest) CreateWithSn(sn string) (int64, error) {
+	this.SerialNum = sn
+	return this.Create()
+}
+
+func (this *SnRequest) UpdateWithSn(sn string) (int64, error) {
 	this.SerialNum = sn
 	return this.Update()
 }
 
-func (this *SnRequest) Unique() (bool) {
+func (this *SnRequest) DeviceExists() (bool) {
 
-	dev := &Serialized{}
-	utils.DeepCopy(this, dev)
+	device := &Serialized{}
 
-	if err := dev.Read(); err != nil {
-		return true
-	} else {
+	if err := dataStore.Read(`SelectByUniqueId`, device, this); err != nil {
 		return false
+	} else {
+		return true
 	}
 }
 

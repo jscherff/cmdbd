@@ -14,7 +14,10 @@
 
 package service
 
-import `fmt`
+import (
+	`fmt`
+	`github.com/jscherff/cmdbd/utils`
+)
 
 // SerialSvc is an interface that creates serial numbers from seed values.
 type SerialSvc interface {
@@ -27,8 +30,17 @@ type serialSvc struct {
 }
 
 // NewSerialSvc returns an object that implements the SerialSvc interface.
-func NewSerialSvc(serialFormat map[string]string) (SerialSvc, error) {
-	return &serialSvc{serialFormat}, nil
+func NewSerialSvc(cf string) (SerialSvc, error) {
+
+	this := &serialSvc{}
+
+	// Load configuration settings.
+
+	if err := utils.LoadConfig(this, cf); err != nil {
+		return nil, err
+	}
+
+	return this, nil
 }
 
 // Format returns the format string of the provided format key.

@@ -17,11 +17,13 @@ package service
 import (
 	`crypto/rsa`
 	`fmt`
+	`io/ioutil`
 	`net/http`
+	`path/filepath`
 	`time`
 	jwt `github.com/dgrijalva/jwt-go`
-
 	`github.com/jscherff/cmdbd/model/cmdb`
+	`github.com/jscherff/cmdbd/utils`
 )
 
 // AuthClaims is a custom claims object that contains user authentication
@@ -59,30 +61,49 @@ type AuthSvc interface {
 
 // authSvc is a service that implements the AuthSvc interface.
 type authSvc struct {
-	PrivateKey *rsa.PrivateKey
-	PublicKey *rsa.PublicKey
 	AuthMaxAge time.Duration
+	PriKey *rsa.PrivateKey
+	PubKey *rsa.PublicKey
+	PriKeyFile string
+	PubKeyFile string
 }
 
 // NewAuthSvc returns an object that implements the AuthSvc interface.
-func NewAuthSvc(pubKey, priKey []byte, authMaxAge time.Duration) (AuthSvc, error) {
+func NewAuthSvc(cf string) (AuthSvc, error) {
 
-	this := &authSvc{AuthMaxAge: authMaxAge}
+	this := &authSvc{}
+
+	// Load configuration settings.
+
+	if err := utils.LoadConfig(this, cf); err != nil {
+		return nil, err
+	}
+
+	this.PriKeyFile = filepath.Join(filepath.Dir(cf), this.PriKeyFile)
+	this.PubKeyFile = filepath.Join(filepath.Dir(cf), this.PubKeyFile)
+
+	// Set the maximum age of auth cookies and tokens.
+
+	this.AuthMaxAge *= time.Minute
 
 	// Process RSA public key.
 
-	if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKey); err != nil {
+	if pemKey, err := ioutil.ReadFile(this.PubKeyFile); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPublicKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
-		this.PublicKey = rsaKey
+		this.PubKey = rsaKey
 	}
 
 	// Process RSA private key.
 
-	if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(priKey); err != nil {
+	if pemKey, err := ioutil.ReadFile(this.PriKeyFile); err != nil {
+		return nil, err
+	} else if rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM(pemKey); err != nil {
 		return nil, err
 	} else {
-		this.PrivateKey = rsaKey
+		this.PriKey = rsaKey
 	}
 
 	return this, nil
@@ -121,7 +142,7 @@ func (this *authSvc) ParseTokenString(tokenString string) (*Token, error) {
 				return nil, fmt.Errorf(`unexpected signing method: %v`, t.Header[`alg`])
 			}
 
-			return this.PublicKey, nil
+			return this.PubKey, nil
 		},
 	)
 
@@ -138,7 +159,7 @@ func (this *authSvc) ParseTokenString(tokenString string) (*Token, error) {
 
 // CreateTokenString returns a token string suitable for cookies.
 func (this *authSvc) CreateTokenString(token *Token) (string, error) {
-	return token.SignedString(this.PrivateKey)
+	return token.SignedString(this.PriKey)
 }
 
 

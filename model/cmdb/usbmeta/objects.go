@@ -82,23 +82,23 @@ func (this *Protocol) Create() (int64, error) {
 }
 
 func (this *Vendor) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+	return dataStore.Read(`SelectByUniqueId`, this, arg)
 }
 
 func (this *Product) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+	return dataStore.Read(`SelectByUniqueId`, this, arg)
 }
 
 func (this *Class) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+	return dataStore.Read(`SelectByUniqueId`, this, arg)
 }
 
 func (this *SubClass) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+	return dataStore.Read(`SelectByUniqueId`, this, arg)
 }
 
 func (this *Protocol) Read(arg interface{}) (error) {
-	return dataStore.Read(`Read`, this, arg)
+	return dataStore.Read(`SelectByUniqueId`, this, arg)
 }
 
 func (this *Vendor) String() (string) {

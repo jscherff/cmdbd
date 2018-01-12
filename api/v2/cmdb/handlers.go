@@ -54,12 +54,12 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 
-	} else if err := user.Verify(password); err != nil {
+	} else if err := user.VerifyPassword(password); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
-	} else if err := user.Allowed(); err != nil {
+	} else if err := user.VerifyAccess(); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)

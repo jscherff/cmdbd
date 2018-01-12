@@ -1,0 +1,8 @@
+{
+	"SerialFormat": {
+		"*usb.Magtek": "24HF%04XMT",
+		"*usb.IDTech": "24HF%04XIT",
+		"*usbci.Magtek": "24HF%04XMT",
+		"Default": "24HF%06X"
+	}
+}

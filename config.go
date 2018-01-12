@@ -15,7 +15,11 @@
 package server
 
 import (
+	`fmt`
+	`io/ioutil`
 	`path/filepath`
+	`time`
+
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 	`github.com/jscherff/cmdbd/utils`
@@ -33,12 +37,25 @@ import (
 	api_usbmeta_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
+const (
+	pubKeyName	string = `PublicKey`
+	priKeyName	string = `PrivateKey`
+)
+
 // Master configuration settings.
 type Config struct {
 
+	AuthMaxAge	time.Duration
+
 	Console		bool
 	Refresh		bool
+
 	ConfigFile	map[string]string
+	CryptoFile	map[string]string
+	SerialFormat	map[string]string
+
+	PublicKey	[]byte
+	PrivateKey	[]byte
 
 	AuthSvc		service.AuthSvc
 	SerialSvc	service.SerialSvc
@@ -74,6 +91,34 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.ConfigFile[key] = filepath.Join(filepath.Dir(cf), fn)
 	}
 
+	for key, fn := range this.CryptoFile {
+		this.CryptoFile[key] = filepath.Join(filepath.Dir(cf), fn)
+	}
+
+	// Set the maximum age of auth cookies and tokens.
+
+	this.AuthMaxAge *= time.Minute
+
+	// --------------------------------------
+	// Load the public and private key files.
+	// --------------------------------------
+
+	if pubKeyFile, ok := this.CryptoFile[pubKeyName]; !ok {
+		return nil, fmt.Errorf(`public key config %q not found`, pubKeyName)
+	} else if pemKey, err := ioutil.ReadFile(pubKeyFile); err != nil {
+		return nil, err
+	} else {
+		this.PublicKey = pemKey
+	}
+
+	if priKeyFile, ok := this.CryptoFile[priKeyName]; !ok {
+		return nil, fmt.Errorf(`private key config %q not found`, priKeyName)
+	} else if pemKey, err := ioutil.ReadFile(priKeyFile); err != nil {
+		return nil, err
+	} else {
+		this.PrivateKey = pemKey
+	}
+
 	// ----------------------------------------
 	// Create and initialize the Syslog client.
 	// ----------------------------------------
@@ -88,13 +133,13 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize services.
 	// -------------------------------
 
-	if as, err := service.NewAuthSvc(this.ConfigFile[`AuthSvc`]); err != nil {
+	if as, err := service.NewAuthSvc(this.PublicKey, this.PrivateKey, this.AuthMaxAge); err != nil {
 		return nil, err
 	} else {
 		this.AuthSvc = as
 	}
 
-	if ss, err := service.NewSerialSvc(this.ConfigFile[`SerialSvc`]); err != nil {
+	if ss, err := service.NewSerialSvc(this.SerialFormat); err != nil {
 		return nil, err
 	} else {
 		this.SerialSvc = ss
@@ -106,27 +151,30 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.LoggerSvc = ls
 	}
 
-	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsbSvc`], refresh); err != nil {
+	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsb`], refresh); err != nil {
 		return nil, err
 	} else {
 		this.MetaUsbSvc = mus
 	}
 
-	// ------------------------------------
-	// Create and initialize the DataStore.
-	// ------------------------------------
+	// -----------------------------------------------
+	// Create and initialize the DataStore and models.
+	// -----------------------------------------------
 
 	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
 	} else if err := ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
 		return nil, err
 	} else {
+		model_cmdb.Init(ds)
+		model_usbci.Init(ds)
+		model_usbmeta.Init(ds)
 		this.DataStore = ds
 	}
 
-	// ---------------------------------
-	// Create and initialize the Router.
-	// ---------------------------------
+	// -----------------------------
+	// Create and initialize Router.
+	// -----------------------------
 
 	if rt, err := NewRouter(this.ConfigFile[`Router`], this.AuthSvc, this.LoggerSvc); err != nil {
 		return nil, err
@@ -134,36 +182,22 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.Router = rt
 	}
 
-	// ------------------
-	// Initialize Models.
-	// ------------------
-
-	model_cmdb.Init(this.DataStore)
-	model_usbci.Init(this.DataStore)
-	model_usbmeta.Init(this.DataStore)
-
-	// -------------------------
-	// Initialize API Endpoints.
-	// -------------------------
+	// -----------------------------------------------------
+	// Initialize API Endpoints and add Endpoints to Router.
+	// -----------------------------------------------------
 
 	api_usbci_v1.Init(this.LoggerSvc)
 	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
 	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
 	api_usbmeta_v2.Init(this.MetaUsbSvc, this.LoggerSvc)
 
-	// ------------------------
-	// Add Endpoints to Router.
-	// ------------------------
-
-	this.Router.
-		AddEndpoints(api_cmdb_v2.Endpoints).
-		AddEndpoints(api_usbci_v2.Endpoints).
-		AddEndpoints(api_usbmeta_v2.Endpoints)
-
 	this.Router.
 		AddEndpoints(api_cmdb_v1.Endpoints).
 		AddEndpoints(api_usbci_v1.Endpoints).
-		AddEndpoints(api_usbmeta_v1.Endpoints)
+		AddEndpoints(api_usbmeta_v1.Endpoints).
+		AddEndpoints(api_cmdb_v2.Endpoints).
+		AddEndpoints(api_usbci_v2.Endpoints).
+		AddEndpoints(api_usbmeta_v2.Endpoints)
 
 	// -----------------------------
 	// Create and initialize Server.
