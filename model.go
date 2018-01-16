@@ -66,19 +66,19 @@ func GetNewSerialNumber(dev map[string]interface{}) (sn string, err error) {
 		vals = append(vals, dev[col])
 	}
 
+	if res, err := dq.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
+		return ``, err
+	} else if seed, err := res.LastInsertId(); err != nil {
+		return ``, err
+	} else {
+		sn = fmt.Sprintf(serialFmt, seq)
+	}
 	if res, err := dq.Stmt[`usbCiInsertSnRequest`].Exec(vals...); err != nil {
 		return sn, err
 	} else if id, err = res.LastInsertId(); err != nil {
 		return sn, err
 	}
 
-	if res, err := dq.Stmt[`cmdbInsertSequence`].Exec(); err != nil {
-		return sn, err
-	} else if seq, err := res.LastInsertId(); err != nil {
-		return sn, err
-	} else {
-		sn = fmt.Sprintf(serialFmt, seq)
-	}
 
 	if _, err := dq.Stmt[`usbCiUpdateSnRequest`].Exec(sn, id); err != nil {
 		return sn, err
