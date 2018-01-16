@@ -2,6 +2,7 @@
 	"SerialFmt": {
 		"*usb.Magtek": "24HF%04XMT",
 		"*usb.IDTech": "24HF%04XIT",
+		"*usb.Unknown": "24HF%06X",
 		"*usbci.Magtek": "24HF%04XMT",
 		"Default": "24HF%06X"
 	},
