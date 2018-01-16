@@ -170,7 +170,7 @@ func usbCiAuditV1(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		sl.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, vid, pid, sn, host, addr)
+		sl.Printf(`recorded audit for host %q device VID %q PID %q SN %q`, vid, pid, sn, host)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
