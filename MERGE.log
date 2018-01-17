@@ -78,3 +78,36 @@ Files removed in 'develop' branch to resolve merge conflicts:
 	git rm cnf/metausb.json
 
 ===============================================================================
+
+Removing token.go
+Auto-merging server/syslog.go
+Auto-merging server/router.go
+Auto-merging server/midware.go
+Auto-merging server/httpd.go
+CONFLICT (modify/delete): rpm/cmdbd.spec.bak deleted in maint/model and modified in HEAD. Version HEAD of rpm/cmdbd.spec.bak left in tree.
+Removing routes.go
+Removing queries.go
+Removing logger.go
+Auto-merging doc/TODO.md
+Auto-merging deploy/svc/cmdbd.service
+Auto-merging deploy/rpm/cmdbd.spec
+Auto-merging deploy/ddl/reset.sql
+Removing database.go
+CONFLICT (rename/delete): cnf/metausb.json deleted in HEAD and renamed to config/service/metausb.json in maint/model. Version maint/model of config/service/metausb.json left in tree.
+Auto-merging config/service/logger.json
+Removing config.go
+Removing cnf/server.json
+Removing cnf/.gitignore
+Auto-merging api/v1/cmdb/endpoints.go
+CONFLICT (content): Merge conflict in api/v1/cmdb/endpoints.go
+Auto-merging .gitignore
+Automatic merge failed; fix conflicts and then commit the result.
+
+===============================================================================
+
+Files removed in 'develop' branch to resolve merge conflicts:
+
+	git rm rpm/cmdbd.spec.bak
+	git add rpm/.gitignore
+
+===============================================================================
