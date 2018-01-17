@@ -71,12 +71,12 @@ the audit to the server for later analysis.
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
 
   cp -R go/src/%{package}/config/* %{buildroot}%{confdir}/
-  chmod -R 640 %{buildroot}%{confdir}/
 
 %clean
 
   test %{buildroot} != / && rm -rf %{buildroot}
-  test %{_builddir} != / && rm -rf %{_builddir}/*
+  test %{_builddir} != / && rm -rf %{_builddir}
+  test %{gopath} != / && rm -rf %{gopath}
 
 %files
 
@@ -87,8 +87,6 @@ the audit to the server for later analysis.
   %{syslib}/*
   %{docdir}/*
 
-  %defattr(
-  
   %defattr(640,root,%{name},750)
   %config %{confdir}/*
 
