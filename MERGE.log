@@ -75,5 +75,6 @@ Automatic merge failed; fix conflicts and then commit the result.
 Files removed in 'develop' branch to resolve merge conflicts:
 
 	git rm rpm/cmdbd.spec.bak
+	git rm cnf/metausb.json
 
 ===============================================================================
