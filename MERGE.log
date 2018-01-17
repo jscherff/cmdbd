@@ -1,0 +1,10 @@
+Files removed in 'develop' branch to resolve merge conflicts:
+
+	git rm rpm/cmdbd.spec.bak
+	git rm model.go
+	git rm handlers.go
+	git rm ddl/users.sql
+	git rm cnf/queries.json
+	git rm cnf/database.json
+	git rm cnf/config.json
+
