@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	3.0.3
-%define		release	beta.8
+%define		version	3.0.4
+%define		release	1
 %define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
