@@ -72,7 +72,6 @@ the audit to the server for later analysis.
 
   cp -a go/src/%{package}/config/* %{buildroot}%{confdir}/
   chmod -R 640 %{buildroot}%{confdir}/
-  chwon -R root:root
 
 %clean
 
