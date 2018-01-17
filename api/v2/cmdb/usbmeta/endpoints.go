@@ -16,7 +16,7 @@ package usbmeta
 
 import `github.com/jscherff/cmdbd/api`
 
-// Endpoints is a collection of URL path-to-handler function mappings.
+// Endpoints is a collection of URL path-to-handler-function mappings.
 var Endpoints = api.Endpoints {
 
 	api.Endpoint {

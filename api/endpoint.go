@@ -16,6 +16,7 @@ package api
 
 import `net/http`
 
+// Endpoint is a URL path-to-handler-function mapping.
 type Endpoint struct {
 	Name string
 	Path string
@@ -24,4 +25,5 @@ type Endpoint struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// Endpoints is a collection of URL path-to-handler-function mappings.
 type Endpoints []Endpoint
