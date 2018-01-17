@@ -66,10 +66,13 @@ the audit to the server for later analysis.
 
   install -s -m 755 %{name} %{buildroot}%{_sbindir}/
   install -s -m 755 bcrypt %{buildroot}%{_bindir}/
-  install -m 640 go/src/%{package}/configs/* %{buildroot}%{confdir}/
   install -m 640 go/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
   install -m 644 go/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
+
+  cp -a go/src/%{package}/config/* %{buildroot}%{confdir}/
+  chmod -R 640 %{buildroot}%{confdir}/
+  chwon -R root:root
 
 %clean
 
@@ -79,15 +82,18 @@ the audit to the server for later analysis.
 %files
 
   %defattr(-,root,root)
+  %license %{docdir}/LICENSE
   %{_sbindir}/*
   %{_bindir}/*
-  %{docdir}/*
   %{syslib}/*
-  %{docdir}/README.md
-  %license %{docdir}/LICENSE
+  %{docdir}/*
+
+  %defattr(
   
-  %defattr(-,%{name},%{name})
+  %defattr(640,root,%{name},750)
   %config %{confdir}/*
+
+  %defattr(644,%{name},%{name},755)
   %{logdir}
 
 %pre
@@ -165,6 +171,14 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Wed Jan 17 2018 - jscherff@gmail.com
+- Comprehensive refactor to make code resusable and easier to maintain
+- Converted model to lightweight ORM using sqlx
+- Segregated server components into 'server' package
+- Segregated common services into 'service' package
+- Segregated store components into 'store' package
+- Segregated API components into 'api' package
+- Created separate v1 and v2 APIs for backward compatibility
 * Mon Nov 13 2017 - jscherff@gmail.com
 - Modified queries to use tables directly versus views
 - Added DATETIME columns to inserts with time.Now() as value
