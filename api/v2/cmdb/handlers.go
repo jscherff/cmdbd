@@ -22,6 +22,13 @@ import (
 	`github.com/jscherff/cmdbd/service`
 )
 
+// Templates for system and error messages.
+const (
+	fmtAuthMissingCreds = `auth failure on %q - missing credentials`
+	fmtAuthUserNotFound = `auth failure on %q - %q not found: %v`
+	fmtAuthSuccess = `auth success on %q - issuing token for %q`
+)
+
 // Package variables required for operation.
 var (
 	authSvc service.AuthSvc
@@ -37,24 +44,26 @@ func Init(as service.AuthSvc, ls service.LoggerSvc) {
 // issues a token for API authentication if successful.
 func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
+	var (
+		ok bool
+		passwd string
+	)
+
 	user := &cmdb.User{}
 
-	username, password, ok := r.BasicAuth()
+	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
-	if !ok {
-		loggerSvc.ErrorLog().Print(`missing credentials`)
-		http.Error(w, `missing credentials`, http.StatusUnauthorized)
-	}
+		err := fmt.Errorf(fmtAuthMissingCreds, r.RemoteAddr)
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 
-	user.Username = username
+	} else if err := user.Read(); err != nil {
 
-	if err := user.Read(); err != nil {
-
-		err = fmt.Errorf(`user %q not found: %v`, username, err)
+		err = fmt.Errorf(fmtAuthUserNotFound, r.RemoteAddr, user.Username, err)
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 
-	} else if err := user.VerifyPassword(password); err != nil {
+	} else if err := user.VerifyPassword(passwd); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -81,7 +90,7 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`issuing auth token to %q at %q`, user.Username, r.RemoteAddr)
+		loggerSvc.SystemLog().Printf(fmtAuthSuccess, r.RemoteAddr, user.Username)
 		http.SetCookie(w, cookie)
 	}
 }

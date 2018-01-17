@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `cmdb_sequence` (
   `ord` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `issue_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`ord`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.cmdb_users
@@ -362,7 +362,7 @@ CREATE TABLE IF NOT EXISTS `usbci_audits` (
   PRIMARY KEY (`id`),
   KEY `FK_usbci_audits_usbci_serialized` (`vendor_id`,`product_id`,`serial_number`),
   CONSTRAINT `FK_usbci_audits_usbci_serialized` FOREIGN KEY (`vendor_id`, `product_id`, `serial_number`) REFERENCES `usbci_serialized` (`vendor_id`, `product_id`, `serial_number`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_changes
@@ -384,7 +384,7 @@ CREATE TABLE IF NOT EXISTS `usbci_changes` (
   KEY `FK_usbci_changes_usbci_audits` (`audit_id`),
   CONSTRAINT `FK_usbci_changes_usbci_audits` FOREIGN KEY (`audit_id`) REFERENCES `usbci_audits` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_usbci_changes_usbci_serialized` FOREIGN KEY (`vendor_id`, `product_id`, `serial_number`) REFERENCES `usbci_serialized` (`vendor_id`, `product_id`, `serial_number`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_checkins
@@ -428,7 +428,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
@@ -472,7 +472,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`),
   KEY `firmware_ver` (`firmware_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=131 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
@@ -514,7 +514,7 @@ CREATE TABLE IF NOT EXISTS `usbci_snrequests` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_unserialized
@@ -557,7 +557,7 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_class

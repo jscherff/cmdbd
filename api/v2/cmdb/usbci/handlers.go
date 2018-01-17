@@ -26,6 +26,15 @@ import (
 	`github.com/jscherff/cmdbd/service`
 )
 
+// Templates for system and error messages.
+const (
+	fmtCheckInSuccess = `checked in USB device %s-%s SN %q for host %s at %s`
+	fmtNewSnDuplicate = `duplicate SN %q for USB device %s-%s on host %s at %s`
+	fmtNewSnSuccess = `issued SN '%q' for USB device %s-%s on host %s at %s`
+	fmtAuditSuccess = `audited USB device %s-%s SN %q for host %s at %s`
+	fmtCheckOutSuccess = `checked out USB device %s-%s SN %q for host %s at %s`
+)
+
 // Package variables required for operation.
 var (
 	authSvc service.AuthSvc
@@ -58,8 +67,8 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`checked in USB device %q %q SN %q for host %s`,
-			dev.VendorId, dev.ProductId, dev.SerialNum, dev.HostName)
+		loggerSvc.SystemLog().Printf(fmtCheckInSuccess, dev.VendorId,
+			dev.ProductId, dev.SerialNum, dev.HostName, dev.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -96,16 +105,16 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 	} else if exists := dev.DeviceExists(); exists {
 
-		err := fmt.Errorf(`SN %q already exists for USB device %q %q`,
-			dev.SerialNum, dev.VendorId, dev.ProductId)
+		err := fmt.Errorf(fmtNewSnDuplicate, dev.SerialNum,
+			dev.VendorId, dev.ProductId, dev.HostName, dev.RemoteAddr)
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusConflict)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`issued SN %q for USB device %q %q for host %s`,
-			dev.SerialNum, dev.VendorId, dev.ProductId, dev.HostName)
+		loggerSvc.SystemLog().Printf(fmtNewSnSuccess, dev.SerialNum,
+			dev.VendorId, dev.ProductId, dev.HostName, dev.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
 
@@ -155,8 +164,8 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`audited USB device %q %q SN %q for host %s`,
-			dev.VendorId, dev.ProductId, dev.SerialNum, dev.HostName)
+		loggerSvc.SystemLog().Printf(fmtAuditSuccess, dev.VendorId,
+			dev.ProductId, dev.SerialNum, dev.HostName, dev.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -166,11 +175,8 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-
 	dev := &usbci.Serialized{}
-	dev.VendorId = vars[`vid`]
-	dev.ProductId = vars[`pid`]
-	dev.SerialNum = vars[`sn`]
+	dev.VendorId, dev.ProductId, dev.SerialNum = vars[`vid`], vars[`pid`], vars[`sn`]
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
@@ -186,8 +192,8 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(`checked out USB device %q %q SN %q for host %s`,
-			dev.VendorId, dev.ProductId, dev.SerialNum, vars[`host`])
+		loggerSvc.SystemLog().Printf(fmtCheckOutSuccess, dev.VendorId,
+			dev.ProductId, dev.SerialNum, vars[`host`], r.RemoteAddr)
 
 		w.WriteHeader(http.StatusOK)
 
