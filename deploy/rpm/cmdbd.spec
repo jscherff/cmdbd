@@ -71,7 +71,6 @@ the audit to the server for later analysis.
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
 
   cp -R go/src/%{package}/config/* %{buildroot}%{confdir}/
-  chown -R root:%{name} %{buildroot}%{confdir}/
   chmod -R 640 %{buildroot}%{confdir}/
 
 %clean
