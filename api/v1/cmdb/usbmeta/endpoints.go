@@ -19,7 +19,7 @@ import (
 	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
-// Routes is a collection of REST API enpoints providing USB metadata.
+// Endpoints is a collection of URL path-to-handler-function mappings.
 var Endpoints = api.Endpoints {
 
 	api.Endpoint {

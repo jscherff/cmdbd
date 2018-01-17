@@ -19,7 +19,7 @@ import (
 	`github.com/jscherff/cmdbd/api/v2/cmdb`
 )
 
-// Endpoints is a collection of URL path to handler function mappings.
+// Endpoints is a collection of URL path-to-handler-function mappings.
 var Endpoints = api.Endpoints {
 
 	api.Endpoint {
