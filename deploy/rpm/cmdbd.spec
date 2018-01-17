@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	3.0.2
-%define		release	beta.5
+%define		version	3.0.3
+%define		release	beta.6
 %define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
@@ -86,7 +86,7 @@ the audit to the server for later analysis.
   %{syslib}/*
   %{docdir}/*
 
-  %defattr(640,root,%{name},750)
+  %defattr(640,%{name},%{name},750)
   %config %{confdir}/*
 
   %defattr(644,%{name},%{name},755)
