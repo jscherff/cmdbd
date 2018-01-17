@@ -70,7 +70,7 @@ the audit to the server for later analysis.
   install -m 644 go/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
   install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
 
-  cp -a go/src/%{package}/config/* %{buildroot}%{confdir}/
+  cp -R go/src/%{package}/config/* %{buildroot}%{confdir}/
   chmod -R 640 %{buildroot}%{confdir}/
 
 %clean
