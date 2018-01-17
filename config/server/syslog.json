@@ -1,4 +1,5 @@
 {
+	"Enabled": false,
 	"Protocol": "tcp",
 	"Port": "1468",
 	"Host": "localhost",

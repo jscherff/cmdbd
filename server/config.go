@@ -69,7 +69,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	this.Refresh = this.Refresh || refresh
 
 	// Prepend the master config directory to other filenames.
-println(utils.CallerInfo().Line)
+
 	for key, fn := range this.ConfigFile {
 		this.ConfigFile[key] = filepath.Join(filepath.Dir(cf), fn)
 	}
@@ -77,7 +77,7 @@ println(utils.CallerInfo().Line)
 	// ----------------------------------------
 	// Create and initialize the Syslog client.
 	// ----------------------------------------
-println(utils.CallerInfo().Line)
+
 	if sl, err := NewSyslog(this.ConfigFile[`Syslog`]); err != nil {
 		return nil, err
 	} else {
@@ -87,25 +87,25 @@ println(utils.CallerInfo().Line)
 	// -------------------------------
 	// Create and initialize services.
 	// -------------------------------
-println(utils.CallerInfo().Line)
+
 	if as, err := service.NewAuthSvc(this.ConfigFile[`AuthSvc`]); err != nil {
 		return nil, err
 	} else {
 		this.AuthSvc = as
 	}
-println(utils.CallerInfo().Line)
+
 	if ss, err := service.NewSerialSvc(this.ConfigFile[`SerialSvc`]); err != nil {
 		return nil, err
 	} else {
 		this.SerialSvc = ss
 	}
-println(utils.CallerInfo().Line)
+
 	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], this.Console, this.Syslog); err != nil {
 		return nil, err
 	} else {
 		this.LoggerSvc = ls
 	}
-println(utils.CallerInfo().Line)
+
 	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsbSvc`], refresh); err != nil {
 		return nil, err
 	} else {
@@ -115,7 +115,7 @@ println(utils.CallerInfo().Line)
 	// ------------------------------------
 	// Create and initialize the DataStore.
 	// ------------------------------------
-println(utils.CallerInfo().Line)
+
 	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
 	} else if err := ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
@@ -127,7 +127,7 @@ println(utils.CallerInfo().Line)
 	// ---------------------------------
 	// Create and initialize the Router.
 	// ---------------------------------
-println(utils.CallerInfo().Line)
+
 	if rt, err := NewRouter(this.ConfigFile[`Router`], this.AuthSvc, this.LoggerSvc); err != nil {
 		return nil, err
 	} else {
@@ -137,7 +137,7 @@ println(utils.CallerInfo().Line)
 	// ------------------
 	// Initialize Models.
 	// ------------------
-println(utils.CallerInfo().Line)
+
 	model_cmdb.Init(this.DataStore)
 	model_usbci.Init(this.DataStore)
 	model_usbmeta.Init(this.DataStore)
@@ -145,7 +145,7 @@ println(utils.CallerInfo().Line)
 	// -------------------------
 	// Initialize API Endpoints.
 	// -------------------------
-println(utils.CallerInfo().Line)
+
 	api_usbci_v1.Init(this.LoggerSvc)
 	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
 	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
@@ -154,12 +154,12 @@ println(utils.CallerInfo().Line)
 	// ------------------------
 	// Add Endpoints to Router.
 	// ------------------------
-println(utils.CallerInfo().Line)
+
 	this.Router.
 		AddEndpoints(api_cmdb_v2.Endpoints).
 		AddEndpoints(api_usbci_v2.Endpoints).
 		AddEndpoints(api_usbmeta_v2.Endpoints)
-println(utils.CallerInfo().Line)
+
 	this.Router.
 		AddEndpoints(api_cmdb_v1.Endpoints).
 		AddEndpoints(api_usbci_v1.Endpoints).
@@ -168,7 +168,7 @@ println(utils.CallerInfo().Line)
 	// -----------------------------
 	// Create and initialize Server.
 	// -----------------------------
-println(utils.CallerInfo().Line)
+
 	if ws, err := NewServer(this.ConfigFile[`Server`], this.Router); err != nil {
 		return nil, err
 	} else {

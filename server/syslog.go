@@ -61,6 +61,7 @@ var (
 // Syslog contains the Syslog configuration.
 type Syslog struct {
 	*srslog.Writer
+	Enabled		bool
 	Protocol	string
 	Port		string
 	Host		string
@@ -76,6 +77,8 @@ func NewSyslog(cf string) (*Syslog, error) {
 
 	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
+	} else if !this.Enabled {
+		return nil, nil
 	}
 
 	var facility, severity srslog.Priority
