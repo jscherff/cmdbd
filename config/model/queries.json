@@ -1,0 +1,524 @@
+{
+	"cmdb.Error": {
+
+		"Create": {
+			"Table": "cmdb_errors",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+			       	"code",
+				"source",
+			       	"description"
+			]
+		}
+	},
+
+	"cmdb.Sequence": {
+	
+		"Create": {
+			"Table": "cmdb_sequence",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": null
+		}
+	},
+
+	"cmdb.User": {
+	
+		"Create": {
+			"Table": "cmdb_users",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+			       	"username",
+				"password",
+				"role"
+			]
+		},
+	
+		"SelectByUniqueId": {
+			"Table": "cmdb_users",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"username"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Audit": {
+
+		"Create": {
+			"Table": "usbci_audits",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"host_name",
+				"remote_addr",
+				"changes",
+				"audit_date"
+			]
+		},
+
+		"SelectByPrimaryKey": {
+			"Table": "usbci_audits",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"id"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Audits": {
+
+		"SelectByDeviceKey": {
+			"Table": "usbci_audits",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Change": {
+	
+		"Create": {
+			"Table": "usbci_changes",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"audit_id",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"host_name",
+				"remote_addr",
+				"property_name",
+				"previous_value",
+				"current_value",
+				"change_date"
+			]
+		}
+	},
+
+	"usbci.Changes": {
+
+		"SelectByAuditId": {
+			"Table": "usbci_changes",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"audit_id"
+			],
+			"Columns": [
+				"*"
+			]
+		},
+
+		"SelectByDeviceKey": {
+			"Table": "usbci_changes",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Checkin": {
+	
+		"Create": {
+			"Table": "usbci_checkins",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"checkin_date"
+			]
+		}
+	},
+
+	"usbci.Checkins": {
+
+		"SelectByDeviceKey": {
+			"Table": "usbci_checkins",
+			"MultiRow": true,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.Serialized": {
+	
+		"Create": {
+			"Table": "usbci_serialized",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"first_seen",
+				"last_seen",
+				"checkins"
+			]
+		},
+	
+		"SelectByUniqueId": {
+		       	"Table": "usbci_serialized",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id",
+			       	"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbci.SnRequest": {
+	
+		"Create": {
+			"Table": "usbci_snrequests",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"request_date"
+			]
+		},
+	
+		"SelectByUniqueId": {
+			"Table": "usbci_snrequests",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+				"product_id",
+				"serial_number"
+			],
+			"Columns": [
+				"*"
+			]
+		},
+
+		"UpdateByPrimaryKey": {
+			"Table": "usbci_snrequests",
+			"MultiRow": false,
+			"Command": "update",
+			"Filters": [
+				"id"
+			],
+			"Columns": [
+				"serial_number"
+			]
+		}
+	},
+
+	"usbci.Unserialized": {
+	
+		"Create": {
+			"Table": "usbci_unserialized",
+			"MultiRow": false,
+			"Command": "insert",
+			"Filters": null,
+			"Columns": [
+				"host_name",
+				"vendor_id",
+				"product_id",
+				"serial_number",
+				"remote_addr",
+				"vendor_name",
+				"product_name",
+				"product_ver",
+				"firmware_ver",
+				"software_id",
+				"port_number",
+				"bus_number",
+				"bus_address",
+				"buffer_size",
+				"max_pkt_size",
+				"usb_spec",
+				"usb_class",
+				"usb_subclass",
+				"usb_protocol",
+				"device_speed",
+				"device_ver",
+				"device_sn",
+				"factory_sn",
+				"descriptor_sn",
+				"object_type",
+				"object_json",
+				"first_seen",
+				"last_seen",
+				"checkins"
+			]
+		},
+	
+		"SelectByUniqueId": {
+		       	"Table": "usbci_unserialized",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"host_name",
+				"vendor_id",
+			       	"product_id",
+				"port_number",
+				"bus_number"
+			],
+			"Columns": [
+				"*"
+			]
+		}
+	},
+
+	"usbmeta.Vendor": {
+
+		"Create": {
+			"Table": "usbmeta_vendor",
+			"MultiRow": false,
+			"Command": "replace",
+			"Filters": null,
+			"Columns": [
+				"vendor_id",
+			       	"vendor_name"
+			]
+		},
+
+		"SelectByUniqueId": {
+			"Table": "usbmeta_vendor",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"vendor_id"
+			],
+			"Columns": [
+				"vendor_name"
+			]
+		}
+	},
+
+	"usbmeta.Product": {
+	
+		"Create": {
+			"Table": "usbmeta_product",
+			"MultiRow": false,
+			"Command": "replace",
+			"Filters": null,
+			"Columns": [
+				"vendor_id",
+			       	"product_id",
+			       	"product_name"
+			]
+		},
+
+		"SelectByUniqueId": {
+			"Table": "usbmeta_product",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"vendor_id",
+			       	"product_id"
+			],
+			"Columns": [
+				"product_name"
+			]
+		}
+	},
+
+	"usbmeta.Class": {
+	
+		"Create": {
+			"Table": "usbmeta_class",
+			"MultiRow": false,
+			"Command": "replace",
+			"Filters": null,
+			"Columns": [
+				"class_id",
+			       	"class_desc"
+			]
+		},
+
+		"SelectByUniqueId": {
+			"Table": "usbmeta_class",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"class_id"
+			],
+			"Columns": [
+				"class_desc"
+			]
+		}
+	},
+
+	"usbmeta.SubClass": {
+	
+		"Create": {
+			"Table": "usbmeta_subclass",
+			"MultiRow": false,
+			"Command": "replace",
+			"Filters": null,
+			"Columns": [
+				"class_id",
+			       	"subclass_id",
+			       	"subclass_desc"
+			]
+		},
+
+		"SelectByUniqueId": {
+			"Table": "usbmeta_subclass",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"class_id",
+			       	"subclass_id"
+			],
+			"Columns": [
+				"subclass_desc"
+			]
+		}
+	},
+
+	"usbmeta.Protocol": {
+	
+		"Create": {
+			"Table": "usbmeta_protocol",
+			"MultiRow": false,
+			"Command": "replace",
+			"Filters": null,
+			"Columns": [
+				"class_id",
+			       	"subclass_id",
+			       	"protocol_id",
+			       	"protocol_desc"
+			]
+		},
+
+		"SelectByUniqueId": {
+			"Table": "usbmeta_protocol",
+			"MultiRow": false,
+			"Command": "select",
+			"Filters": [
+				"class_id",
+			       	"subclass_id",
+			       	"protocol_id"
+			],
+			"Columns": [
+				"protocol_desc"
+			]
+		}
+	}
+}

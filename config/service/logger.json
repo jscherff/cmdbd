@@ -1,0 +1,36 @@
+{
+	"LogDir": "/var/log/cmdbd",
+	"Stdout": false,
+	"Stderr": false,
+	"Syslog": false,
+
+	"Logger": {
+
+		"System": {
+			"Tag": "System",
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false,
+			"LogFile": "system.log",
+			"LogFlags": ["date","time"]
+		},
+
+		"Access": {
+			"Tag": "Access",
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false,
+			"LogFile": "access.log",
+			"LogFlags": []
+		},
+
+		"Error": {
+			"Tag": "Error",
+			"Stdout": false,
+			"Stderr": false,
+			"Syslog": false,
+			"LogFile": "error.log",
+			"LogFlags": ["date","time","longfile"]
+		}
+	}
+}

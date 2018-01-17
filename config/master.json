@@ -1,0 +1,16 @@
+{
+	"Console": false,
+	"Refresh": false,
+
+	"ConfigFile": {
+		"AuthSvc": "service/auth.json",
+		"LoggerSvc": "service/logger.json",
+		"SerialSvc": "service/serial.json",
+		"MetaUsbSvc": "service/metausb.json",
+		"DataStore": "store/mysql.json",
+		"Queries": "model/queries.json",
+		"Syslog": "server/syslog.json",
+		"Router": "server/router.json",
+		"Server": "server/httpd.json"
+	}
+}
