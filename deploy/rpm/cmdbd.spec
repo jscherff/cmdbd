@@ -74,9 +74,8 @@ the audit to the server for later analysis.
 
 %clean
 
-  test %{buildroot} != / && rm -rf %{buildroot}
-  test %{_builddir} != / && rm -rf %{_builddir}
-  test %{gopath} != / && rm -rf %{gopath}
+  test %{buildroot} != / && rm -rf %{buildroot}/*
+  test %{_builddir} != / && rm -rf %{_builddir}/*
 
 %files
 
