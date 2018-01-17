@@ -28,11 +28,11 @@ import (
 
 // Templates for system and error messages.
 const (
-	fmtCheckInSuccess = `checked in USB device %s-%s SN %q for host %s at %s`
-	fmtNewSnDuplicate = `duplicate SN %q for USB device %s-%s on host %s at %s`
-	fmtNewSnSuccess = `issued SN '%q' for USB device %s-%s on host %s at %s`
-	fmtAuditSuccess = `audited USB device %s-%s SN %q for host %s at %s`
-	fmtCheckOutSuccess = `checked out USB device %s-%s SN %q for host %s at %s`
+	fmtCheckInSuccess = `checked in USB device '%s-%s' SN '%s' for host '%s' at '%s'`
+	fmtNewSnDuplicate = `duplicate SN '%s' for USB device '%s-%s' on host '%s' at '%s'`
+	fmtNewSnSuccess = `issued SN '%s' for USB device '%s-%s' on host '%s' at '%s'`
+	fmtAuditSuccess = `audited USB device '%s-%s' SN '%s' for host '%s' at '%s'`
+	fmtCheckOutSuccess = `checked out USB device '%s-%s' SN '%s' for host '%s' at '%s'`
 )
 
 // Package variables required for operation.
