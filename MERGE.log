@@ -70,3 +70,10 @@ CONFLICT (content): Merge conflict in api/endpoint.go
 Auto-merging .gitignore
 Automatic merge failed; fix conflicts and then commit the result.
 
+===============================================================================
+
+Files removed in 'develop' branch to resolve merge conflicts:
+
+	git rm rpm/cmdbd.spec.bak
+
+===============================================================================
