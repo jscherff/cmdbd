@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=cmdbd
-ExecStart=/usr/sbin/cmdbd -config /etc/cmdbd/config.json
+ExecStart=/usr/sbin/cmdbd -config /etc/cmdbd/master.json
 Restart=on-abort
 
 [Install]
