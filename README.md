@@ -21,24 +21,30 @@ rpm -U ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 In the above examples, `{arch}` is the system architecture (e.g. `x86_64`), `{version}` is the package version, (e.g. `1.0.0`), and `{release}` is the package release (e.g. `1.el7.centos`). 
 
 The package will install the following files:
-* **`/usr/sbin/cmdbd`** is the **CMDBd** daemon.
+* **`/usr/sbin/cmdbd`** is the CMDB daemon.
+* **`/usr/bin/bcrypt`** is a utility for generating password hashes.
 * **`/etc/cmdbd/config.json`** is the master configuration file.
-* **`/etc/cmdbd/database.json`** contains settings for the database.
-* **`/etc/cmdbd/queries.json`** contains SQL queries used by the model.
-* **`/etc/cmdbd/syslog.json`** contains settings for the syslog daemon.
-* **`/etc/cmdbd/logger.json`** contains settings for the HTTP server logs.
-* **`/etc/cmdbd/router.json`** contains settings for the HTTP handlers.
-* **`/etc/cmdbd/server.json`** contains settings for the HTTP server.
+* **`/etc/cmdbd/store/mysql.json`** contains settings for the datastore.
+* **`/etc/cmdbd/model/queries.json`** contains SQL queries used by the model.
+* **`/etc/cmdbd/server/httpd.json`** contains settings for the HTTP daemon.
+* **`/etc/cmdbd/server/router.json`** contains settings for the HTTP mux router.
+* **`/etc/cmdbd/server/syslog.json`** contains settings for communicating with a syslog daemon.
+* **`/etc/cmdbd/service/auth.json`** contains settings for the authentication and authorization service.
+* **`/etc/cmdbd/service/metausb.json`** contains settings for the USB metadata service.
+* **`/etc/cmdbd/service/serial.json`** contains settings for the serial number generator service.
+* **`/etc/cmdbd/service/logger.json`** contains settings for the logger service.
+* **`/etc/cmdbd/service/prikey.pem`** is the private key used by the authentication service.
+* **`/etc/cmdbd/service/pubkey.pem`** is the public key used by the authentication service.
 * **`/etc/cmdbd/metausb.json`** contains information about known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
-* **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** is the database creation SQL.
-* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** is the application user creation SQL.
-* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** resets (truncates) all database tables.
+* **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** creates the application datastore.
+* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates all tables in the datastore.
+* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** creates the database and application users.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
-Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `database.json` configuration file to reflect the correct database hostname, port, user, and password; modify `server.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
+Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `mysql.json` configuration file to reflect the correct database hostname, port, user, and password; modify `httpd.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
 ### Configuration
 The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.
@@ -47,58 +53,64 @@ The JSON configuration files are mostly self-explanatory. The default settings a
 The master configuration file contains global parameters and file names of other configuration files.
 ```json
 {
-    "SerialFmt": "24F%04X",
-    "Configs": {
-        "Database": "database.json",
-        "Queries": "queries.json",
-        "Syslog": "syslog.json",
-        "Logger": "logger.json",
-        "Router": "router.json",
-        "Server": "server.json",
-        "MetaUsb": "metausb.json"
+    "Console": false,
+    "Refresh": false,
+
+    "ConfigFile": {
+        "Server": "server/httpd.json",
+        "Router": "server/router.json",
+        "Syslog": "server/syslog.json",
+        "AuthSvc": "service/auth.json",
+        "LoggerSvc": "service/logger.json",
+        "SerialSvc": "service/serial.json",
+        "MetaUsbSvc": "service/metausb.json",
+        "DataStore": "store/mysql.json",
+        "Queries": "model/queries.json"
     }
 }
 ```
-* **`SerialFmt`** is the C _printf-style_ format string for generating serial numbers from a seed integer.
-* **`Configs`** is a collection of configurations for different components of the server along with their associated file names. The files **must** be located in the same directory as the master configuration file, above, or the server will fail to start. These components and their configuration settings are covered in more detail  later in this document.
-    * **`Database`** names the file that contains database settings.
-    * **`Queries`** names the file that contains SQL queries used by the server.
-    * **`Syslog`** names the file that contains settings for the syslog daemon.
-    * **`Logger`** names the file that contains settings for the HTTP server logs.
-    * **`Router`** names the file that contains settings for the HTTP handlers.
-    * **`Server`** names the file that contains settings for the HTTP server.
-    * **`MetaUsb`** names the file that contains information about known USB devices.
+* **`Console`** causes log output to be written to the console in addition to other destinations.
+* **`Refresh`** causes metadata files and datastores to be refreshed from source, where applicable.
+* **`ConfigFile`** specifies configuration filenames for other components of the application. These components and their configuration settings are covered in more detail later in this document. All paths are relative to the directory of the master configuration file, `config.json`. 
+    * **`Server`** names the file that contains settings for the HTTP daemon.
+    * **`Router`** names the file that contains settings for the HTTP mux router.
+    * **`Syslog`** names the file that contains settings for communicating with a syslog daemon.
+    * **`AuthSvc`** names the configuration file for the Authentication and Authorization Service.
+    * **`LoggerSvc`** names the configuration file for the Logger Service.
+    * **`SerialSvc`** names the configuration file for the serial number generator service.
+    * **`MetaUsbSvc`** names the configuration file for the USB metadata service.
+    * **`DataStore`** names the configuration file for the application datastore.
+    * **`Queries`** names the file containing the SQL queries used by the model.
 
-#### Database Settings (`database.json`)
-The database configuration file contains parameters required for the server to authenticate and communicate with the database:
+#### HTTP Daemon Settings (`server/httpd.json`)
+The server configuration file contains parameters for the HTTP server:
 ```json
 {
-    "Driver": "mysql",
-    "Config": {
-        "User": "cmdbd",
-        "Passwd": "K2Cvg3NeyR",
-        "Net": "",
-        "Addr": "localhost",
-        "DBName": "gocmdb",
-        "Params": null
-    }
+    "Addr": ":8080",
+    "ReadTimeout": 10,
+    "WriteTimeout": 10,
+    "MaxHeaderBytes": 1048576
 }
 ```
-* **`Driver`** is the database driver. Only _'mysql'_ is supported.
-* **`User`** is the database user the daemon uses to access the database.
-* **`Passwd`** is the database user password. Change this to a new, unique value in production.
-* **`Net`** is the port on which the database is listening. If blank, the daemon will use the MySQL default port, 3306.
-* **`Addr`** is the database hostname or IP address.
-* **`DBName`** is the database schema used by the application.
-* **`Params`** are additional parameters to pass to the driver (advanced).
+* **`Addr`** is the hostname (or IP address) and port of the listener, separated by a colon. If the hostname/address component is blank, the daemon will listen on all network interfaces.
+* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
+* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
+* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
 
-#### Query Settings (`queries.json`)
-The query configuration file contains SQL queries used by the server to interact with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
+#### HTTP Mux Router Settings (`server/router.json`)
+Contains parameters for the HTTP mux router and recovery handler:
+```json
+{
+        "RecoveryStack": true
+}
+```
+* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
 
-#### Syslog Settings (`syslog.json`)
+#### Syslog Daemon Settings (`server/syslog.json`)
 The syslog configuration file contains parameters for communicating with an optional local or remote syslog server:
 ```json
 {
+    "Enabled": false,
     "Protocol": "tcp",
     "Port": "1468",
     "Host": "localhost",
@@ -107,6 +119,7 @@ The syslog configuration file contains parameters for communicating with an opti
     "Severity": "LOG_INFO"
 }
 ```
+* **`Enabled`** controls whether or not the syslog client is enabled.
 * **`Protocol`** is the transport-layer protocol used by the syslog daemon (blank for local).
 * **`Port`** is the port used by the syslog daemon (blank for local).
 * **`Host`** is the hostname or IP address of the syslog daemon (blank for local).
@@ -142,7 +155,20 @@ The syslog configuration file contains parameters for communicating with an opti
     * **`LOG_INFO`** -- informational messages
     * **`LOG_DEBUG`** -- debug-level messages
 
-#### Logger Settings (`logger.json`)
+#### Authentication and Authorization Service Settings (`service/auth.json`)
+The authentication and authorization file contains parameters required for the server to authenticate users and determine which endpoints authenticated users may access.
+```json
+{
+        "AuthMaxAge": 60,
+        "PubKeyFile": "pubkey.pem",
+        "PriKeyFile": "prikey.pem"
+}
+```
+* **`AuthMaxAge`** is the maximum amount of time in minutes that an authentication token is valid.
+* **`PubKeyFile`** is the filename of the public key used in generating authentication tokens.
+* **`PriKeyFile`** is the filename of the private key used in generating authentication tokens.
+
+#### Logger Service Settings (`service/logger.json`)
 The logger configuration file contains parameters that determine log file names and logging behavior:
 ```json
 {
@@ -150,27 +176,34 @@ The logger configuration file contains parameters that determine log file names 
     "Stdout": false,
     "Stderr": false,
     "Syslog": false,
-    "Logs": {
-        "system": {
+    
+    "Logger": {
+    
+        "System": {
+            "Tag": "System",
+            "Stdout": false,
+            "Stderr": false,
+            "Syslog": false
             "LogFile": "system.log",
             "LogFlags": ["date","time","shortfile"],
+        },
+        
+        "Access": {
+            "Tag": "Access",
             "Stdout": false,
             "Stderr": false,
-            "Syslog": false
-        },
-        "access": {
+            "Syslog": false,
             "LogFile": "access.log",
-            "LogFlags": [],
-            "Stdout": false,
-            "Stderr": false,
-            "Syslog": false
+            "LogFlags": []
         },
-        "error": {
-            "LogFile": "error.log",
-            "LogFlags": ["date","time","shortfile"],
+        
+        "Error": {
+            "Tag": "Error",
             "Stdout": false,
             "Stderr": false,
-            "Syslog": false
+            "Syslog": false,
+            "LogFile": "error.log",
+            "LogFlags": ["date","time","longfile"]
         }
     }
 }
@@ -179,7 +212,11 @@ The logger configuration file contains parameters that determine log file names 
 * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations. This overrides the same setting for individual logs, below.
 * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations. This overrides the same setting for individual logs, below.
 * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above. This overrides the same setting for individual logs, below.
-* **`Logs`** describes each log used by the application. Each log has the following settings:
+* **`Logger`** describes each log used by the application. Each log has the following settings:
+    * **`Tag`** is the prefix of each entry in the log.
+    * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
+    * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
+    * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above.
     * **`LogFile`** is the filename of the log file.
     * **`LogFlags`** is a comma-separated list of attributes to include in the prefix of each log entry. If it is empty, log entries will have no prefix. (This is appropriate for the HTTP access log which is written in the Apache combined log format and already includes relevent attributes in the prefix.) The following [case-sensitive] flags are supported:
         * **`date`** includes date of the event in `YYYY/MM/DD` format.
@@ -188,45 +225,51 @@ The logger configuration file contains parameters that determine log file names 
         * **`standard`** is shorthand for `date` and `time`.
         * **`longfile`** includes the long filename of the source file of the code that generated the event.
         * **`shortfile`** includes the short filename of the source file of the code that generated the event.
-    * **`Stdout`** causes the daemon to write log entries to standard output (console) in addition to other destinations.
-    * **`Stderr`** causes the daemon to write log entries to standard error in addition to other destinations.
-    * **`Syslog`** causes the daemon to write log entries to a local or remote syslog daemon using the syslog configuration settings, above.
 
-#### Router/Handler Settings (`router.json`)
-Contains parameters for the HTTP mux router recovery handler:
+#### Serial Number Generator Service Settings (`service/serial.json`)
+Contains C language _printf-style_ format strings for generating serial numbers from a seed integer. Serial number formats can be customized for specific device types.
 ```json
 {
-        "RecoveryStack": true
+    "SerialFormat": {
+        "*usb.Magtek": "24HF%04XMT",
+        "*usb.IDTech": "24HF%04XIT",
+        "*usbci.Magtek": "24HF%04XMT",
+        "Default": "24HF%06X"
+    }
 }
 ```
-* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+* **`*<type>.<device>`** specifies a serial number format for the specific, named device type.
+* **`Default`** specifies the default serial number format.
 
-#### Server Settings (`server.json`)
-The server configuration file contains parameters for the HTTP server:
-```json
-{
-        "Addr": ":8080",
-        "ReadTimeout": 10,
-        "WriteTimeout": 10,
-        "MaxHeaderBytes": 1048576,
-        "HttpBodySizeLimit": 1048576,
-        "AllowedContentTypes": ["application/json"]
-}
-```
-* **`Addr`** is the hostname (or IP address) and port of the listener, separated by a colon. If the hostname/address component is blank, the daemon will listen on all network interfaces.
-* **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
-* **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
-* **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
-* **`HttpBodySizeLimit`** is the maximum size in bytes of the request body.
-* **`AllowedContentTypes`** is a comma-separated list of allowed media types.
-
-#### USB Metadata Settings (`metausb.json`)
+#### USB Metadata Service Settings (`service/metausb.json`)
 The USB metadata configuration file contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days. You can force a refresh of this file in two ways:
 1. Execute the daemon binary, `cmdbd`, with the `-refresh` flag (preferred). This will download a fresh copy of the metadata, store it in the configuration file, and update relevant metadata tables in the database.
 2. Modify the `"Updated":` parameter in the configuration file to a date more than 30 days prior.
 ```json
     "Updated": "2017-10-17T16:54:09.4910059-07:00"
 ```
+#### Datastore Settings (`store/mysql.json`)
+The datastore configuration file contains parameters required for the server to authenticate and communicate with the database:
+```json
+{
+    "User": "cmdbd",
+    "Passwd": "K2Cvg3NeyR",
+    "Net": "tcp",
+    "Addr": "localhost:3306",
+    "DBName": "gocmdb",
+    "Params": null
+}
+```
+* **`User`** is the database user the daemon uses to access the database.
+* **`Passwd`** is the database user password. Change this to a new, unique value in production.
+* **`Net`** is the port on which the database is listening. If blank, the daemon will use the MySQL default port, 3306.
+* **`Addr`** is the database hostname or IP address.
+* **`DBName`** is the database schema used by the application.
+* **`Params`** are additional parameters to pass to the driver (advanced).
+
+#### Datastore Query Settings (`queries.json`)
+The query configuration file contains SQL queries used by the model to interact with the datastore. Do not change anything in this file unless directed to do so by a qualified database administrator.
+
 ### Startup
 The installation package configures the daemon to start automatically when on system startup. On initial package installation, you will have to start the daemon manually because there are post-installation steps required (e.g., configuration and database setup) for the daemon to start successfully. On subssequent package upgrades, the RPM package will shutdown and restart the daemon automatically.
 
