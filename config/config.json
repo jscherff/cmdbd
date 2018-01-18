@@ -3,14 +3,14 @@
 	"Refresh": false,
 
 	"ConfigFile": {
+		"Server": "server/httpd.json",
+		"Router": "server/router.json",
+		"Syslog": "server/syslog.json",
 		"AuthSvc": "service/auth.json",
 		"LoggerSvc": "service/logger.json",
 		"SerialSvc": "service/serial.json",
 		"MetaUsbSvc": "service/metausb.json",
 		"DataStore": "store/mysql.json",
-		"Queries": "model/queries.json",
-		"Syslog": "server/syslog.json",
-		"Router": "server/router.json",
-		"Server": "server/httpd.json"
+		"Queries": "model/queries.json"
 	}
 }
