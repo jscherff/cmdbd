@@ -98,7 +98,7 @@ The server configuration file contains parameters for the HTTP server:
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
 
 #### HTTP Mux Router Settings (`server/router.json`)
-Contains parameters for the HTTP mux router recovery handler:
+Contains parameters for the HTTP mux router and recovery handler:
 ```json
 {
         "RecoveryStack": true
@@ -238,8 +238,10 @@ Contains C language _printf-style_ format strings for generating serial numbers 
     }
 }
 ```
+* **`*<type>.<device>`** specifies a serial number format for the specific, named device type.
+* **`Default`** specifies the default serial number format.
 
-#### USB Metadata Settings (`metausb.json`)
+#### USB Metadata Service Settings (`service/metausb.json`)
 The USB metadata configuration file contains vendor names, product names, class descriptions, subclass descriptions, and protocol descriptions for known USB devices. This file is generated from information provided by `http://www.linux-usb.org/usb.ids` and is updated automatically from that site every 30 days. You can force a refresh of this file in two ways:
 1. Execute the daemon binary, `cmdbd`, with the `-refresh` flag (preferred). This will download a fresh copy of the metadata, store it in the configuration file, and update relevant metadata tables in the database.
 2. Modify the `"Updated":` parameter in the configuration file to a date more than 30 days prior.
@@ -247,7 +249,7 @@ The USB metadata configuration file contains vendor names, product names, class 
     "Updated": "2017-10-17T16:54:09.4910059-07:00"
 ```
 #### Datastore Settings (`store/mysql.json`)
-The database configuration file contains parameters required for the server to authenticate and communicate with the database:
+The datastore configuration file contains parameters required for the server to authenticate and communicate with the database:
 ```json
 {
     "User": "cmdbd",
@@ -265,8 +267,8 @@ The database configuration file contains parameters required for the server to a
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
-#### Query Settings (`queries.json`)
-The query configuration file contains SQL queries used by the server to interact with the database. Do not change anything in this file unless directed to do so by a qualified database administrator.
+#### Datastore Query Settings (`queries.json`)
+The query configuration file contains SQL queries used by the model to interact with the datastore. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
 ### Startup
 The installation package configures the daemon to start automatically when on system startup. On initial package installation, you will have to start the daemon manually because there are post-installation steps required (e.g., configuration and database setup) for the daemon to start successfully. On subssequent package upgrades, the RPM package will shutdown and restart the daemon automatically.
