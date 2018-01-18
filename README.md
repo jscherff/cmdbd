@@ -328,12 +328,15 @@ Service access, system events, and errors are written to the following log files
 ### Database Structure
 #### Tables
 The following tables contain USB CI (configuration item) objects and supporting elements:
-* **CMDB Sequence** (`cmdb_sequence`) minics a database sequence object using an auto-incremented integer column. The value of this column forms the _'seed'_ for dynamically-generated, unique serial numbers issued to devices without preconfigured serial numbers. The `SerialFmt` configuraiton setting in the master configuration file controls how the serial number is generated with this integer value. It is extremely important that this table is never altered or truncated, as it provides a guarantee against duplicate serial numbers. Even if the data in all the other tables is lost or corrupted, preserving this table preserves the unique serial number guarantee.
+* **CMDB Errors** (`cmdb_errors`) is not currently implemented. Future versions of CMDBd will use it for centralized error reporting.
+* **CMDB Sequence** (`cmdb_sequence`) mimics a database sequence object using an auto-incremented integer column. The value of this column forms the _'seed'_ for dynamically-generated, unique serial numbers issued to devices without preconfigured serial numbers. The `SerialFmt` configuraiton setting in the master configuration file controls how the serial number is generated with this integer value. It is extremely important that this table is never altered or truncated, as it provides a guarantee against duplicate serial numbers. Even if the data in all the other tables is lost or corrupted, preserving this table preserves the unique serial number guarantee.
+* **CMDB Users** (`cmdb_users`) contains users, passwords and roles used for authentication and authorizing application clients.
 * **Device Checkins** (`usbci_checkins`) contains device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
 * **Serialized Devices** (`usbci_serialized`) contains devices with serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Vendor ID_, _Product ID_, and _Serial Number_, and has only one record per serialized device. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
 * **Unserialized Devices** (`usbci_unserialized`) contains devices without serial numbers. It is populated automatically upon device check-in. It uses a unique index based on _Hostname_, _Vendor ID_, _Product ID_, _Port Number_, and _Bus Number_. It strives to have as few duplicate records as possible per unserialized device, though this cannot be guaranteed if a device is moved to a different workstation or to a different port on the same workstation. The first check-in creates the record; subsequent check-ins update modified configuration settings (if any), update the record's _Last Seen_ timestamp, and increment the record's _Checkins_ counter.
 * **Serial Number Requests** (`usbci_snrequests`) contains requests for a new serial number. **CMDBd** updates new request records with the issued serial number after it is generated. Multiple requests will create multiple records. There is, however, no guarantee that the serial number configuration on the device will be successful and thus no guarantee that the device will appear in the _Serialized Devices_ table. This provides the ability to detect failures in device serial number configuration and also detect fraudulent usage and abuse.
-* **Device Changes** (`usbci_changes`) contains configuration changes detected during device audits. Each audit that detects configuration changes creates one record, and each record contains one or more changes (see below).
+* **Device Audits** (`usbci_audits`) contains a history of audits for each device. Each audit that detects configuration changes creates one record, and each record contains one or more changes encapsulated in a JSON object (see below). The collection of device changes in the JSON object is expanded into individual change records in the _Device Changes_ table. Future versions of this application may deprecate the redundant encapsulated JSON object.
+* **Device Changes** (`usbci_changes`) contains a history of configuration changes for each device. Each audit that detects configuration changes creates one record _for each change detected_. Each change is associated with exactly one record in _Device Audits_; each record in _Device Audits_ may refer to one or more changes for exactly one device.
 
 The following tables contain USB device metadata:
 * **USB Vendor** (`usbmeta_vendor`) contains USB vendor names associated with specific vendor IDs.
@@ -387,19 +390,33 @@ The **Serialized Devices** and **Unserialized Devices** tables both include the 
 * Last Seen (`last_seen`)
 * Checkins (`checkins`)
 
-The **Device Changes** table has the following columns:
+The **Device Audits** table has the following columns:
 * ID (`id`)
-* Host Name (`host_name`)
 * Vendor ID (`vendor_id`)
 * Product ID (`product_id`)
 * Serial Number (`serial_number`)
+* Host Name (`host_name`)
+* Remote Address (`remote_addr`)
 * Changes (`changes`)
 * Audit Date (`audit_date`)
 
-For a given **Device Changes** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change element in the collection has the following fields:
+For a given **Device Audits** record, the _Changes_ column contains a JSON object that represents a collection of one or more changes. Each change in the collection is an array containning the following three elements:
+* Property Name (`element 0`)
+* Previous Value (`element 1`)
+* Current Value (`element 2`)
+
+The **Device Changes** table expands entries in _Device Audits_ into individual configuration changes and has the following columns:
+* ID (`id`)
+* Audit ID (`audit_id`)
+* Vendor ID (`vendor_id`)
+* Product ID (`product_id`)
+* Serial Number (`serial_number`)
+* Host Name (`host_name`)
+* Remote Address (`remote_addr`)
 * Property Name (`property_name`)
-* Old Value (`old_value`)
-* New Value (`new_value`)
+* Previous Value (`previous_value`)
+* Current Value (`current_value`)
+* Change Date (`change_date`)
 
 The **USB Vendor** table has the following columns:
 * Vendor ID (`vendor_id`)
@@ -430,18 +447,33 @@ The **USB Protocol** table has the following columns:
 * Protocol Description (`protocol_desc`)
 * Last Update (`last_update`)
 
-### API Endpoints
-| Endpoint | Method | Purpose
-| :------ | :------ | :------ |
-| /v1/usbci/checkin/`host`/`vid`/`pid` | `POST` | Submit configuration information for a new device or update information for an existing device. |
-| /v1/usbci/checkout/`host`/`vid`/`pid`/`sn` | `GET` | Obtain configuration information for a previously-registered, serialized device in order to perform a change audit. |
-| /v1/usbci/newsn/`host`/`vid`/`pid` | `POST` | Obtain a new unique serial number from the server for assignment to the attached device. |
-| /v1/usbci/audit/`host`/`vid`/`pid`/`sn` | `POST` | Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute. |
-| /v1/usbmeta/vendor/`vid` | `GET` | Obtain the USB vendor name given the vendor ID |
-| /v1/usbmeta/product/`vid`/`pid` | `GET` | Obtain the USB vendor and product names given the vendor and product IDs | 
-| /v1/usbmeta/class/`cid` | `GET` | Obtain the USB class description given the class ID | 
-| /v1/usbmeta/subclass/`cid`/`sid` | `GET` | Obtain the USB class and subclass descriptions given the class and subclass IDs |
-| /v1/usbmeta/protocol/`cid`/`sid`/`pid` | `GET` | Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs |
+### API Endpoints, Version 1
+|Endpoint|Method|Purpose|
+|:-------|:-----|:------|
+|/v1/usbci/checkin/`host`/`vid`/`pid`|`POST`|Submit configuration information for a new device or update information for an existing device.|
+|/v1/usbci/checkout/`host`/`vid`/`pid`/`sn`|`GET`|Obtain configuration information for a previously-registered, serialized device in order to perform a change audit.|
+|/v1/usbci/newsn/`host`/`vid`/`pid`|`POST`|Obtain a new unique serial number from the server for assignment to the attached device.|
+|/v1/usbci/audit/`host`/`vid`/`pid`/`sn`|`POST`|Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.|
+|/v1/usbmeta/vendor/`vid`|`GET`|Obtain the USB vendor name given the vendor ID.|
+|/v1/usbmeta/product/`vid`/`pid`|`GET`|Obtain the USB vendor and product names given the vendor and product IDs.|
+|/v1/usbmeta/class/`cid`|`GET`|Obtain the USB class description given the class ID.|
+|/v1/usbmeta/subclass/`cid`/`sid`|`GET`|Obtain the USB class and subclass descriptions given the class and subclass IDs.|
+|/v1/usbmeta/protocol/`cid`/`sid`/`pid`|`GET`|Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs.|
+
+### API Endpoints, Version 2
+|Endpoint|Method|Purpose|
+|:-------|:-----|:------|
+|/v2/cmdb/authenticate|`GET`|Submit basic authentication data, username and password, to obtain authentication token.|
+|/v2/cmdb/ci/usb/checkin/`host`/`vid`/`pid`|`POST`|Submit configuration information for a new device or update information for an existing device.|
+|/v2/cmdb/ci/usb/checkout/`host`/`vid`/`pid`/`sn`|`GET`|Obtain configuration information for a previously-registered, serialized device in order to perform a change audit.|
+|/v2/cmdb/ci/usb/newsn/`host`/`vid`/`pid`|`POST`|Obtain a new unique serial number from the server for assignment to the attached device.|
+|/v2/cmdb/ci/usb/audit/`host`/`vid`/`pid`/`sn`|`POST`|Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.|
+|/v2/cmdb/meta/usb/vendor/`vid`|`GET`|Obtain the USB vendor name given the vendor ID.|
+|/v2/cmdb/meta/usb/vendor/`vid`/`pid`|`GET`|Obtain the USB vendor and product names given the vendor and product IDs.|
+|/v2/cmdb/meta/usb/class/`cid`|`GET`|Obtain the USB class description given the class ID.|
+|/v2/cmdb/meta/usb/subclass/`cid`/`sid`|`GET`|Obtain the USB class and subclass descriptions given the class and subclass IDs.|
+|/v2/cmdb/meta/usb/protocol/`cid`/`sid`/`pid`|`GET`|Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs.|
+
 
 ### API Parameters
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
