@@ -50,8 +50,9 @@ func Init(as service.AuthSvc, ss service.SerialSvc, ls service.LoggerSvc) {
 // CheckIn records a device checkin.
 func CheckIn(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
 	dev := &usbci.Checkin{}
-	dev.RemoteAddr = r.RemoteAddr
+	dev.HostName, dev.RemoteAddr = vars[`host`], r.RemoteAddr
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
@@ -74,12 +75,45 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CheckOut retrieves a serialized device and returns it as a JSON object.
+func CheckOut(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	dev := &usbci.Serialized{}
+	dev.VendorId, dev.ProductId, dev.SerialNum = vars[`vid`], vars[`pid`], vars[`sn`]
+
+	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+
+	if err := dev.Read(); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+
+	} else if j, err := dev.JSON(); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+
+	} else {
+
+		loggerSvc.SystemLog().Printf(fmtCheckOutSuccess, dev.VendorId,
+			dev.ProductId, dev.SerialNum, vars[`host`], r.RemoteAddr)
+
+		w.WriteHeader(http.StatusOK)
+
+		if _, err = w.Write(j); err != nil {
+			loggerSvc.ErrorLog().Panic(err)
+		}
+	}
+}
+
 // NewSn generates a new serial number for an unserialized device.
 func NewSn(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
 	seq := &cmdb.Sequence{}
 	dev := &usbci.SnRequest{}
-	dev.RemoteAddr = r.RemoteAddr
+	dev.HostName, dev.RemoteAddr = vars[`host`], r.RemoteAddr
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
@@ -127,32 +161,31 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 // Audit accepts the results of a device self-audit and stores the results.
 func Audit(w http.ResponseWriter, r *http.Request) {
 
-	dev := &usbci.Audit{}
-	dev.RemoteAddr = r.RemoteAddr
+	vars := mux.Vars(r)
+	aud := &usbci.Audit{}
+        aud.VendorId, aud.ProductId, aud.SerialNum, aud.HostName, aud.RemoteAddr =
+		vars[`vid`], vars[`pid`], vars[`sn`], vars[`host`], r.RemoteAddr
 
 	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
 
-	if err := api.DecodeBody(dev, r); err != nil {
+	if body, err := api.ReadBody(r); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
 
-	} else if id, err := dev.Create(); err != nil {
+	} else {
+
+		aud.Changes = body
+	}
+
+
+	if _, err := aud.Create(); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
-	} else {
-
-		dev.Id = id
-	}
-
-	if err := dev.Read(); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if changes, err := dev.Expand(); err != nil {
+	} else if changes, err := aud.Expand(); err != nil {
 
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
@@ -164,41 +197,9 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtAuditSuccess, dev.VendorId,
-			dev.ProductId, dev.SerialNum, dev.HostName, dev.RemoteAddr)
+		loggerSvc.SystemLog().Printf(fmtAuditSuccess, aud.VendorId,
+			aud.ProductId, aud.SerialNum, aud.HostName, aud.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
-	}
-}
-
-// CheckOut retrieves a serialized device and returns it as a JSON object.
-func CheckOut(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	dev := &usbci.Serialized{}
-	dev.VendorId, dev.ProductId, dev.SerialNum = vars[`vid`], vars[`pid`], vars[`sn`]
-
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
-
-	if err := dev.Read(); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-
-	} else if j, err := dev.JSON(); err != nil {
-
-		loggerSvc.ErrorLog().Print(err)
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-
-	} else {
-
-		loggerSvc.SystemLog().Printf(fmtCheckOutSuccess, dev.VendorId,
-			dev.ProductId, dev.SerialNum, vars[`host`], r.RemoteAddr)
-
-		w.WriteHeader(http.StatusOK)
-
-		if _, err = w.Write(j); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
-		}
 	}
 }

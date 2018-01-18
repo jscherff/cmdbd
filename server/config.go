@@ -146,7 +146,6 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Initialize API Endpoints.
 	// -------------------------
 
-	api_usbci_v1.Init(this.LoggerSvc)
 	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
 	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
 	api_usbmeta_v2.Init(this.MetaUsbSvc, this.LoggerSvc)

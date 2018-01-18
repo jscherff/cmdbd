@@ -16,7 +16,7 @@ package usbmeta
 
 import (
 	`github.com/jscherff/cmdbd/api`
-	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
+	v2 `github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
 // Endpoints is a collection of URL path-to-handler-function mappings.
@@ -26,7 +26,7 @@ var Endpoints = api.Endpoints {
 		Name:		`Metadata USB Vendor Handler`,
 		Path:		`/v1/usbmeta/vendor/{vid}`,
 		Method:		`GET`,
-		HandlerFunc:	usbmeta.Vendor,
+		HandlerFunc:	v2.Vendor,
 		Protected:	false,
 	},
 
@@ -34,7 +34,7 @@ var Endpoints = api.Endpoints {
 		Name:		`Metadata USB Product Handler`,
 		Path:		`/v1/usbmeta/vendor/{vid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	usbmeta.Product,
+		HandlerFunc:	v2.Product,
 		Protected:	false,
 	},
 
@@ -42,7 +42,7 @@ var Endpoints = api.Endpoints {
 		Name:		`Metadata USB Class Handler`,
 		Path:		`/v1/usbmeta/class/{cid}`,
 		Method:		`GET`,
-		HandlerFunc:	usbmeta.Class,
+		HandlerFunc:	v2.Class,
 		Protected:	false,
 	},
 
@@ -50,7 +50,7 @@ var Endpoints = api.Endpoints {
 		Name:		`Metadata USB SubClass Handler`,
 		Path:		`/v1/usbmeta/subclass/{cid}/{sid}`,
 		Method:		`GET`,
-		HandlerFunc:	usbmeta.SubClass,
+		HandlerFunc:	v2.SubClass,
 		Protected:	false,
 	},
 
@@ -58,7 +58,7 @@ var Endpoints = api.Endpoints {
 		Name:		`Metadata USB Protocol Handler`,
 		Path:		`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	usbmeta.Protocol,
+		HandlerFunc:	v2.Protocol,
 		Protected:	false,
 	},
 }

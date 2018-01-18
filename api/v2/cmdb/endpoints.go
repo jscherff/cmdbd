@@ -21,9 +21,17 @@ var Endpoints = api.Endpoints {
 
 	api.Endpoint {
 		Name:		`CMDB Authenticator`,
-		Path:		`/v2/cmdb/authenticate`,
+		Path:		`/v2/cmdb/authenticate/{host}`,
 		Method:		`GET`,
 		HandlerFunc:	SetAuthToken,
+		Protected:	false,
+	},
+
+	api.Endpoint {
+		Name:		`CMDB Event Logger`,
+		Path:		`/v2/cmdb/event/create/{host}`,
+		Method:		`POST`,
+		HandlerFunc:	CreateEvent,
 		Protected:	false,
 	},
 }

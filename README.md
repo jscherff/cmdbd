@@ -328,7 +328,7 @@ Service access, system events, and errors are written to the following log files
 ### Database Structure
 #### Tables
 The following tables contain USB CI (configuration item) objects and supporting elements:
-* **CMDB Errors** (`cmdb_errors`) is not currently implemented. Future versions of CMDBd will use it for centralized error reporting.
+* **CMDB Events** (`cmdb_events`) is not currently implemented. Future versions of CMDBd will use it for centralized event reporting.
 * **CMDB Sequence** (`cmdb_sequence`) mimics a database sequence object using an auto-incremented integer column. The value of this column forms the _'seed'_ for dynamically-generated, unique serial numbers issued to devices without preconfigured serial numbers. The `SerialFmt` configuraiton setting in the master configuration file controls how the serial number is generated with this integer value. It is extremely important that this table is never altered or truncated, as it provides a guarantee against duplicate serial numbers. Even if the data in all the other tables is lost or corrupted, preserving this table preserves the unique serial number guarantee.
 * **CMDB Users** (`cmdb_users`) contains users, passwords and roles used for authentication and authorizing application clients.
 * **Device Checkins** (`usbci_checkins`) contains device registrations. Multiple check-ins will create multiple records. This provides the ability to track device configuration changes over time. 
@@ -346,6 +346,23 @@ The following tables contain USB device metadata:
 * **USB Protocol** (`usbmeta_protocol`) contains USB protocol descriptions associated with specific class, subclass, and protocol IDs.
 
 #### Columns
+The **CMDB Events** table has the following columns:
+* ID (`id`)
+* Event Code (`code`)
+* Event Source (`source`)
+* Event Description (`description`)
+* Host Name (`host_name`)
+* Remote Address (`remote_addr`)
+* Event Date (`event_date`)
+
+The **CMDB Users** table has the following columns:
+* ID (`id`)
+* Username (`user_name`)
+* Password (`password`)
+* Created (`created`)
+* Locked (`locked`)
+* Role (`role`)
+
 The **CMDB Sequence** table has the following columns:
 * Ordinal Value (`ord`)
 * Issue Date (`issue_date`)

@@ -1,15 +1,17 @@
 {
-	"cmdb.Error": {
+	"cmdb.Event": {
 
 		"Create": {
-			"Table": "cmdb_errors",
+			"Table": "cmdb_events",
 			"MultiRow": false,
 			"Command": "insert",
 			"Filters": null,
 			"Columns": [
 			       	"code",
 				"source",
-			       	"description"
+			       	"description",
+				"host_name",
+				"remote_addr"
 			]
 		}
 	},

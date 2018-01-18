@@ -27,11 +27,13 @@ func Init(ds store.DataStore) {
 	dataStore = ds
 }
 
-type Error struct {
+type Event struct {
 	Id		int64		`db:"id,omitempty"             json:"id"`
 	Code		int		`db:"code,omitempty"           json:"code"`
 	Source		string		`db:"source,omitempty"         json:"source"`
 	Description	string		`db:"description,omitempty"    json:"description"`
+	HostName	string		`db:"host_name,omitempty"      json:"host_name"`
+	RemoteAddr	string		`db:"remote_addr,omitempty"    json:"remote_addr"`
 	EventDate	time.Time	`db:"event_date,omitempty"     json:"event_date"`
 }
 
@@ -53,7 +55,7 @@ type User struct {
 // Standard CRUD Methods.
 // ----------------------
 
-func (this *Error) Create() (id int64, err error) {
+func (this *Event) Create() (id int64, err error) {
 	this.Id, err = dataStore.Exec(`Create`, this)
 	return this.Id, err
 }

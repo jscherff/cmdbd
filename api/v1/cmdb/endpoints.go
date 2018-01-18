@@ -16,7 +16,7 @@ package cmdb
 
 import (
 	`github.com/jscherff/cmdbd/api`
-	`github.com/jscherff/cmdbd/api/v2/cmdb`
+	v2 `github.com/jscherff/cmdbd/api/v2/cmdb`
 )
 
 // Endpoints is a collection of URL path-to-handler-function mappings.
@@ -26,7 +26,7 @@ var Endpoints = api.Endpoints {
 		Name:		`CMDB Authenticator`,
 		Path:		`/v1/cmdbauth`,
 		Method:		`GET`,
-		HandlerFunc:	cmdb.SetAuthToken,
+		HandlerFunc:	v2.SetAuthToken,
 		Protected:	false,
 	},
 }

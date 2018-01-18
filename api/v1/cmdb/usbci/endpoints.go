@@ -16,7 +16,7 @@ package usbci
 
 import (
 	`github.com/jscherff/cmdbd/api`
-	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
+	v2 `github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
 )
 
 // Endpoints is a collection of URL path-to-handler-function mappings.
@@ -26,7 +26,7 @@ var Endpoints = api.Endpoints {
 		Name:		`USBCI CheckIn Handler`,
 		Path:		`/v1/usbci/checkin/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		HandlerFunc:	usbci.CheckIn,
+		HandlerFunc:	v2.CheckIn,
 		Protected:	true,
 	},
 
@@ -34,7 +34,7 @@ var Endpoints = api.Endpoints {
 		Name:		`USBCI CheckOut Handler`,
 		Path:		`/v1/usbci/checkout/{host}/{vid}/{pid}/{sn}`,
 		Method:		`GET`,
-		HandlerFunc:	usbci.CheckOut,
+		HandlerFunc:	v2.CheckOut,
 		Protected:	true,
 	},
 
@@ -42,7 +42,7 @@ var Endpoints = api.Endpoints {
 		Name:		`USBCI NewSn Handler`,
 		Path:		`/v1/usbci/newsn/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		HandlerFunc:	usbci.NewSn,
+		HandlerFunc:	v2.NewSn,
 		Protected:	true,
 	},
 
@@ -50,7 +50,7 @@ var Endpoints = api.Endpoints {
 		Name:		`USBCI Audit Handler`,
 		Path:		`/v1/usbci/audit/{host}/{vid}/{pid}/{sn}`,
 		Method:		`POST`,
-		HandlerFunc:	Audit,
+		HandlerFunc:	v2.Audit,
 		Protected:	true,
 	},
 }

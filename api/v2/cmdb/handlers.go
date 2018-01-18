@@ -18,15 +18,17 @@ package cmdb
 import (
 	`fmt`
 	`net/http`
+	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/service`
 )
 
 // Templates for system and error messages.
 const (
-	fmtAuthMissingCreds = `auth failure on %q - missing credentials`
-	fmtAuthUserNotFound = `auth failure on %q - %q not found: %v`
-	fmtAuthSuccess = `auth success on %q - issuing token for %q`
+	fmtAuthMissingCreds = `auth failure on host '%s' at '%s' - missing credentials`
+	fmtAuthUserNotFound = `auth failure on host '%s' at '%s' - user '%s' not found: %v`
+	fmtAuthSuccess = `auth success on host '%s' at '%s' - issuing token for user '%s'`
+	fmtEventSuccess = `event logged for host '%s' at '%s'`
 )
 
 // Package variables required for operation.
@@ -49,17 +51,18 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 		passwd string
 	)
 
+	vars := mux.Vars(r)
 	user := &cmdb.User{}
 
 	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
-		err := fmt.Errorf(fmtAuthMissingCreds, r.RemoteAddr)
+		err := fmt.Errorf(fmtAuthMissingCreds, vars[`host`], r.RemoteAddr)
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.Read(); err != nil {
 
-		err = fmt.Errorf(fmtAuthUserNotFound, r.RemoteAddr, user.Username, err)
+		err = fmt.Errorf(fmtAuthUserNotFound, vars[`host`], r.RemoteAddr, user.Username, err)
 		loggerSvc.ErrorLog().Print(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 
@@ -90,7 +93,26 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtAuthSuccess, r.RemoteAddr, user.Username)
+		loggerSvc.SystemLog().Printf(fmtAuthSuccess, vars[`host`], r.RemoteAddr, user.Username)
 		http.SetCookie(w, cookie)
+	}
+}
+
+// CreateEvent writes an event to the datastore event log.
+func CreateEvent(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	event := &cmdb.Event{}
+	event.HostName, event.RemoteAddr = vars[`host`], r.RemoteAddr
+
+	if _, err := event.Create(); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	} else {
+
+		loggerSvc.SystemLog().Printf(fmtEventSuccess, event.HostName, event.RemoteAddr)
+		w.WriteHeader(http.StatusCreated)
 	}
 }
