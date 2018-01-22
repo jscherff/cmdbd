@@ -17,9 +17,9 @@ DROP DATABASE IF EXISTS `gocmdb`;
 CREATE DATABASE IF NOT EXISTS `gocmdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `gocmdb`;
 
--- Dumping structure for table gocmdb.cmdb_errors
-DROP TABLE IF EXISTS `cmdb_errors`;
-CREATE TABLE IF NOT EXISTS `cmdb_errors` (
+-- Dumping structure for table gocmdb.cmdb_events
+DROP TABLE IF EXISTS `cmdb_events`;
+CREATE TABLE IF NOT EXISTS `cmdb_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `code` int(10) unsigned DEFAULT '1',
   `source` varchar(64) NOT NULL,
