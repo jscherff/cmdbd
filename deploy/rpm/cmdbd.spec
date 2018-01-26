@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	3.0.5
-%define		release	5
+%define		release	6
 %define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
@@ -63,8 +63,8 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
   mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{docdir}}
 
-  install -s -m 755 %{gopath}/%{name} %{buildroot}%{_sbindir}/
-  install -s -m 755 %{gopath}/bcrypt %{buildroot}%{_bindir}/
+  install -s -m 755 %{gopath}/bin/%{name} %{buildroot}%{_sbindir}/
+  install -s -m 755 %{gopath}/bin/bcrypt %{buildroot}%{_bindir}/
   install -m 640 %{gopath}/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
