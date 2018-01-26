@@ -41,7 +41,6 @@ The package will install the following files:
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
 * **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** creates the application datastore.
 * **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates all tables in the datastore.
-* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** creates the database and application users.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `mysql.json` configuration file to reflect the correct database hostname, port, user, and password; modify `httpd.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.

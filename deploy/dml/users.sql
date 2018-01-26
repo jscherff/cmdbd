@@ -13,10 +13,11 @@ ON `gocmdb`.*
 TO 'cmdbd'@'%';
 
 -- --------------------------------------------------------
--- Create user accounts.
+-- Create user accounts - PRODUCTION
 -- --------------------------------------------------------
-
+/*
 USE `gocmdb`;
+
 LOCK TABLES `cmdb_users` WRITE;
 INSERT IGNORE INTO `cmdb_users` (
 	username,
@@ -24,13 +25,29 @@ INSERT IGNORE INTO `cmdb_users` (
 	role
 )
 VALUES (
-	-- PRODUCTION
-	-- 'clubpc',
-	-- '$2a$10$6bSZ98lc/iiZHFKuHyhwJ.IVf.ufyuAfejGWd.QMS721zZtzXfrAC'
-	-- 'agent'
-	-- NON-PRODUCTION
+	'clubpc',
+	'$2a$10$H4icOLYN5ZSO.Fqv5RvrkOY2NDMvNN0NtOexgsEQSRDthZrOiIMnK'
+	'agent'
+);
+
+UNLOCK TABLES;
+*/
+-- --------------------------------------------------------
+-- Create user accounts - NON-PRODUCTION
+-- --------------------------------------------------------
+
+USE `gocmdb`;
+
+LOCK TABLES `cmdb_users` WRITE;
+INSERT IGNORE INTO `cmdb_users` (
+	username,
+	password,
+	role
+)
+VALUES (
 	'clubpc',
 	'$2a$10$Rwh9Ix7Q9.5ST49GngEUJu/VOAYdWG4wnMA9ArSv4qVWQ6nRkyPme',
 	'agent'
 );
+
 UNLOCK TABLES;

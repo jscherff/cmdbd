@@ -65,7 +65,8 @@ the audit to the server for later analysis.
 
   install -s -m 755 %{gopath}/bin/%{name} %{buildroot}%{_sbindir}/
   install -s -m 755 %{gopath}/bin/bcrypt %{buildroot}%{_bindir}/
-  install -m 640 %{gopath}/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
+  install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
+  install -m 640 %{gopath}/src/%{package}/deploy/dml/reset.sql %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
@@ -166,6 +167,9 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Fri Jan 26 2018 - jscherff@gmail.com
+- Separated DML and DDL
+- Modified RPM spec file to enhance GO build process
 * Wed Jan 17 2018 - jscherff@gmail.com
 - Comprehensive refactor to make code resusable and easier to maintain
 - Converted model to lightweight ORM using sqlx
