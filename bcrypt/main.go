@@ -7,6 +7,8 @@ import (
 	`golang.org/x/crypto/bcrypt`
 )
 
+var version string = `undefined`
+
 func main() {
 
 	if len(os.Args) < 2 {
