@@ -47,30 +47,28 @@ the audit to the server for later analysis.
 %build
 
   export GOPATH=%{gopath}
+  export GOBIN=%{gopath}/bin
+
   go get %{package}
+  git -C %{gopath}/src/%{package} checkout %{branch}
 
-  pushd %{gopath}/src/%{package}
-  git checkout %{branch}
-  go get
-
-  popd
-  go build -ldflags='-X main.version=%{version}-%{release}' %{package}
-  go build %{package}/bcrypt
+  go install -ldflags='-X main.version=%{version}-%{release}' %{package}
+  go install -ldflags='-X main.version=%{version}-%{release}' %{package}/bcrypt
 
 %install
 
-  test %{buildroot} != / && rm -rf %{buildroot}
+  test %{buildroot} != / && rm -rf %{buildroot}/*
 
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
   mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{docdir}}
 
-  install -s -m 755 %{name} %{buildroot}%{_sbindir}/
-  install -s -m 755 bcrypt %{buildroot}%{_bindir}/
-  install -m 640 go/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
-  install -m 644 go/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
-  install -m 644 go/src/%{package}/{README.md,LICENSE} %{buildroot}%{docdir}/
+  install -s -m 755 %{gopath}/%{name} %{buildroot}%{_sbindir}/
+  install -s -m 755 %{gopath}/bcrypt %{buildroot}%{_bindir}/
+  install -m 640 %{gopath}/src/%{package}/deploy/ddl/* %{buildroot}%{docdir}/
+  install -m 644 %{gopath}/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
+  install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
-  cp -R go/src/%{package}/config/* %{buildroot}%{confdir}/
+  cp -R %{gopath}/src/%{package}/config/* %{buildroot}%{confdir}/
 
 %clean
 
