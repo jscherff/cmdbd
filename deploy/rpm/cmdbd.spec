@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	3.0.5
-%define		release	3
+%define		release	4
 %define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
@@ -48,9 +48,10 @@ the audit to the server for later analysis.
 
   export GOPATH=%{gopath}
   export GOBIN=%{gopath}/bin
+  export GIT_DIR=%{package}/.git
 
   go get %{package}
-  git -C %{gopath}/src/%{package} checkout %{branch}
+  git checkout %{branch}
 
   go install -ldflags='-X main.version=%{version}-%{release}' %{package}
   go install -ldflags='-X main.version=%{version}-%{release}' %{package}/bcrypt
