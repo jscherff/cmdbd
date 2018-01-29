@@ -1,7 +1,7 @@
 # =============================================================================
 %define		name	cmdbd
 %define		version	3.0.5
-%define		release	8
+%define		release	9
 %define		branch  master
 %define		gecos	CMDBd Service
 %define		summary	Configuration Management Database Daemon
@@ -47,14 +47,16 @@ the audit to the server for later analysis.
 %build
 
   export GOPATH=%{gopath}
-  export GOBIN=%{gopath}/bin
+  #export GOBIN=%{gopath}/bin
   export GIT_DIR=%{gopath}/src/%{package}/.git
 
   go get %{package}
   git checkout %{branch}
 
-  go install -ldflags='-X main.version=%{version}-%{release}' %{package}
-  go install -ldflags='-X main.version=%{version}-%{release}' %{package}/bcrypt
+  #go install -ldflags='-X main.version=%{version}-%{release}' %{package}
+  #go install -ldflags='-X main.version=%{version}-%{release}' %{package}/bcrypt
+  go build -ldflags='-X main.version=%{version}-%{release}' %{package}
+  go build -ldflags='-X main.version=%{version}-%{release}' %{package}/bcrypt
 
 %install
 
@@ -63,8 +65,10 @@ the audit to the server for later analysis.
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
   mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{docdir}}
 
-  install -s -m 755 %{gopath}/bin/%{name} %{buildroot}%{_sbindir}/
-  install -s -m 755 %{gopath}/bin/bcrypt %{buildroot}%{_bindir}/
+  #install -s -m 755 %{gopath}/bin/%{name} %{buildroot}%{_sbindir}/
+  #install -s -m 755 %{gopath}/bin/bcrypt %{buildroot}%{_bindir}/
+  install -s -m 755 %{gopath}/%{name} %{buildroot}%{_sbindir}/
+  install -s -m 755 %{gopath}/bcrypt %{buildroot}%{_bindir}/
   install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
   install -m 640 %{gopath}/src/%{package}/deploy/dml/reset.sql %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
