@@ -67,8 +67,7 @@
 				"serial_number",
 				"host_name",
 				"remote_addr",
-				"changes",
-				"audit_date"
+				"changes"
 			]
 		},
 
@@ -118,8 +117,7 @@
 				"remote_addr",
 				"property_name",
 				"previous_value",
-				"current_value",
-				"change_date"
+				"current_value"
 			]
 		}
 	},
@@ -186,8 +184,7 @@
 				"factory_sn",
 				"descriptor_sn",
 				"object_type",
-				"object_json",
-				"checkin_date"
+				"object_json"
 			]
 		}
 	},
@@ -297,8 +294,7 @@
 				"factory_sn",
 				"descriptor_sn",
 				"object_type",
-				"object_json",
-				"request_date"
+				"object_json"
 			]
 		},
 	
