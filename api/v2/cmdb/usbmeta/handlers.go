@@ -37,7 +37,7 @@ func Init(ms service.MetaUsbSvc, ls service.LoggerSvc) {
 func Vendor(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if vName, err := metaUsbSvc.VendorName(vars[`vid`]); err != nil {
 
@@ -58,7 +58,7 @@ func Vendor(w http.ResponseWriter, r *http.Request) {
 func Product(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if pName, err := metaUsbSvc.ProductName(vars[`vid`], vars[`pid`]); err != nil {
 
@@ -78,7 +78,7 @@ func Product(w http.ResponseWriter, r *http.Request) {
 func Class(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if cDesc, err := metaUsbSvc.ClassDesc(vars[`cid`]); err != nil {
 
@@ -99,7 +99,7 @@ func Class(w http.ResponseWriter, r *http.Request) {
 func SubClass(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if sDesc, err := metaUsbSvc.SubClassDesc(vars[`cid`], vars[`sid`]); err != nil {
 
@@ -120,7 +120,7 @@ func SubClass(w http.ResponseWriter, r *http.Request) {
 func Protocol(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if pDesc, err := metaUsbSvc.ProtocolDesc(vars[`cid`], vars[`sid`], vars[`pid`]); err != nil {
 

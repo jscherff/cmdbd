@@ -16,6 +16,7 @@
 package cmdb
 
 import (
+	`encoding/json`
 	`fmt`
 	`net/http`
 	`github.com/gorilla/mux`
@@ -29,6 +30,7 @@ const (
 	fmtAuthUserNotFound = `auth failure on host '%s' at '%s' - user '%s' not found: %v`
 	fmtAuthSuccess = `auth success on host '%s' at '%s' - issuing token for user '%s'`
 	fmtEventSuccess = `event logged for host '%s' at '%s'`
+	fmtHealthSuccess = `health check success for host at '%s'`
 )
 
 // Package variables required for operation.
@@ -114,5 +116,35 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 		loggerSvc.SystemLog().Printf(fmtEventSuccess, event.HostName, event.RemoteAddr)
 		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+// CheckHealth returns the health of the server.
+func CheckHealth(w http.ResponseWriter, r *http.Request) {
+
+	info := &cmdb.Info{
+		Client:	r.RemoteAddr,
+		Server:	r.URL.Host,
+		Proto:	r.Proto,
+		Method:	r.Method,
+		Scheme:	r.URL.Scheme,
+		Path:	r.URL.Path,
+	}
+
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
+
+	if err := info.Read(); err != nil {
+
+		loggerSvc.ErrorLog().Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	} else {
+
+		loggerSvc.SystemLog().Printf(fmtHealthSuccess, r.RemoteAddr)
+		w.WriteHeader(http.StatusOK)
+
+		if err = json.NewEncoder(w).Encode(info); err != nil {
+			loggerSvc.ErrorLog().Panic(err)
+		}
 	}
 }

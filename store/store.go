@@ -24,13 +24,6 @@ import (
 type DataStore interface {
 	String() (string)
 	Prepare(queryFile string) (error)
-	/*
-	Statement(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
-	Read(queryName string, dest, arg interface{}) (error)
-	Create(queryName string, arg interface{}) (int64, error)
-	Update(queryName string, arg interface{}) (int64, error)
-	Delete(queryName string, arg interface{}) (int64, error)
-	*/
 	NamedStmt(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
 	Exec(queryName string, arg interface{}) (int64, error)
 	Read(queryName string, dest, arg interface{}) (error)

@@ -51,6 +51,16 @@ type User struct {
 	Role		string		`db:"role,omitempty"           json:"role"`
 }
 
+type Info struct {
+	Client		string		`json:"client,omitempty"`
+	Server		string		`json:"host,omitempty"`
+	Proto		string		`json:"proto,omitempty"`
+	Method		string		`json:"method,omitempty"`
+	Scheme		string		`json:"scheme,omitempty"`
+	Path		string		`json:"path,omitempty"`
+	Store		string		`json:"store,omitempty"`
+}
+
 // ----------------------
 // Standard CRUD Methods.
 // ----------------------
@@ -72,6 +82,11 @@ func (this *User) Create() (id int64, err error) {
 
 func (this *User) Read() (error) {
 	return dataStore.Read(`SelectByUniqueId`, this, this)
+}
+
+func (this *Info) Read() (error) {
+	this.Store = dataStore.String()
+	return nil
 }
 
 // --------------------

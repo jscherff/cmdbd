@@ -34,4 +34,12 @@ var Endpoints = api.Endpoints {
 		HandlerFunc:	CreateEvent,
 		Protected:	false,
 	},
+
+	api.Endpoint {
+		Name:		`CMDB Health Check`,
+		Path:		`/v2/cmdb/health/check`,
+		Method:		`GET`,
+		HandlerFunc:	CheckHealth,
+		Protected:	false,
+	},
 }

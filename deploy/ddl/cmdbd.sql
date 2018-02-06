@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               5.7.20-log - MySQL Community Server (GPL)
+-- Server version:               5.7.21-log - MySQL Community Server (GPL)
 -- Server OS:                    Win64
--- HeidiSQL Version:             9.5.0.5200
+-- HeidiSQL Version:             9.5.0.5226
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `cmdb_users` (
   `role` enum('agent','user','admin') NOT NULL DEFAULT 'user',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 -- Data exporting was unselected.
 -- Dumping structure for function gocmdb.func_usbci_serial_exists
@@ -430,7 +430,7 @@ CREATE TABLE IF NOT EXISTS `usbci_checkins` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=336 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_serialized
@@ -474,7 +474,7 @@ CREATE TABLE IF NOT EXISTS `usbci_serialized` (
   KEY `product_ver` (`product_ver`),
   KEY `host_name` (`host_name`),
   KEY `firmware_ver` (`firmware_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=309 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=310 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbci_snrequests
@@ -559,7 +559,7 @@ CREATE TABLE IF NOT EXISTS `usbci_unserialized` (
   KEY `device_sn` (`device_sn`),
   KEY `factory_sn` (`factory_sn`),
   KEY `product_ver` (`product_ver`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Data exporting was unselected.
 -- Dumping structure for table gocmdb.usbmeta_class

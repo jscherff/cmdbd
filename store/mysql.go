@@ -53,6 +53,7 @@ func NewMysqlDataStore(configFile string) (DataStore, error) {
 	}
 }
 
+// String returns database version, schema, and other information.
 func (this *mysqlDataStore) String() (string) {
 
 	info := this.DriverName()
@@ -68,10 +69,10 @@ func (this *mysqlDataStore) String() (string) {
 		USER() AS 'user'`
 
 	if err := this.Get(&ver, sql); err != nil {
-		return info
-	} else {
-		return fmt.Sprintf(`%s %s %s/%s`,
-			info, ver.Version, ver.User, ver.Schema,
-		)
+		return ``
 	}
+
+	return fmt.Sprintf(`%s %s %s/%s`,
+		info, ver.Version, ver.User, ver.Schema,
+	)
 }

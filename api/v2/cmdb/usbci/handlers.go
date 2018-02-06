@@ -54,7 +54,7 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 	dev := &usbci.Checkin{}
 	dev.HostName, dev.RemoteAddr = vars[`host`], r.RemoteAddr
 
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
@@ -82,7 +82,7 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 	dev := &usbci.Serialized{}
 	dev.VendorId, dev.ProductId, dev.SerialNum = vars[`vid`], vars[`pid`], vars[`sn`]
 
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if err := dev.Read(); err != nil {
 
@@ -115,7 +115,7 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 	dev := &usbci.SnRequest{}
 	dev.HostName, dev.RemoteAddr = vars[`host`], r.RemoteAddr
 
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
@@ -166,7 +166,7 @@ func Audit(w http.ResponseWriter, r *http.Request) {
         aud.VendorId, aud.ProductId, aud.SerialNum, aud.HostName, aud.RemoteAddr =
 		vars[`vid`], vars[`pid`], vars[`sn`], vars[`host`], r.RemoteAddr
 
-	w.Header().Set(`Content-Type`, `applicaiton/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if body, err := api.ReadBody(r); err != nil {
 
