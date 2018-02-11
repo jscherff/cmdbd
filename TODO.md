@@ -1,6 +1,6 @@
 General Enhancements
 --------------------
-- [ ] Investigate web frameworks for code simplicity and maintainability.
+- [X] Investigate web frameworks for code simplicity and maintainability.
 	* [Beego](https://beego.me/docs/intro/)
 	* [Echo](https://echo.labstack.com/)
 	* [Gin](https://gin-gonic.github.io/gin/)
@@ -42,3 +42,21 @@ Error Handling Improvements
 	* [StackOverflow Article](https://stackoverflow.com/questions/33904503/go-gorilla-panic-handler-to-respond-with-custom-status)
 	* [GitHub Article](https://elithrar.github.io/article/http-handler-error-handling-revisited/) 
 	* [Dave Cheney Blog](https://dave.cheney.net/2014/12/24/inspecting-errors)
+
+API Improvements
+----------------
+
+- [ ] Align response codes with generally-accepted standards:
+	* 200 (OK) — successful HTTP request.
+	* 201 (CREATED) — request that resulted in an item being successfully created.
+	* 204 (NO CONTENT) —successful HTTP request where nothing is being returned in the response body.
+	* 400 (BAD REQUEST) — bad request syntax, excessive size, or another client error.
+	* 403 (FORBIDDEN) — client does not have permission to access this resource.
+	* 404 (NOT FOUND) — resource could not be found at this time — possibly deleted or does not exist yet.
+	* 500 (INTERNAL SERVER ERROR) — unexpected failure if there is no more specific information available.
+- [ ] Use standard responses for different HTTP verbs:
+	* GET — return 200 (OK)
+	* POST — return 201 (CREATED)
+	* PUT — return 200 (OK)
+	* DELETE — return 204 (NO CONTENT) If the operation fails, return the most specific status code possible corresponding to the problem that was encountered.
+- [ ] Remove 'cmdb' from endpoint path
