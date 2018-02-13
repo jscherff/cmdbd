@@ -46,6 +46,8 @@ Error Handling Improvements
 API Improvements
 ----------------
 
+- [ ] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'
+- [ ] Use correct terminology in documentation — 'route', 'HTTP verb' (GET, POST, etc.), and 'URI' (vs 'endpoint')
 - [ ] Align response codes with generally-accepted standards:
 	* 200 (OK) — successful HTTP request.
 	* 201 (CREATED) — request that resulted in an item being successfully created.
