@@ -46,7 +46,7 @@ Error Handling Improvements
 API Improvements
 ----------------
 
-- [ ] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'
+- [X] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'
 - [ ] Use correct terminology in documentation — 'route', 'HTTP verb' (GET, POST, etc.), and 'URI' (vs 'endpoint')
 - [ ] Align response codes with generally-accepted standards:
 	* 200 (OK) — successful HTTP request.

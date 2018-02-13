@@ -142,27 +142,27 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	model_usbci.Init(this.DataStore)
 	model_usbmeta.Init(this.DataStore)
 
-	// -------------------------
-	// Initialize API Endpoints.
-	// -------------------------
+	// ----------------------
+	// Initialize API Routes.
+	// ----------------------
 
 	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
 	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
 	api_usbmeta_v2.Init(this.MetaUsbSvc, this.LoggerSvc)
 
 	// ------------------------
-	// Add Endpoints to Router.
+	// Add Routes to Router.
 	// ------------------------
 
 	this.Router.
-		AddEndpoints(api_cmdb_v2.Endpoints).
-		AddEndpoints(api_usbci_v2.Endpoints).
-		AddEndpoints(api_usbmeta_v2.Endpoints)
+		AddRoutes(api_cmdb_v2.Routes).
+		AddRoutes(api_usbci_v2.Routes).
+		AddRoutes(api_usbmeta_v2.Routes)
 
 	this.Router.
-		AddEndpoints(api_cmdb_v1.Endpoints).
-		AddEndpoints(api_usbci_v1.Endpoints).
-		AddEndpoints(api_usbmeta_v1.Endpoints)
+		AddRoutes(api_cmdb_v1.Routes).
+		AddRoutes(api_usbci_v1.Routes).
+		AddRoutes(api_usbmeta_v1.Routes)
 
 	// -----------------------------
 	// Create and initialize Server.

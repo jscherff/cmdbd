@@ -48,30 +48,30 @@ func NewRouter(cf string, authSvc service.AuthSvc, logSvc service.LoggerSvc) (*R
 	return this, nil
 }
 
-// AddEndpoints adds a collection of one or more endpoints to the Router.
-func (this *Router) AddEndpoints(endpoints []api.Endpoint) *Router {
+// AddRoutes adds a collection of one or more routes to the Router.
+func (this *Router) AddRoutes(routes api.Routes) *Router {
 
 	accessLog := this.LoggerSvc.AccessLog()
 	recoveryLog := this.LoggerSvc.ErrorLog()
 
-	for _, endpoint := range endpoints {
+	for _, route := range routes {
 
-		var handler http.Handler = endpoint.HandlerFunc
+		var handler http.Handler = route.HandlerFunc
 
 		handler = handlers.RecoveryHandler(
 			handlers.PrintRecoveryStack(this.RecoveryStack),
 			handlers.RecoveryLogger(recoveryLog))(handler)
 
-		if endpoint.Protected {
+		if route.Protected {
 			handler = AuthTokenValidator(this.AuthSvc, handler)
 		}
 
 		handler = handlers.CombinedLoggingHandler(accessLog, handler)
 
 		this.NewRoute().
-			Name(endpoint.Name).
-			Path(endpoint.Path).
-			Methods(endpoint.Method).
+			Name(route.Name).
+			Path(route.Path).
+			Methods(route.Method).
 			Handler(handler)
 	}
 
