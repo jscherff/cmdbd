@@ -46,7 +46,8 @@ Error Handling Improvements
 API Improvements
 ----------------
 
-- [X] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'
+- [X] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'.
+- [X] Rename files containing Routes (formerly Endpoints) from endpoints.go to routes.go.
 - [ ] Use correct terminology in documentation — 'route', 'HTTP verb' (GET, POST, etc.), and 'URI' (vs 'endpoint')
 - [ ] Align response codes with generally-accepted standards:
 	* 200 (OK) — successful HTTP request.
