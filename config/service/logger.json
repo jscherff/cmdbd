@@ -30,7 +30,7 @@
 			"Stderr": false,
 			"Syslog": false,
 			"LogFile": "error.log",
-			"LogFlags": ["date","time","longfile"]
+			"LogFlags": ["date","time","shortfile"]
 		}
 	}
 }
