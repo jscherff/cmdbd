@@ -20,16 +20,18 @@ import (
 	`fmt`
 	`net/http`
 	`github.com/gorilla/mux`
+	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/service`
 )
 
 // Templates for system and error messages.
 const (
-	fmtAuthMissingCreds = `auth failure on host '%s' at '%s' - missing credentials`
-	fmtAuthUserNotFound = `auth failure on host '%s' at '%s' - user '%s' not found: %v`
-	fmtAuthSuccess = `auth success on host '%s' at '%s' - issuing token for user '%s'`
-	fmtEventSuccess = `event logged for host '%s' at '%s'`
+	fmtHostInfo = `host '%s' at '%s'`
+	fmtAuthMissingCreds = `auth failure - missing credentials`
+	fmtAuthUserNotFound = `auth failure - user '%s' not found: %v`
+	fmtAuthSuccess = `auth success - issuing token to '%s' on ` + fmtHostInfo
+	fmtEventSuccess = `event logged for ` + fmtHostInfo
 	fmtHealthSuccess = `health check success for host at '%s'`
 )
 
@@ -58,44 +60,44 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
-		err := fmt.Errorf(fmtAuthMissingCreds, vars[`host`], r.RemoteAddr)
-		loggerSvc.ErrorLog().Print(err)
+		err := fmt.Errorf(fmtAuthMissingCreds)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.Read(); err != nil {
 
-		err = fmt.Errorf(fmtAuthUserNotFound, vars[`host`], r.RemoteAddr, user.Username, err)
-		loggerSvc.ErrorLog().Print(err)
+		err = fmt.Errorf(fmtAuthUserNotFound, user.Username, err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if err := user.VerifyPassword(passwd); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.VerifyAccess(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if token, err := authSvc.CreateToken(user); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if tokenString, err := authSvc.CreateTokenString(token); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if cookie, err := authSvc.CreateCookie(tokenString); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtAuthSuccess, vars[`host`], r.RemoteAddr, user.Username)
+		loggerSvc.SystemLog().Printf(fmtAuthSuccess, user.Username, vars[`host`], r.RemoteAddr)
 		http.SetCookie(w, cookie)
 	}
 }
@@ -109,7 +111,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := event.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
@@ -135,7 +137,7 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 
 	if err := info.Read(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {

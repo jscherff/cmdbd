@@ -17,6 +17,7 @@ package api
 import (
 	`bytes`
 	`encoding/json`
+	`fmt`
 	`io`
 	`io/ioutil`
 	`net/http`
@@ -52,3 +53,37 @@ func WriteBody(r *http.Request, body []byte) {
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 	r.ContentLength = int64(len(body))
 }
+
+// AppendRequest appends HTTP request information to an error string.
+func AppendRequest(err error, req *http.Request) (error) {
+
+	url := req.URL
+	uri := req.RequestURI
+
+	user := `-`
+
+	if url.User != nil {
+		if name := url.User.Username(); name != `` {
+			user = name
+		}
+	}
+
+	// Requests using the CONNECT method over HTTP/2.0 must use
+	// the authority field (aka req.Host) to identify the target
+	// per RFC7540.
+
+	if req.ProtoMajor == 2 && req.Method == "CONNECT" {
+		uri = req.Host
+	}
+
+	if uri == `` {
+		uri = url.RequestURI()
+	}
+
+	return fmt.Errorf(`%v, while serving %s %s %s %s %s`,
+		err, req.RemoteAddr, user, req.Method, uri, req.Proto,
+	)
+}
+
+
+

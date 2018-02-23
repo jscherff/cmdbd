@@ -19,6 +19,7 @@ import (
 	`encoding/json`
 	`net/http`
 	`github.com/gorilla/mux`
+	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/service`
 )
 
@@ -41,7 +42,7 @@ func Vendor(w http.ResponseWriter, r *http.Request) {
 
 	if vName, err := metaUsbSvc.VendorName(vars[`vid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
@@ -62,7 +63,7 @@ func Product(w http.ResponseWriter, r *http.Request) {
 
 	if pName, err := metaUsbSvc.ProductName(vars[`vid`], vars[`pid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
@@ -82,7 +83,7 @@ func Class(w http.ResponseWriter, r *http.Request) {
 
 	if cDesc, err := metaUsbSvc.ClassDesc(vars[`cid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
@@ -103,7 +104,7 @@ func SubClass(w http.ResponseWriter, r *http.Request) {
 
 	if sDesc, err := metaUsbSvc.SubClassDesc(vars[`cid`], vars[`sid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
@@ -124,7 +125,7 @@ func Protocol(w http.ResponseWriter, r *http.Request) {
 
 	if pDesc, err := metaUsbSvc.ProtocolDesc(vars[`cid`], vars[`sid`], vars[`pid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {

@@ -28,11 +28,13 @@ import (
 
 // Templates for system and error messages.
 const (
-	fmtCheckInSuccess = `checked in USB device '%s-%s' SN '%s' for host '%s' at '%s'`
-	fmtNewSnDuplicate = `duplicate SN '%s' for USB device '%s-%s' on host '%s' at '%s'`
-	fmtNewSnSuccess = `issued SN '%s' for USB device '%s-%s' on host '%s' at '%s'`
-	fmtAuditSuccess = `audited USB device '%s-%s' SN '%s' for host '%s' at '%s'`
-	fmtCheckOutSuccess = `checked out USB device '%s-%s' SN '%s' for host '%s' at '%s'`
+	fmtDevInfo = `USB device '%s-%s'`
+	fmtHostInfo = `host '%s' at '%s'`
+	fmtCheckInSuccess = `checked in ` + fmtDevInfo + ` SN '%s' for ` + fmtHostInfo
+	fmtNewSnDuplicate = `duplicate SN '%s' for ` + fmtDevInfo + ` on `+ fmtHostInfo
+	fmtNewSnSuccess = `issued SN '%s' to ` + fmtDevInfo + ` on ` + fmtHostInfo
+	fmtAuditSuccess = `audited ` + fmtDevInfo + ` SN '%s' for ` + fmtHostInfo
+	fmtCheckOutSuccess = `checked out ` + fmtDevInfo + ` SN '%s' for ` + fmtHostInfo
 )
 
 // Package variables required for operation.
@@ -58,12 +60,12 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := dev.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
@@ -86,12 +88,12 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	if err := dev.Read(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if j, err := dev.JSON(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else {
@@ -119,22 +121,22 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if seed, err := seq.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if sn, err := serialSvc.CreateSerial(dev.ObjectType, seed); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if _, err := dev.CreateWithSn(sn); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if exists := dev.DeviceExists(); exists {
@@ -170,7 +172,7 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	if body, err := api.ReadBody(r); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 
@@ -182,17 +184,17 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := aud.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if changes, err := aud.Expand(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := changes.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(err)
+		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
