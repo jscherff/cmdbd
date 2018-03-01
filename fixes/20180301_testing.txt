@@ -1,0 +1,67 @@
+John@SurfacePro-1796-i7 MINGW32 ~/go/src/github.com/jscherff/cmdbc
+$ date
+Thu, Mar  1, 2018  5:47:17 AM
+
+John@SurfacePro-1796-i7 MINGW32 ~/go/src/github.com/jscherff/cmdbc
+$ go test -v
+=== RUN   TestAuth
+=== RUN   TestAuth/Success_with_Good_Credentials
+=== RUN   TestAuth/Failure_with_Bad_Username
+=== RUN   TestAuth/Failure_with_Bad_Password
+--- PASS: TestAuth (0.15s)
+    --- PASS: TestAuth/Success_with_Good_Credentials (0.07s)
+    --- PASS: TestAuth/Failure_with_Bad_Username (0.00s)
+    --- PASS: TestAuth/Failure_with_Bad_Password (0.07s)
+=== RUN   TestFlowAudit
+=== RUN   TestFlowAudit/Flags:_-audit_(no_changes)
+=== RUN   TestFlowAudit/Flags:_-audit_(with_changes)
+--- PASS: TestFlowAudit (0.14s)
+    --- PASS: TestFlowAudit/Flags:_-audit_(no_changes) (0.03s)
+    --- PASS: TestFlowAudit/Flags:_-audit_(with_changes) (0.03s)
+=== RUN   TestFlowCheckin
+=== RUN   TestFlowCheckin/Flags:_-checkin
+--- PASS: TestFlowCheckin (0.01s)
+    --- PASS: TestFlowCheckin/Flags:_-checkin (0.01s)
+=== RUN   TestFlowReport
+=== RUN   TestFlowReport/Flags:_-report_-format_csv
+=== RUN   TestFlowReport/Flags:_-report_-format_nvp
+=== RUN   TestFlowReport/Flags:_-report_-format_xml
+=== RUN   TestFlowReport/Flags:_-report_-format_json
+--- PASS: TestFlowReport (0.01s)
+    --- PASS: TestFlowReport/Flags:_-report_-format_csv (0.00s)
+    --- PASS: TestFlowReport/Flags:_-report_-format_nvp (0.00s)
+    --- PASS: TestFlowReport/Flags:_-report_-format_xml (0.00s)
+    --- PASS: TestFlowReport/Flags:_-report_-format_json (0.00s)
+=== RUN   TestFlowSerial
+--- SKIP: TestFlowSerial (0.11s)
+        flow_test.go:272: device not found
+=== RUN   TestFuncSerial
+=== RUN   TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(Magtek)
+=== RUN   TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(IDTech)
+=== RUN   TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(Unknown)
+--- PASS: TestFuncSerial (0.04s)
+    --- PASS: TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(Magtek) (0.01s)
+    --- PASS: TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(IDTech) (0.01s)
+    --- PASS: TestFuncSerial/serial()_and_newSn()_Must_Obtain_Serial_Number_(Unknown) (0.01s)
+=== RUN   TestFuncReport
+=== RUN   TestFuncReport/(*Device).CSV()_Must_Match_SHA256_Signature
+=== RUN   TestFuncReport/(*Device).NVP()_Must_Match_SHA256_Signature
+=== RUN   TestFuncReport/(*Device).XML()_Must_Match_SHA256_Signature
+=== RUN   TestFuncReport/(*Device).JSON()_Must_Match_SHA256_Signature
+--- PASS: TestFuncReport (0.02s)
+    --- PASS: TestFuncReport/(*Device).CSV()_Must_Match_SHA256_Signature (0.00s)
+    --- PASS: TestFuncReport/(*Device).NVP()_Must_Match_SHA256_Signature (0.00s)
+    --- PASS: TestFuncReport/(*Device).XML()_Must_Match_SHA256_Signature (0.00s)
+    --- PASS: TestFuncReport/(*Device).JSON()_Must_Match_SHA256_Signature (0.01s)
+=== RUN   TestFuncCheckInOut
+=== RUN   TestFuncCheckInOut/checkin()_and_checkout()_Devices_Must_Match
+=== RUN   TestFuncCheckInOut/checkin()_and_checkout()_Devices_Must_Not_Match
+--- PASS: TestFuncCheckInOut (0.04s)
+    --- PASS: TestFuncCheckInOut/checkin()_and_checkout()_Devices_Must_Match (0.02s)
+    --- PASS: TestFuncCheckInOut/checkin()_and_checkout()_Devices_Must_Not_Match (0.01s)
+=== RUN   TestFuncAudit
+=== RUN   TestFuncAudit/audit()_Must_Show_Changes
+--- PASS: TestFuncAudit (0.04s)
+    --- PASS: TestFuncAudit/audit()_Must_Show_Changes (0.04s)
+PASS
+ok      github.com/jscherff/cmdbc       0.873s
