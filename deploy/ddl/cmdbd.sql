@@ -299,7 +299,7 @@ BEGIN
     -- host_name = host_name_in,
     -- vendor_id = vendor_id_in,
     -- product_id = product_id_in,
-    serial_number = serial_number_in,
+    -- serial_number = serial_number_in,
     vendor_name = vendor_name_in,
     product_name = product_name_in,
     product_ver = product_ver_in,
