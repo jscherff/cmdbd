@@ -12,6 +12,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- truncate all tables
+SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `cmdb_events`;
 TRUNCATE TABLE `cmdb_sequence`;
 -- TRUNCATE TABLE `cmdb_users`;
@@ -26,6 +27,7 @@ TRUNCATE TABLE `usbmeta_product`;
 TRUNCATE TABLE `usbmeta_class`;
 TRUNCATE TABLE `usbmeta_subclass`;
 TRUNCATE TABLE `usbmeta_protocol`;
+SET FOREIGN_KEY_CHECKS = 1;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
