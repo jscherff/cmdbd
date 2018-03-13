@@ -166,10 +166,20 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
-* Fri Jan 26 2018 - jscherff@gmail.com
+* Mon Mar 12 2018 - jscherff@24hourfit.com
+- Added 'SET FOREIGN_KEY_CHECKS = 0' for table truncates in reset.sql
+- Changed table name cmdb_errors to cmdb_events in reset.sql
+* Thu Mar 1 2018 - jscherff@24hourfit.com
+- Modified database insert procs to include all non-key columns in updates
+- Added api.AppendRequest() to decorate error messages with request info
+* Wed Feb 14 2018 - jscherff@24hourfit.com
+- Set AUTO_INCREMENT=1 in DDL and changed serial number format to 24Fxxxx
+* Mon Feb 12 2018 - jscherff@24hourfit.com
+- Renamed 'Endpoint(s)' to 'Route(s)' and renamed associated files
+* Fri Jan 26 2018 - jscherff@24hourfit.com
 - Separated DML and DDL
 - Modified RPM spec file to enhance GO build process
-* Wed Jan 17 2018 - jscherff@gmail.com
+* Wed Jan 17 2018 - jscherff@24hourfit.com
 - Comprehensive refactor to make code resusable and easier to maintain
 - Converted model to lightweight ORM using sqlx
 - Segregated server components into 'server' package
@@ -177,26 +187,26 @@ the audit to the server for later analysis.
 - Segregated store components into 'store' package
 - Segregated API components into 'api' package
 - Created separate v1 and v2 APIs for backward compatibility
-* Mon Nov 13 2017 - jscherff@gmail.com
+* Mon Nov 13 2017 - jscherff@24hourfit.com
 - Modified queries to use tables directly versus views
 - Added DATETIME columns to inserts with time.Now() as value
 - Modified Loc (location) database parameter to 'Local'
 - Removed unnecessary views from DDL
-* Wed Nov 8 2017 - jscherff@gmail.com
+* Wed Nov 8 2017 - jscherff@24hourfit.com
 - Added cmdb_users table for authentication
 - Added authentication API to support basic authentication
 - Added authentication JWT support for protected API endpoints
 - Added authentication JWT validation middleware to protect API endpoints
-* Thu Oct 19 2017 - jscherff@gmail.com
+* Thu Oct 19 2017 - jscherff@24hourfit.com
 - Added SQL script to truncate all tables
-* Fri Oct 13 2017 - jscherff@gmail.com
+* Fri Oct 13 2017 - jscherff@24hourfit.com
 - Refactored and streamlined
 - Added API endpoints for device information lookups
-* Mon Oct 9 2017 - jscherff@gmail.com
+* Mon Oct 9 2017 - jscherff@24hourfit.com
 - Modified table, view, and stored procedure names
 - Added column to each table for the JSON object
 - Modified changes column in changes table to be datatype JSON
-* Sat Oct 7 2017 - jscherff@gmail.com
+* Sat Oct 7 2017 - jscherff@24hourfit.com
 - Added v1 prefix to URLs and handlers
-* Sat Sep 30 2017 - jscherff@gmail.com
+* Sat Sep 30 2017 - jscherff@24hourfit.com
 - Tightened file permissions mode on config.json
