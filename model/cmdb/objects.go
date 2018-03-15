@@ -66,17 +66,17 @@ type Info struct {
 // ----------------------
 
 func (this *Event) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *Sequence) Create() (id int64, err error) {
-	this.Ord, err = dataStore.Exec(`Create`, this)
+	this.Ord, err = dataStore.Exec(`Insert`, this)
 	return this.Ord, err
 }
 
 func (this *User) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 

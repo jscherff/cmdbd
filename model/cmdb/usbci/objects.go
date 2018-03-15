@@ -125,32 +125,32 @@ type Checkins []*Checkin
 // ----------------------
 
 func (this *Audit) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *Change) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *Checkin) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *Serialized) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *SnRequest) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
 func (this *Unserialized) Create() (id int64, err error) {
-	this.Id, err = dataStore.Exec(`Create`, this)
+	this.Id, err = dataStore.Exec(`Insert`, this)
 	return this.Id, err
 }
 
@@ -269,7 +269,7 @@ func (this Changes) Create() (int64, error) {
 		createChange *sqlx.NamedStmt
 	)
 
-	if stmt, err := dataStore.NamedStmt(`Create`, change); err != nil {
+	if stmt, err := dataStore.NamedStmt(`Insert`, change); err != nil {
 		return 0, err
 	} else {
 		createChange = tx.NamedStmt(stmt)

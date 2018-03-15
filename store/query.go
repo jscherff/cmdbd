@@ -117,6 +117,6 @@ func (this *query) String() (string) {
 			this.queryString, filters,
 		)
 	}
-
+println(this.queryString);
 	return this.queryString
 }
