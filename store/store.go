@@ -17,12 +17,14 @@ package store
 import (
 	`fmt`
 	`strings`
+	`time`
 	`github.com/jmoiron/sqlx`
 	`github.com/jscherff/cmdbd/utils`
 )
 
 type DataStore interface {
 	String() (string)
+	SetPool(configFile string) (error)
 	Prepare(queryFile string) (error)
 	NamedStmt(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
 	Exec(queryName string, arg interface{}) (int64, error)
@@ -31,6 +33,14 @@ type DataStore interface {
 	Close() (error)
 }
 
+// connPool contains database/sql settings for the connection pool.
+type connPool struct {
+	ConnMaxLifetime time.Duration
+	MaxIdleConns int
+	MaxOpenConns int
+}
+
+// namedStmt extends sqlx.NamedStmt with a query object.
 type namedStmt struct {
 	*sqlx.NamedStmt
 	*query
@@ -69,6 +79,22 @@ func newDataStore(driver, dsn string) (*dataStore, error) {
 // String returns database version, schema, and other information.
 func (this *dataStore) String() (string) {
 	return this.DriverName()
+}
+
+// SetPool configures the database connection pool.
+func (this *dataStore) SetPool(configFile string) (error) {
+
+	conf := &connPool{}
+
+	if err := utils.LoadConfig(conf, configFile); err != nil {
+		return err
+	}
+
+	this.SetConnMaxLifetime(conf.ConnMaxLifetime * time.Second)
+	this.SetMaxIdleConns(conf.MaxIdleConns)
+	this.SetMaxOpenConns(conf.MaxOpenConns)
+
+	return nil
 }
 
 // Prepare converts a collection of JSON-encoded Query objects into 

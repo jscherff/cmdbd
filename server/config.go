@@ -118,6 +118,8 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
+	} else if err := ds.SetPool(this.ConfigFile[`ConnPool`]); err != nil {
+		return nil, err
 	} else if err := ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
 		return nil, err
 	} else {

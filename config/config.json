@@ -11,6 +11,7 @@
 		"SerialSvc": "service/serial.json",
 		"MetaUsbSvc": "service/metausb.json",
 		"DataStore": "store/mysql.json",
+		"ConnPool": "store/pool.json",
 		"Queries": "model/queries.json"
 	}
 }
