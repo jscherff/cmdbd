@@ -11,7 +11,7 @@
 %define		docdir	%{_docdir}/%{name}-%{version}
 %define		logdir	%{_var}/log/%{name}
 %define		syslib	%{_prefix}/lib/systemd/system
-%define		limdir  %{_sysconfdir}/security/limits.d
+%define		lmtdir  %{_sysconfdir}/security/limits.d
 %define		confdir %{_sysconfdir}/%{name}
 # =============================================================================
 
@@ -68,7 +68,7 @@ the audit to the server for later analysis.
   install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
   install -m 640 %{gopath}/src/%{package}/deploy/dml/reset.sql %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
-  install -m 644 %{gopath}/src/%{package}/deploy/os%{limdir}/* %{buildroot}%{limdir}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{lmtdir}/* %{buildroot}%{lmtdir}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
   cp -R %{gopath}/src/%{package}/config/* %{buildroot}%{confdir}/
@@ -85,7 +85,7 @@ the audit to the server for later analysis.
   %{_sbindir}/*
   %{_bindir}/*
   %{syslib}/*
-  %{limdir}/*
+  %{lmtdir}/*
   %{docdir}/*
 
   %defattr(640,%{name},%{name},750)
@@ -169,6 +169,9 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Mon Apr 2 2018 - jscherff@24hourfit.com
+- Set default MaxOpenConns to 50
+- Added /etc/security/limits.d/cmdbd.conf with hard and soft limits
 * Mon Mar 12 2018 - jscherff@24hourfit.com
 - Added 'SET FOREIGN_KEY_CHECKS = 0' for table truncates in reset.sql
 - Changed table name cmdb_errors to cmdb_events in reset.sql
