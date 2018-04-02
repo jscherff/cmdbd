@@ -11,6 +11,7 @@
 %define		docdir	%{_docdir}/%{name}-%{version}
 %define		logdir	%{_var}/log/%{name}
 %define		syslib	%{_prefix}/lib/systemd/system
+%define		limdir  %{_sysconfdir}/security/limits.d
 %define		confdir %{_sysconfdir}/%{name}
 # =============================================================================
 
@@ -66,7 +67,8 @@ the audit to the server for later analysis.
   install -s -m 755 %{_builddir}/bcrypt %{buildroot}%{_bindir}/
   install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
   install -m 640 %{gopath}/src/%{package}/deploy/dml/reset.sql %{buildroot}%{docdir}/
-  install -m 644 %{gopath}/src/%{package}/deploy/svc/* %{buildroot}%{syslib}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{limdir}/* %{buildroot}%{limdir}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
   cp -R %{gopath}/src/%{package}/config/* %{buildroot}%{confdir}/
@@ -83,6 +85,7 @@ the audit to the server for later analysis.
   %{_sbindir}/*
   %{_bindir}/*
   %{syslib}/*
+  %{limdir}/*
   %{docdir}/*
 
   %defattr(640,%{name},%{name},750)
