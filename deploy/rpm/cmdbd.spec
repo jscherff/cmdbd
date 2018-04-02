@@ -1,6 +1,6 @@
 # =============================================================================
 %define		name	cmdbd
-%define		version	3.3.4
+%define		version	3.3.5
 %define		release	1
 %define		branch  master
 %define		gecos	CMDBd Service
@@ -61,7 +61,7 @@ the audit to the server for later analysis.
   test %{buildroot} != / && rm -rf %{buildroot}/*
 
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
-  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{docdir}}
+  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{lmtdir},%{docdir}}
 
   install -s -m 755 %{_builddir}/%{name} %{buildroot}%{_sbindir}/
   install -s -m 755 %{_builddir}/bcrypt %{buildroot}%{_bindir}/
