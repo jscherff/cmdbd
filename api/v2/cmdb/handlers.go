@@ -19,6 +19,7 @@ import (
 	`encoding/json`
 	`fmt`
 	`net/http`
+	`time`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/model/cmdb`
@@ -33,6 +34,7 @@ const (
 	fmtAuthSuccess = `auth success - issuing token to '%s' on ` + fmtHostInfo
 	fmtEventSuccess = `event logged for ` + fmtHostInfo
 	fmtHealthSuccess = `health check success for host at '%s'`
+	fmtConnectSuccess = `connection id '%s' established for host at '%s'`
 )
 
 // Package variables required for operation.
@@ -57,6 +59,8 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	user := &cmdb.User{}
+
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
 
 	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
@@ -109,6 +113,8 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event := &cmdb.Event{}
 	event.HostName, event.RemoteAddr = vars[`host`], r.RemoteAddr
 
+	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
+
 	if _, err := event.Create(); err != nil {
 
 		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
@@ -149,4 +155,16 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 			loggerSvc.ErrorLog().Panic(err)
 		}
 	}
+}
+
+
+// CheckConcurrency allows tests against the server connection limit. It accepts
+// an arbitrary connection ID from the client (presumably a counter), logs the
+// connection information to the system log, and sleeps for 15 seconeds before
+// returning an HTTP StatusOK to the client.
+func CheckConcurrency(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	loggerSvc.SystemLog().Printf(fmtConnectSuccess, vars[`id`], r.RemoteAddr)
+	time.Sleep(15 * time.Second)
+	w.WriteHeader(http.StatusNoContent)
 }

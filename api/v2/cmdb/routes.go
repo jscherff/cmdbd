@@ -42,4 +42,12 @@ var Routes = api.Routes {
 		HandlerFunc:	CheckHealth,
 		Protected:	false,
 	},
+
+	api.Route {
+		Name:		`CMDB Concurrency Check`,
+		Path:		`/v2/cmdb/concurrency/check/{id}`,
+		Method:		`GET`,
+		HandlerFunc:	CheckConcurrency,
+		Protected:	false,
+	},
 }

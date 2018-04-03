@@ -63,7 +63,7 @@ func (this *Router) AddRoutes(routes api.Routes) *Router {
 			handlers.RecoveryLogger(recoveryLog))(handler)
 
 		if route.Protected {
-			handler = AuthTokenValidator(this.AuthSvc, handler)
+			handler = AuthTokenHandler(this.AuthSvc, handler)
 		}
 
 		handler = handlers.CombinedLoggingHandler(accessLog, handler)

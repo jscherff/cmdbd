@@ -22,7 +22,7 @@ import (
 
 // AuthTokenValidator is middleWare that validates a client authentication
 // token prior to allowing access to protected pages.
-func AuthTokenValidator(authSvc service.AuthSvc, next http.Handler) (http.Handler) {
+func AuthTokenHandler(authSvc service.AuthSvc, next http.Handler) http.Handler {
 
 	return http.HandlerFunc(
 
@@ -43,6 +43,23 @@ func AuthTokenValidator(authSvc service.AuthSvc, next http.Handler) (http.Handle
 				context := context.WithValue(r.Context(), `AuthClaims`, claims)
 				next.ServeHTTP(w, r.WithContext(context))
 			}
+		},
+	)
+}
+
+// ConnectionLimiter limits the number of concurrent connections using a
+// counting semephore modeled with a buffered channel. At maxConnections
+// active clients, new requests queue until a 'slot' becomes available.
+// From https://pauladamsmith.com/blog/2016/04/max-clients-go-net-http.html.
+func MaxConnectionHandler(maxConnections int, next http.Handler) http.Handler {
+
+	sema := make(chan struct{}, maxConnections)
+
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			sema <- struct{}{}
+			defer func() { <-sema }()
+			next.ServeHTTP(w, r)
 		},
 	)
 }
