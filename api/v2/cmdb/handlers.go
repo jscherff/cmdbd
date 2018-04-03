@@ -29,9 +29,9 @@ import (
 // Templates for system and error messages.
 const (
 	fmtHostInfo = `host '%s' at '%s'`
-	fmtAuthMissingCreds = `auth failure - missing credentials`
-	fmtAuthUserNotFound = `auth failure - user '%s' not found: %v`
-	fmtAuthSuccess = `auth success - issuing token to '%s' on ` + fmtHostInfo
+	fmtAuthMissingCreds = `auth failure: missing credentials from ` + fmtHostInfo
+	fmtAuthFailure = `auth failure for user '%s' on ` + fmtHostInfo + `: %v`
+	fmtAuthSuccess = `auth success for user '%s' on ` + fmtHostInfo
 	fmtEventSuccess = `event logged for ` + fmtHostInfo
 	fmtHealthSuccess = `health check success for host at '%s'`
 	fmtConnectSuccess = `connection id '%s' established for host at '%s'`
@@ -60,17 +60,17 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	user := &cmdb.User{}
 
-	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `text/plain; charset=UTF8`)
 
 	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
-		err := fmt.Errorf(fmtAuthMissingCreds)
+		err := fmt.Errorf(fmtAuthMissingCreds, vars[`host`], r.RemoteAddr)
 		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.Read(); err != nil {
 
-		err = fmt.Errorf(fmtAuthUserNotFound, user.Username, err)
+		err = fmt.Errorf(fmtAuthFailure, user.Username, vars[`host`], r.RemoteAddr, err)
 		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
@@ -113,7 +113,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event := &cmdb.Event{}
 	event.HostName, event.RemoteAddr = vars[`host`], r.RemoteAddr
 
-	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `text/plain; charset=UTF8`)
 
 	if _, err := event.Create(); err != nil {
 
@@ -139,7 +139,7 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 		Path:	r.URL.Path,
 	}
 
-	w.Header().Set(`Content-Type`, `application/json; charset=UTF8`)
+	w.Header().Set(`Content-Type`, `text/plain; charset=UTF8`)
 
 	if err := info.Read(); err != nil {
 
@@ -164,6 +164,7 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 // returning an HTTP StatusOK to the client.
 func CheckConcurrency(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	w.Header().Set(`Content-Type`, `text/plain; charset=UTF8`)
 	loggerSvc.SystemLog().Printf(fmtConnectSuccess, vars[`id`], r.RemoteAddr)
 	time.Sleep(15 * time.Second)
 	w.WriteHeader(http.StatusNoContent)
