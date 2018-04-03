@@ -16,44 +16,20 @@ package server
 
 import (
 	`fmt`
-	`net`
 	`net/http`
 	`time`
-	`golang.org/x/net/netutil`
 	`github.com/jscherff/cmdbd/utils`
 )
 
-// tcpKeepAliveListener wraps net.TCPListener and extends the Accept()
-// method by implementing TCP Keepalives on the TCP Connection it returns.
-type tcpKeepAliveListener struct {
-	*net.TCPListener
-}
-
-// Accept implements the Accept method in the Listener interface; it waits
-// for the next call and returns a generic Connection. Extended to enable
-// TCP Keepalives.
-func (this tcpKeepAliveListener) Accept() (net.Conn, error) {
-	if tc, err := this.AcceptTCP(); err != nil {
-		return nil, err
-	} else {
-		tc.SetKeepAlive(true)
-		tc.SetKeepAlivePeriod(3 * time.Minute)
-		return tc, nil
-	}
-}
-
-// Server extends the http.Server object with a MaxConnections property and
-// LimitListenAndServe method that together limit the number of simultaneous
-// connections the server will accept.
+// server extends the http.Server object.
 type Server struct {
 	*http.Server
-	MaxConnections int
 }
 
 // NewServer creates and initializes a new Server instance.
 func NewServer(cf string, handler http.Handler) (*Server, error) {
 
-	this := &Server{MaxConnections: 50} // Sane default
+	this := &Server{}
 
 	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
@@ -65,33 +41,6 @@ func NewServer(cf string, handler http.Handler) (*Server, error) {
 
 	return this, nil
 }
-
-// SetMaxConnections sets the maximum number of simultaneous connections
-// the server will accept.
-func (this *Server) SetMaxConnections(maxConnections int) {
-	this.MaxConnections = maxConnections
-}
-
-// LimitListenAndServe listens on the TCP network address srv.Addr, then
-// then calls Serve to handle requests on incoming connections. Accepted
-// connections are configured to enable TCP keep-alives. It is identical
-// to ListenAndServe except that it uses netutil.LimitListener to limit
-// the number of simultaneous connections.
-func (this *Server) LimitListenAndServe() error {
-
-	addr := this.Addr
-	if addr == `` {
-		addr = `:http`
-	}
-
-	if ln, err := net.Listen(`tcp`, addr); err != nil {
-		return err
-	} else {
-		lln := netutil.LimitListener(ln, this.MaxConnections)
-		return this.Serve(tcpKeepAliveListener{lln.(*net.TCPListener)})
-	}
-}
-
 
 // String provides identifying information about the server.
 func (this *Server) String() (string) {

@@ -65,5 +65,5 @@ func init() {
 func main() {
 	defer config.LoggerSvc.Close()
 	defer config.DataStore.Close()
-	log.Fatal(config.Server.LimitListenAndServe())
+	log.Fatal(config.Server.ListenAndServe())
 }

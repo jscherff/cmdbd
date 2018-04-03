@@ -1,6 +1,6 @@
 {
 	"Source": "http://www.linux-usb.org/usb.ids",
-	"Updated": "2018-02-23T09:31:11.3940035-08:00",
+	"Updated": "2018-04-03T05:28:53.8896256-07:00",
 	"Vendors": {
 		"0001": {
 			"Name": "Fry's Electronics",
@@ -38,6 +38,14 @@
 				}
 			}
 		},
+		"0078": {
+			"Name": "Microntek",
+			"Product": {
+				"0006": {
+					"Name": "Joystick"
+				}
+			}
+		},
 		"0079": {
 			"Name": "DragonRise Inc.",
 			"Product": {
@@ -46,6 +54,26 @@
 				},
 				"0011": {
 					"Name": "Gamepad"
+				},
+				"1800": {
+					"Name": "Mayflash Wii U Pro Game Controller Adapter [DirectInput]"
+				},
+				"181b": {
+					"Name": "Venom Arcade Joystick"
+				},
+				"1843": {
+					"Name": "Mayflash GameCube Controller Adapter"
+				},
+				"1844": {
+					"Name": "Mayflash GameCube Controller"
+				}
+			}
+		},
+		"0085": {
+			"Name": "Boeye Technology Co., Ltd.",
+			"Product": {
+				"0600": {
+					"Name": "eBook Reader"
 				}
 			}
 		},
@@ -118,6 +146,10 @@
 					"Name": "PVR Mass Storage"
 				}
 			}
+		},
+		"0303": {
+			"Name": "Mini Automation Controller",
+			"Product": null
 		},
 		"0324": {
 			"Name": "OCZ Technology Inc",
@@ -514,7 +546,7 @@
 			}
 		},
 		"03f0": {
-			"Name": "Hewlett-Packard",
+			"Name": "HP, Inc",
 			"Product": {
 				"0004": {
 					"Name": "DeskJet 895c"
@@ -1260,6 +1292,9 @@
 				"2b17": {
 					"Name": "LaserJet 1020"
 				},
+				"2b4a": {
+					"Name": "Business Slim Keyboard"
+				},
 				"2c12": {
 					"Name": "Officejet J4680"
 				},
@@ -1419,6 +1454,9 @@
 				"3a17": {
 					"Name": "Printing Support"
 				},
+				"3a1d": {
+					"Name": "hs2340 HSPA+ mobile broadband"
+				},
 				"3b02": {
 					"Name": "PhotoSmart 7150~"
 				},
@@ -1430,6 +1468,9 @@
 				},
 				"3b17": {
 					"Name": "LaserJet M1005 MFP"
+				},
+				"3b2a": {
+					"Name": "Color LaserJet MFP M277dw"
 				},
 				"3c02": {
 					"Name": "PhotoSmart 7350"
@@ -2379,11 +2420,23 @@
 				"abb8": {
 					"Name": "Lego Mindstorms NXTCam"
 				},
+				"b0c0": {
+					"Name": "microSensys RFID device"
+				},
+				"b0c1": {
+					"Name": "microSensys RFID device"
+				},
 				"b0c2": {
 					"Name": "iID contactless RFID device"
 				},
 				"b0c3": {
 					"Name": "iID contactless RFID device"
+				},
+				"b0c4": {
+					"Name": "RFID device"
+				},
+				"b0c5": {
+					"Name": "RFID device"
 				},
 				"b810": {
 					"Name": "US Interface Navigator (CAT and 2nd PTT lines)"
@@ -4827,6 +4880,12 @@
 				"2660": {
 					"Name": "Hub"
 				},
+				"274d": {
+					"Name": "HTC Hub Controller"
+				},
+				"3fcc": {
+					"Name": "RME MADIface"
+				},
 				"4041": {
 					"Name": "Hub and media card controller"
 				},
@@ -4845,6 +4904,9 @@
 				"7500": {
 					"Name": "LAN7500 Ethernet 10/100/1000 Adapter"
 				},
+				"9500": {
+					"Name": "LAN9500/LAN9500i"
+				},
 				"9512": {
 					"Name": "SMC9512/9514 USB Hub"
 				},
@@ -4853,6 +4915,9 @@
 				},
 				"9904": {
 					"Name": "LAN9512/LAN9514 Ethernet 10/100 Adapter (SAL10)"
+				},
+				"9e00": {
+					"Name": "LAN9500A/LAN9500Ai"
 				},
 				"a700": {
 					"Name": "2 Port Hub"
@@ -5691,6 +5756,18 @@
 				"044f": {
 					"Name": "GP XID"
 				},
+				"0f00": {
+					"Name": "Steering Wheel for Xbox"
+				},
+				"0f03": {
+					"Name": "Steering Wheel for Xbox"
+				},
+				"0f07": {
+					"Name": "Controller for Xbox"
+				},
+				"0f10": {
+					"Name": "Modena GT Wheel"
+				},
 				"a003": {
 					"Name": "Rage 3D Game Pad"
 				},
@@ -5741,6 +5818,9 @@
 				},
 				"b324": {
 					"Name": "Dual Trigger 3-in-1 (PS3 Mode)"
+				},
+				"b326": {
+					"Name": "Gamepad GP XID"
 				},
 				"b603": {
 					"Name": "force feedback Wheel"
@@ -6668,6 +6748,9 @@
 				"02b6": {
 					"Name": "Xbox360 Bluetooth Wireless Headset"
 				},
+				"02bb": {
+					"Name": "Kinect Audio"
+				},
 				"02be": {
 					"Name": "Kinect for Windows NUI Audio"
 				},
@@ -6684,7 +6767,7 @@
 					"Name": "Xbox One Digital TV Tuner"
 				},
 				"02dd": {
-					"Name": "Xbox One Controller (Covert Forces/Firmware 2015)"
+					"Name": "Xbox One Controller (Firmware 2015)"
 				},
 				"02e3": {
 					"Name": "Xbox One Elite Controller"
@@ -6694,6 +6777,9 @@
 				},
 				"02ea": {
 					"Name": "Xbox One S Controller"
+				},
+				"02fd": {
+					"Name": "Xbox One S Controller [Bluetooth]"
 				},
 				"0400": {
 					"Name": "Windows Powered Pocket PC 2002"
@@ -7466,7 +7552,7 @@
 					"Name": "CyMotion Expert Combo"
 				},
 				"0023": {
-					"Name": "CyMotion Master Linux Keyboard G230"
+					"Name": "Keyboard"
 				},
 				"0027": {
 					"Name": "CyMotion Master Solar Keyboard"
@@ -7494,6 +7580,9 @@
 				},
 				"0081": {
 					"Name": "eHealth Keyboard G87 1504"
+				},
+				"00a1": {
+					"Name": "SmartCard Reader Keyboard KC 1000 SC"
 				},
 				"0106": {
 					"Name": "R-300 Wireless Mouse Receiver"
@@ -7544,6 +7633,9 @@
 				},
 				"0203": {
 					"Name": "M2452 Keyboard"
+				},
+				"0242": {
+					"Name": "Chillstream for Xbox 360"
 				},
 				"0301": {
 					"Name": "M4848 Mouse"
@@ -7604,6 +7696,9 @@
 				},
 				"0821": {
 					"Name": "HD Webcam C910"
+				},
+				"0823": {
+					"Name": "HD Webcam B910"
 				},
 				"0825": {
 					"Name": "Webcam C270"
@@ -8281,13 +8376,13 @@
 					"Name": "Extreme 3D Pro"
 				},
 				"c216": {
-					"Name": "Dual Action Gamepad"
+					"Name": "F310 Gamepad [DirectInput Mode]"
 				},
 				"c218": {
-					"Name": "Logitech RumblePad 2 USB"
+					"Name": "F510 Gamepad [DirectInput Mode]"
 				},
 				"c219": {
-					"Name": "Cordless RumblePad 2"
+					"Name": "F710 Gamepad [DirectInput Mode]"
 				},
 				"c21a": {
 					"Name": "Precision Gamepad"
@@ -8712,11 +8807,26 @@
 				"ca04": {
 					"Name": "Formula Vibration Feedback Wheel"
 				},
+				"ca84": {
+					"Name": "Cordless Controller for Xbox"
+				},
+				"ca88": {
+					"Name": "Thunderpad for Xbox"
+				},
+				"ca8a": {
+					"Name": "Precision Vibration Feedback Wheel for Xbox"
+				},
+				"caa3": {
+					"Name": "DriveFX Racing Wheel"
+				},
 				"cab1": {
 					"Name": "Cordless Keyboard for Wii HID Receiver"
 				},
 				"d001": {
 					"Name": "QuickCam Pro"
+				},
+				"f301": {
+					"Name": "Controller"
 				}
 			}
 		},
@@ -9613,6 +9723,9 @@
 				"0408": {
 					"Name": "FS-1320D Printer"
 				},
+				"0640": {
+					"Name": "ECOSYS M6026cdn"
+				},
 				"069b": {
 					"Name": "ECOSYS M2635dn"
 				}
@@ -9676,16 +9789,22 @@
 					"Name": "Joystick in FS Mode"
 				},
 				"5720": {
-					"Name": "STM microSD Flash Device"
+					"Name": "Mass Storage Device"
 				},
 				"5721": {
 					"Name": "Hantek DDS-3X25 Arbitrary Waveform Generator"
 				},
+				"5722": {
+					"Name": "Bulk Demo"
+				},
 				"5730": {
-					"Name": "STM32 Audio Streaming"
+					"Name": "Audio Speaker"
+				},
+				"5731": {
+					"Name": "Microphone"
 				},
 				"5740": {
-					"Name": "STM32F407"
+					"Name": "Virtual COM Port"
 				},
 				"7270": {
 					"Name": "ST Micro Serial Bridge"
@@ -9693,8 +9812,17 @@
 				"7554": {
 					"Name": "56k SoftModem"
 				},
+				"8213": {
+					"Name": "ThermaData Logger Cradle"
+				},
+				"8259": {
+					"Name": "Probe"
+				},
 				"91d1": {
 					"Name": "Sensor Hub"
+				},
+				"a171": {
+					"Name": "ThermaData WiFi"
 				},
 				"df11": {
 					"Name": "STM Device in DFU Mode"
@@ -9772,6 +9900,9 @@
 				},
 				"e04d": {
 					"Name": "Atheros AR3012 Bluetooth"
+				},
+				"e055": {
+					"Name": "BCM43142A0 broadcom bluetooth"
 				}
 			}
 		},
@@ -10883,6 +11014,9 @@
 				"1609": {
 					"Name": "DR-3080CII"
 				},
+				"160a": {
+					"Name": "DR-2050C Scanner"
+				},
 				"1700": {
 					"Name": "PIXMA MP110 Scanner"
 				},
@@ -11372,6 +11506,9 @@
 				"262b": {
 					"Name": "LaserShot LBP-1120 Printer"
 				},
+				"262c": {
+					"Name": "imageCLASS D300"
+				},
 				"262d": {
 					"Name": "iR C3200"
 				},
@@ -11386,6 +11523,12 @@
 				},
 				"2632": {
 					"Name": "FAX-L2000"
+				},
+				"2633": {
+					"Name": "LASERCLASS 500"
+				},
+				"2634": {
+					"Name": "PC-D300/FAX-L400/ICD300"
 				},
 				"2635": {
 					"Name": "MPC190"
@@ -11548,6 +11691,9 @@
 				},
 				"2689": {
 					"Name": "FAX-L180/L380S/L398S"
+				},
+				"268a": {
+					"Name": "LC310/L390/L408S"
 				},
 				"268c": {
 					"Name": "iR C6870"
@@ -12113,6 +12259,9 @@
 				"3196": {
 					"Name": "PowerShot SD880 IS DIGITAL ELPH / Digital IXUS 870 IS / IXY DIGITAL 920 IS"
 				},
+				"3199": {
+					"Name": "EOS 5D Mark II"
+				},
 				"319a": {
 					"Name": "EOS 7D"
 				},
@@ -12532,6 +12681,9 @@
 				},
 				"32d5": {
 					"Name": "PowerShot SX430 IS"
+				},
+				"32db": {
+					"Name": "SELPHY CP1300"
 				}
 			}
 		},
@@ -12972,6 +13124,12 @@
 				"6370": {
 					"Name": "ViewMate Desktop Mouse CC2201"
 				},
+				"6502": {
+					"Name": "CY4609"
+				},
+				"6506": {
+					"Name": "CY4603"
+				},
 				"6560": {
 					"Name": "CY7C65640 USB-2.0 \"TetraHub\""
 				},
@@ -13022,6 +13180,9 @@
 				},
 				"f115": {
 					"Name": "PSoC FirstTouch Programmer"
+				},
+				"f231": {
+					"Name": "DELLY Changer 4in1 universal IR remote"
 				},
 				"f232": {
 					"Name": "Mono embedded computer"
@@ -14024,6 +14185,9 @@
 				"3014": {
 					"Name": "Qualcomm Atheros Bluetooth"
 				},
+				"7022": {
+					"Name": "HP HD Webcam"
+				},
 				"7025": {
 					"Name": "HP HD Webcam"
 				},
@@ -14063,7 +14227,7 @@
 					"Name": "FinePix S602 (Pro) Zoom (PC CAM)"
 				},
 				"010d": {
-					"Name": "FinePix Digital Camera 020531"
+					"Name": "FinePix S2 pro"
 				},
 				"010e": {
 					"Name": "FinePix F402 Zoom (DSC)"
@@ -14507,6 +14671,9 @@
 				"900a": {
 					"Name": "PICkit3"
 				},
+				"9012": {
+					"Name": "PICkit4"
+				},
 				"c001": {
 					"Name": "PicoLCD 20x4"
 				},
@@ -14628,6 +14795,9 @@
 				},
 				"a050": {
 					"Name": "Chatman V1"
+				},
+				"a052": {
+					"Name": "USB-zyTemp"
 				},
 				"a055": {
 					"Name": "Keyboard"
@@ -15355,6 +15525,9 @@
 				"3276": {
 					"Name": "ML-3050/ML-3051 Laser Printer"
 				},
+				"327e": {
+					"Name": "ML-2510 Series"
+				},
 				"328e": {
 					"Name": "CLP-310 Color Laser Printer"
 				},
@@ -15682,6 +15855,9 @@
 				"61f3": {
 					"Name": "Portable SSD T3 (MU-PT250B, MU-PT500B)"
 				},
+				"61f5": {
+					"Name": "Portable SSD T5"
+				},
 				"6601": {
 					"Name": "Mobile Phone"
 				},
@@ -15994,6 +16170,9 @@
 				"0760": {
 					"Name": "Acer KU-0760 Keyboard"
 				},
+				"0833": {
+					"Name": "KU-0833 Keyboard"
+				},
 				"0841": {
 					"Name": "HP Multimedia Keyboard"
 				},
@@ -16150,6 +16329,9 @@
 				"b1aa": {
 					"Name": "Webcam-101"
 				},
+				"b1ac": {
+					"Name": "HP Laptop Integrated Webcam [2 MP Fixed]"
+				},
 				"b1b4": {
 					"Name": "Lenovo Integrated Camera"
 				},
@@ -16198,8 +16380,14 @@
 				"b2da": {
 					"Name": "thinkpad t430s camera"
 				},
+				"b2db": {
+					"Name": "Thinkpad T430 camera"
+				},
 				"b2ea": {
 					"Name": "Integrated Camera [ThinkPad]"
+				},
+				"b2f4": {
+					"Name": "HP Webcam-50"
 				},
 				"b330": {
 					"Name": "Asus 720p CMOS webcam"
@@ -16224,6 +16412,12 @@
 				},
 				"b444": {
 					"Name": "Lenovo Integrated Webcam"
+				},
+				"b5ce": {
+					"Name": "Integrated Camera"
+				},
+				"b5cf": {
+					"Name": "Integrated IR Camera"
 				}
 			}
 		},
@@ -16261,6 +16455,9 @@
 					"Name": "Mouse"
 				},
 				"0234": {
+					"Name": "Optical Mouse"
+				},
+				"0235": {
 					"Name": "Optical Mouse"
 				},
 				"02f4": {
@@ -18621,7 +18818,7 @@
 					"Name": "Linux-USB user-mode bulk source/sink"
 				},
 				"a4a5": {
-					"Name": "Pocketbook Pro 903"
+					"Name": "Pocketbook Pro 903 / Mobius 2 Action Cam"
 				},
 				"a4a6": {
 					"Name": "Linux-USB Serial Gadget"
@@ -19109,7 +19306,7 @@
 					"Name": "Standard HUB"
 				},
 				"0010": {
-					"Name": "DSC-S30/S70/S75/F505V/F505/FD92/W1 Cybershot/Mavica Digital Camera"
+					"Name": "Cyber-shot, Mavica (msc)"
 				},
 				"0014": {
 					"Name": "Nogatech USBVision (SY)"
@@ -19640,7 +19837,7 @@
 					"Name": "DSC-HX100V [Cybershot Digital Still Camera]"
 				},
 				"05c4": {
-					"Name": "DualShock 4 [CUH-ZCT1E]"
+					"Name": "DualShock 4 [CUH-ZCT1x]"
 				},
 				"0689": {
 					"Name": "Walkman NWZ-B173F"
@@ -19653,6 +19850,9 @@
 				},
 				"07c4": {
 					"Name": "ILCE-6000 (aka Alpha-6000) in Mass Storage mode"
+				},
+				"082f": {
+					"Name": "Walkman NWZW Series"
 				},
 				"0847": {
 					"Name": "WG-C10 Portable Wireless Server"
@@ -19670,7 +19870,10 @@
 					"Name": "ILCE-6000 (aka Alpha-6000) in charging mode"
 				},
 				"09cc": {
-					"Name": "DualShock 4 [CUH-ZCT2E]"
+					"Name": "DualShock 4 [CUH-ZCT2x]"
+				},
+				"0ba0": {
+					"Name": "Dualshock4 Wireless Adaptor"
 				},
 				"0bb5": {
 					"Name": "Headset MDR-1000X"
@@ -20012,6 +20215,9 @@
 				},
 				"040b": {
 					"Name": "ScanExpress A3 USB 1200 PRO"
+				},
+				"0501": {
+					"Name": "ScanExpress A3 2400 Pro"
 				},
 				"0873": {
 					"Name": "ScanExpress 600 USB"
@@ -20604,11 +20810,23 @@
 				"0350": {
 					"Name": "DTH-1620 [Cintiq Pro 16] tablet"
 				},
+				"0351": {
+					"Name": "DTH-2420 [Cintiq Pro 24 PT] tablet"
+				},
+				"0352": {
+					"Name": "DTH-3220 [Cintiq Pro 32] tablet"
+				},
 				"0353": {
 					"Name": "DTH-1320 [Cintiq Pro 13] touchscreen"
 				},
 				"0354": {
 					"Name": "DTH-1620 [Cintiq Pro 16] touchscreen"
+				},
+				"0355": {
+					"Name": "DTH-2420 [Cintiq Pro 24 PT] touchscreen"
+				},
+				"0356": {
+					"Name": "DTH-3220 [Cintiq Pro 32] touchscreen"
 				},
 				"0357": {
 					"Name": "PTH-660 [Intuos Pro (M)]"
@@ -20621,6 +20839,36 @@
 				},
 				"0368": {
 					"Name": "DTH-1152 touchscreen"
+				},
+				"0374": {
+					"Name": "CTL-4100 [Intuos (S)]"
+				},
+				"0375": {
+					"Name": "CTL-6100 [Intuos (M)]"
+				},
+				"0376": {
+					"Name": "CTL-4100WL [Intuos BT (S)]"
+				},
+				"0378": {
+					"Name": "CTL-6100WL [Intuos BT (M)]"
+				},
+				"037a": {
+					"Name": "CTL-472 [One by Wacom (S)]"
+				},
+				"037b": {
+					"Name": "CTL-672 [One by Wacom (M)]"
+				},
+				"037c": {
+					"Name": "DTK-2420 [Cintiq Pro 24 P]"
+				},
+				"037d": {
+					"Name": "DTH-2452 tablet"
+				},
+				"037e": {
+					"Name": "DTH-2452 touchscreen"
+				},
+				"0382": {
+					"Name": "DTK-2451 tablet"
 				},
 				"0400": {
 					"Name": "PenPartner 4x5"
@@ -59558,16 +59806,19 @@
 			"Name": "XIMEA",
 			"Product": {
 				"3001": {
-					"Name": "Camera with CMOS sensor [MQ]"
+					"Name": "MQ or MD camera"
+				},
+				"3002": {
+					"Name": "MU camera"
 				},
 				"3021": {
-					"Name": "Camera with CCD sensor [MD]"
+					"Name": "MJ camera"
 				},
 				"30b3": {
-					"Name": "Camera with CMOS sensor in Vision mode [MQ]"
+					"Name": "MQ in U3V mode or MC camera"
 				},
 				"a003": {
-					"Name": "Subminiature 5Mpix B/W Camera, MU9PM-MH"
+					"Name": "MU camera"
 				}
 			}
 		},
@@ -60255,6 +60506,44 @@
 				},
 				"8036": {
 					"Name": "Leonardo (CDC ACM, HID)"
+				}
+			}
+		},
+		"2357": {
+			"Name": "TP-Link",
+			"Product": {
+				"0100": {
+					"Name": "TL-WN8200ND [Realtek RTL8192CU]"
+				},
+				"0101": {
+					"Name": "RTL8812AU Archer T4U 802.11ac"
+				},
+				"0103": {
+					"Name": "Archer T4UH wireless Realtek 8812AU"
+				},
+				"0105": {
+					"Name": "Archer T1U 802.11a/n/ac Wireless Adapter [MediaTek MT7610U]"
+				},
+				"0107": {
+					"Name": "TL-WN821N Version 5 RTL8192EU"
+				},
+				"0108": {
+					"Name": "TL-WN822N Version 4 RTL8192EU"
+				},
+				"0109": {
+					"Name": "TL WN823N RTL8192EU"
+				},
+				"010c": {
+					"Name": "TL-WN722N v2"
+				},
+				"010e": {
+					"Name": "TL-WN722N v2"
+				},
+				"0200": {
+					"Name": "MA 180 Zero CD"
+				},
+				"0201": {
+					"Name": "HSUPA Modem MA180"
 				}
 			}
 		},
