@@ -22,11 +22,13 @@ import (
 	`syscall`
 )
 
+// Create a buffered channel for incoming signals.
 var (
 	SigChan = make(chan os.Signal, 1)
 	SigMap = make(map[string]syscall.Signal)
 )
 
+// Create a map of signals appropriate for the operating system.
 func init() {
 
 	SigMap[`SIGHUP`] = syscall.Signal(0x01)
@@ -50,6 +52,9 @@ func init() {
 	)
 }
 
+// Create the signal handler. The handler runs in an endless
+// loop, blocking on the signal channel until a signal arrives,
+// then handles the signal.
 func SigHandler(conf *Config) {
 
 	for true {
@@ -63,13 +68,15 @@ func SigHandler(conf *Config) {
 			conf.SystemLog.Print(`caught SIGHUP`)
 
 			if err := conf.RefreshMetaData(); err != nil {
-				conf.ErrorLog.Print(fmt.Errorf(`device metadata refresh failed: %v`, err))
+				err = fmt.Errorf(`device metadata refresh failed: %v`, err)
+				conf.ErrorLog.Print(err)
 			} else {
 				conf.SystemLog.Print(`device metadata refresh succeeded`)
 			}
 
 			if err := conf.LoadMetaData(); err != nil {
-				conf.ErrorLog.Print(fmt.Errorf(`data model metadata load failed: %v`, err))
+				err = fmt.Errorf(`data model metadata load failed: %v`, err)
+				conf.ErrorLog.Print(err)
 			} else {
 				conf.SystemLog.Print(`data model metadata load succeeded`)
 			}
@@ -83,7 +90,8 @@ func SigHandler(conf *Config) {
 		case SigMap[`SIGUSR2`]:
 
 			conf.SystemLog.Print(`caught SIGUSR2`)
-			conf.SystemLog.Print(`reserved for future use`)
+			conf.SystemLog.Printf(`device metadata last updated %s`,
+				conf.MetaUsbSvc.LastUpdate())
 		}
 	}
 }
