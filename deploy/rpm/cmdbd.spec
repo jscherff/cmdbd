@@ -70,6 +70,8 @@ the audit to the server for later analysis.
   install -m 644 %{gopath}/src/%{package}/deploy/os%{lmtdir}/* %{buildroot}%{lmtdir}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
+  mkdir -p %{buildroot}%{confdir}/{model,server,service,store}
+
   install -m 640 %{gopath}/src/%{package}/config/*.json %{buildroot}%{confdir}/
   install -m 640 %{gopath}/src/%{package}/config/model/*.json %{buildroot}%{confdir}/model/
   install -m 640 %{gopath}/src/%{package}/config/server/*.json %{buildroot}%{confdir}/server/
@@ -174,6 +176,7 @@ the audit to the server for later analysis.
 
 %changelog
 * Wed Apr 4 2018 - jscherff@24hourfit.com
+- Added signal handling
 - Refactored server configuration source code
 - Refactored request router and handler logic
 - Refactored database connection pool configuration
