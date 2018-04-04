@@ -24,6 +24,7 @@ import (
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/service`
+	`github.com/jscherff/gox/log`
 )
 
 // Templates for system and error messages.
@@ -40,12 +41,12 @@ const (
 // Package variables required for operation.
 var (
 	authSvc service.AuthSvc
-	loggerSvc service.LoggerSvc
+	systemLog, errorLog log.MLogger
 )
 
 // Init initializes the package variables required for operation.
-func Init(as service.AuthSvc, ls service.LoggerSvc) {
-	authSvc, loggerSvc = as, ls
+func Init(as service.AuthSvc, sl, el log.MLogger) {
+	authSvc, systemLog, errorLog = as, sl, el
 }
 
 // SetauthToken authenticates client using basic authentication and
@@ -65,43 +66,43 @@ func SetAuthToken(w http.ResponseWriter, r *http.Request) {
 	if user.Username, passwd, ok = r.BasicAuth(); !ok {
 
 		err := fmt.Errorf(fmtAuthMissingCreds, vars[`host`], r.RemoteAddr)
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.Read(); err != nil {
 
 		err = fmt.Errorf(fmtAuthFailure, user.Username, vars[`host`], r.RemoteAddr, err)
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if err := user.VerifyPassword(passwd); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if err := user.VerifyAccess(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 
 	} else if token, err := authSvc.CreateToken(user); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if tokenString, err := authSvc.CreateTokenString(token); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if cookie, err := authSvc.CreateCookie(tokenString); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtAuthSuccess, user.Username, vars[`host`], r.RemoteAddr)
+		systemLog.Printf(fmtAuthSuccess, user.Username, vars[`host`], r.RemoteAddr)
 		http.SetCookie(w, cookie)
 	}
 }
@@ -117,12 +118,12 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := event.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtEventSuccess, event.HostName, event.RemoteAddr)
+		systemLog.Printf(fmtEventSuccess, event.HostName, event.RemoteAddr)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
@@ -143,16 +144,16 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 
 	if err := info.Read(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtHealthSuccess, r.RemoteAddr)
+		systemLog.Printf(fmtHealthSuccess, r.RemoteAddr)
 		w.WriteHeader(http.StatusOK)
 
 		if err = json.NewEncoder(w).Encode(info); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -160,12 +161,12 @@ func CheckHealth(w http.ResponseWriter, r *http.Request) {
 
 // CheckConcurrency allows tests against the server connection limit. It accepts
 // an arbitrary connection ID from the client (presumably a counter), logs the
-// connection information to the system log, and sleeps for 15 seconeds before
+// connection information to the system log, and sleeps for 60 seconeds before
 // returning an HTTP StatusOK to the client.
 func CheckConcurrency(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	w.Header().Set(`Content-Type`, `text/plain; charset=UTF8`)
-	loggerSvc.SystemLog().Printf(fmtConnectSuccess, vars[`id`], r.RemoteAddr)
-	time.Sleep(15 * time.Second)
+	systemLog.Printf(fmtConnectSuccess, vars[`id`], r.RemoteAddr)
+	time.Sleep(60 * time.Second)
 	w.WriteHeader(http.StatusNoContent)
 }

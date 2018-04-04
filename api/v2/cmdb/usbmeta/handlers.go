@@ -21,17 +21,18 @@ import (
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/service`
+	`github.com/jscherff/gox/log`
 )
 
 // Package variables required for operation.
 var (
-	loggerSvc service.LoggerSvc
+	systemLog, errorLog log.MLogger
 	metaUsbSvc service.MetaUsbSvc
 )
 
 // Init initializes the package variables required for operation.
-func Init(ms service.MetaUsbSvc, ls service.LoggerSvc) {
-	metaUsbSvc, loggerSvc = ms, ls
+func Init(ms service.MetaUsbSvc, sl, el log.MLogger) {
+	metaUsbSvc, systemLog, errorLog = ms, sl, el
 }
 
 // Vendor returns the USB vendor name associated with a vendor Id.
@@ -42,14 +43,14 @@ func Vendor(w http.ResponseWriter, r *http.Request) {
 
 	if vName, err := metaUsbSvc.VendorName(vars[`vid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(vName); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -63,14 +64,14 @@ func Product(w http.ResponseWriter, r *http.Request) {
 
 	if pName, err := metaUsbSvc.ProductName(vars[`vid`], vars[`pid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(pName); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -83,14 +84,14 @@ func Class(w http.ResponseWriter, r *http.Request) {
 
 	if cDesc, err := metaUsbSvc.ClassDesc(vars[`cid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(cDesc); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -104,14 +105,14 @@ func SubClass(w http.ResponseWriter, r *http.Request) {
 
 	if sDesc, err := metaUsbSvc.SubClassDesc(vars[`cid`], vars[`sid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(sDesc); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -125,14 +126,14 @@ func Protocol(w http.ResponseWriter, r *http.Request) {
 
 	if pDesc, err := metaUsbSvc.ProtocolDesc(vars[`cid`], vars[`sid`], vars[`pid`]); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else {
 
 		w.WriteHeader(http.StatusOK)
 		if err = json.NewEncoder(w).Encode(pDesc); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }

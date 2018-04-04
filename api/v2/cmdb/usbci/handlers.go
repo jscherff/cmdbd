@@ -24,6 +24,7 @@ import (
 	`github.com/jscherff/cmdbd/model/cmdb`
 	`github.com/jscherff/cmdbd/model/cmdb/usbci`
 	`github.com/jscherff/cmdbd/service`
+	`github.com/jscherff/gox/log`
 )
 
 // Templates for system and error messages.
@@ -41,12 +42,13 @@ const (
 var (
 	authSvc service.AuthSvc
 	serialSvc service.SerialSvc
-	loggerSvc service.LoggerSvc
+	systemLog log.MLogger
+	errorLog log.MLogger
 )
 
 // Init initializes the package variables required for operation.
-func Init(as service.AuthSvc, ss service.SerialSvc, ls service.LoggerSvc) {
-	authSvc, serialSvc, loggerSvc = as, ss, ls
+func Init(as service.AuthSvc, ss service.SerialSvc, sl, el log.MLogger) {
+	authSvc, serialSvc, systemLog, errorLog = as, ss, sl, el
 }
 
 // CheckIn records a device checkin.
@@ -60,17 +62,17 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := dev.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtCheckInSuccess, dev.VendorId,
+		systemLog.Printf(fmtCheckInSuccess, dev.VendorId,
 			dev.ProductId, dev.SerialNum, dev.HostName, dev.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
@@ -88,23 +90,23 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 	if err := dev.Read(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusNotFound)
 
 	} else if j, err := dev.JSON(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtCheckOutSuccess, dev.VendorId,
+		systemLog.Printf(fmtCheckOutSuccess, dev.VendorId,
 			dev.ProductId, dev.SerialNum, vars[`host`], r.RemoteAddr)
 
 		w.WriteHeader(http.StatusOK)
 
 		if _, err = w.Write(j); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -121,22 +123,22 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 
 	if err := api.DecodeBody(dev, r); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if seed, err := seq.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if sn, err := serialSvc.CreateSerial(dev.ObjectType, seed); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if _, err := dev.CreateWithSn(sn); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if exists := dev.DeviceExists(); exists {
@@ -144,18 +146,18 @@ func NewSn(w http.ResponseWriter, r *http.Request) {
 		err := fmt.Errorf(fmtNewSnDuplicate, dev.SerialNum,
 			dev.VendorId, dev.ProductId, dev.HostName, dev.RemoteAddr)
 
-		loggerSvc.ErrorLog().Print(err)
+		errorLog.Print(err)
 		http.Error(w, err.Error(), http.StatusConflict)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtNewSnSuccess, dev.SerialNum,
+		systemLog.Printf(fmtNewSnSuccess, dev.SerialNum,
 			dev.VendorId, dev.ProductId, dev.HostName, dev.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(sn); err != nil {
-			loggerSvc.ErrorLog().Panic(err)
+			errorLog.Panic(err)
 		}
 	}
 }
@@ -172,7 +174,7 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	if body, err := api.ReadBody(r); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 
@@ -184,22 +186,22 @@ func Audit(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := aud.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else if changes, err := aud.Expand(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 
 	} else if _, err := changes.Create(); err != nil {
 
-		loggerSvc.ErrorLog().Print(api.AppendRequest(err, r))
+		errorLog.Print(api.AppendRequest(err, r))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 	} else {
 
-		loggerSvc.SystemLog().Printf(fmtAuditSuccess, aud.VendorId,
+		systemLog.Printf(fmtAuditSuccess, aud.VendorId,
 			aud.ProductId, aud.SerialNum, aud.HostName, aud.RemoteAddr)
 
 		w.WriteHeader(http.StatusCreated)

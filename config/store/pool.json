@@ -1,5 +1,5 @@
 {
-	"ConnMaxLifetime": 3600,
+	"MaxOpenConns": 200,
 	"MaxIdleConns": 0,
-	"MaxOpenConns": 150 
+	"ConnMaxLifetime": 3600
 }

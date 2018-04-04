@@ -52,14 +52,12 @@ func init() {
 		if err := usbmeta.Load(config.MetaUsbSvc.Raw()); err != nil {
 			config.LoggerSvc.ErrorLog().Fatal(err)
 		} else {
-			config.LoggerSvc.SystemLog().Println(`USB Metadata refreshed.`)
+			config.SystemLog.Println(`USB Metadata refreshed.`)
 			os.Exit(0)
 		}
 	}
 
-	config.LoggerSvc.SystemLog().Printf(`%s version %s`, program, version)
-	config.LoggerSvc.SystemLog().Print(config.DataStore.String())
-	config.LoggerSvc.SystemLog().Print(config.Server.String())
+	config.SystemLog.Printf(`%s version %s started`, program, version)
 }
 
 func main() {

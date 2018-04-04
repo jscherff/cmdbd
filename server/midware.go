@@ -20,9 +20,9 @@ import (
 	`github.com/jscherff/cmdbd/service`
 )
 
-// AuthTokenValidator is middleWare that validates a client authentication
+// AuthTokenHandler is middleWare that validates a client authentication
 // token prior to allowing access to protected pages.
-func AuthTokenHandler(authSvc service.AuthSvc, next http.Handler) http.Handler {
+func AuthTokenHandler(next http.Handler, authSvc service.AuthSvc) http.Handler {
 
 	return http.HandlerFunc(
 
@@ -47,18 +47,18 @@ func AuthTokenHandler(authSvc service.AuthSvc, next http.Handler) http.Handler {
 	)
 }
 
-// ConnectionLimiter limits the number of concurrent connections using a
+// MaxConnectionHandler limits the number of concurrent connections using a
 // counting semephore modeled with a buffered channel. At maxConnections
 // active clients, new requests queue until a 'slot' becomes available.
 // From https://pauladamsmith.com/blog/2016/04/max-clients-go-net-http.html.
-func MaxConnectionHandler(maxConnections int, next http.Handler) http.Handler {
+func MaxConnectionHandler(next http.Handler, maxConnections int) http.Handler {
 
-	sema := make(chan struct{}, maxConnections)
+	semaphore := make(chan struct{}, maxConnections)
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			sema <- struct{}{}
-			defer func() { <-sema }()
+			semaphore<- struct{}{}
+			defer func() { <-semaphore }()
 			next.ServeHTTP(w, r)
 		},
 	)

@@ -15,10 +15,16 @@
 package server
 
 import (
+	`net/http`
 	`path/filepath`
+	`strings`
+	`time`
+	`github.com/gorilla/handlers`
+	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 	`github.com/jscherff/cmdbd/utils`
+	`github.com/jscherff/gox/log`
 
 	model_cmdb	`github.com/jscherff/cmdbd/model/cmdb`
 	model_usbci	`github.com/jscherff/cmdbd/model/cmdb/usbci`
@@ -33,11 +39,17 @@ import (
 	api_usbmeta_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
 )
 
+// Message for server timeout middleware.
+const timeoutMessage = `server timed out waiting for available connection`
+
 // Master configuration settings.
 type Config struct {
 
 	Console		bool
 	Refresh		bool
+	RecoveryStack	bool
+	MaxConnections	int
+	ServerTimeout	time.Duration
 	ConfigFile	map[string]string
 
 	AuthSvc		service.AuthSvc
@@ -46,8 +58,11 @@ type Config struct {
 	MetaUsbSvc	service.MetaUsbSvc
 	DataStore	store.DataStore
 
+	AccessLog	log.MLogger
+	SystemLog	log.MLogger
+	ErrorLog	log.MLogger
+
 	Syslog		*Syslog
-	Router		*Router
 	Server		*Server
 }
 
@@ -55,20 +70,30 @@ type Config struct {
 // from the provided JSON configuration file. 
 func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
+	// -----------------------------------
+	// Create a Config with sane defaults.
+	// -----------------------------------
+
+	this := &Config{
+		MaxConnections: 50,
+		ServerTimeout: 60,
+	}
+
 	// ------------------------------
 	// Load the master configuration.
 	// ------------------------------
-
-	this := &Config{}
 
 	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
 	}
 
+	this.ServerTimeout *= time.Second
 	this.Console = this.Console || console
 	this.Refresh = this.Refresh || refresh
 
-	// Prepend the master config directory to other filenames.
+	// -----------------------------------------------
+	// Prepend master config directory to other paths.
+	// -----------------------------------------------
 
 	for key, fn := range this.ConfigFile {
 		this.ConfigFile[key] = filepath.Join(filepath.Dir(cf), fn)
@@ -88,11 +113,24 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize services.
 	// -------------------------------
 
+	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], this.Console, this.Syslog); err != nil {
+		return nil, err
+	} else {
+		this.LoggerSvc = ls
+		this.AccessLog = ls.AccessLog()
+		this.SystemLog = ls.SystemLog()
+		this.ErrorLog = ls.ErrorLog()
+	}
+
+	this.SystemLog.Print(`logging service initialized`)
+
 	if as, err := service.NewAuthSvc(this.ConfigFile[`AuthSvc`]); err != nil {
 		return nil, err
 	} else {
 		this.AuthSvc = as
 	}
+
+	this.SystemLog.Print(`authentication service initialized`)
 
 	if ss, err := service.NewSerialSvc(this.ConfigFile[`SerialSvc`]); err != nil {
 		return nil, err
@@ -100,11 +138,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.SerialSvc = ss
 	}
 
-	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], this.Console, this.Syslog); err != nil {
-		return nil, err
-	} else {
-		this.LoggerSvc = ls
-	}
+	this.SystemLog.Print(`serial number service initialized`)
 
 	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsbSvc`], refresh); err != nil {
 		return nil, err
@@ -112,29 +146,28 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.MetaUsbSvc = mus
 	}
 
+	this.SystemLog.Print(`device metadata service initialized`)
+
 	// ------------------------------------
 	// Create and initialize the DataStore.
 	// ------------------------------------
 
 	if ds, err := store.NewMysqlDataStore(this.ConfigFile[`DataStore`]); err != nil {
 		return nil, err
-	} else if err := ds.SetPool(this.ConfigFile[`ConnPool`]); err != nil {
+	} else if err = ds.SetConnPool(this.ConfigFile[`ConnPool`]); err != nil {
 		return nil, err
-	} else if err := ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
+	} else if err = ds.Prepare(this.ConfigFile[`Queries`]); err != nil {
 		return nil, err
 	} else {
 		this.DataStore = ds
 	}
 
-	// ---------------------------------
-	// Create and initialize the Router.
-	// ---------------------------------
+	this.SystemLog.Printf(`data store initialized: %s`, this.DataStore)
 
-	if rt, err := NewRouter(this.ConfigFile[`Router`], this.AuthSvc, this.LoggerSvc); err != nil {
-		return nil, err
-	} else {
-		this.Router = rt
-	}
+	connPool := this.DataStore.GetConnPool()
+	this.SystemLog.Printf(`data store maximum open connections set to %d`, connPool.MaxOpenConns)
+	this.SystemLog.Printf(`data store maximum idle connections set to %d`, connPool.MaxIdleConns)
+	this.SystemLog.Printf(`data store connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
 
 	// ------------------
 	// Initialize Models.
@@ -144,37 +177,112 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	model_usbci.Init(this.DataStore)
 	model_usbmeta.Init(this.DataStore)
 
+	this.SystemLog.Print(`data models initialized`)
+
 	// ----------------------
 	// Initialize API Routes.
 	// ----------------------
 
-	api_cmdb_v2.Init(this.AuthSvc, this.LoggerSvc)
-	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.LoggerSvc)
-	api_usbmeta_v2.Init(this.MetaUsbSvc, this.LoggerSvc)
+	api_cmdb_v2.Init(this.AuthSvc, this.SystemLog, this.ErrorLog)
+	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.SystemLog, this.ErrorLog)
+	api_usbmeta_v2.Init(this.MetaUsbSvc, this.SystemLog, this.ErrorLog)
 
-	// ------------------------
-	// Add Routes to Router.
-	// ------------------------
+	this.SystemLog.Print(`route endpoints initialized`)
 
-	this.Router.
+	// --------------
+	// Route Handler.
+	// --------------
+
+	router := NewRouter(this.AuthSvc).
 		AddRoutes(api_cmdb_v2.Routes).
 		AddRoutes(api_usbci_v2.Routes).
-		AddRoutes(api_usbmeta_v2.Routes)
-
-	this.Router.
+		AddRoutes(api_usbmeta_v2.Routes).
 		AddRoutes(api_cmdb_v1.Routes).
 		AddRoutes(api_usbci_v1.Routes).
 		AddRoutes(api_usbmeta_v1.Routes)
+
+	this.SystemLog.Print(`request router/dispatcher initialized`)
+
+	router.Walk(func(rt *mux.Route, rtr *mux.Router, anc []*mux.Route) error {
+
+		var methods, path string
+
+		if m, err := rt.GetMethods(); err != nil {
+			methods = ``
+		} else {
+			methods = strings.Join(m, `|`)
+		}
+
+		if p, err := rt.GetPathTemplate(); err != nil {
+			path = ``
+		} else {
+			path = p
+		}
+
+		this.SystemLog.Printf(`route '%s' template '%s %s'`,
+			rt.GetName(), methods, path)
+
+		return nil
+	})
+
+	// ---------------------------
+	// Chain Middleware to Routes.
+	// ---------------------------
+
+	var handler http.Handler
+
+	// ------------------------------------------------
+	// Prepend Max Connection Handler to Route Handler.
+	// ------------------------------------------------
+
+	handler = MaxConnectionHandler(router, this.MaxConnections)
+
+	this.SystemLog.Print(`max connection handler initialized`)
+
+	// ---------------------------------------------------------
+	// Prepend Server Timeout Handler to Max Connection Handler.
+	// ---------------------------------------------------------
+
+	handler = http.TimeoutHandler(handler, this.ServerTimeout, timeoutMessage)
+
+	this.SystemLog.Print(`connection timeout handler initialized`)
+
+	// ---------------------------------------------------
+	// Prepend Recovery Handler to Server Timeout Handler.
+	// ---------------------------------------------------
+
+	recoveryHandler := handlers.RecoveryHandler(
+		handlers.PrintRecoveryStack(this.RecoveryStack),
+		handlers.RecoveryLogger(this.ErrorLog))
+
+	handler = recoveryHandler(handler)
+
+	this.SystemLog.Print(`recovery handler initialized`)
+
+	// --------------------------------------------------------------------
+	// Prepend Logging Handler Prepend Logging Handler to Recovery Handler.
+	// --------------------------------------------------------------------
+
+	handler = handlers.CombinedLoggingHandler(this.AccessLog, handler)
+
+	this.SystemLog.Print(`access log handler initialized`)
 
 	// -----------------------------
 	// Create and initialize Server.
 	// -----------------------------
 
-	if ws, err := NewServer(this.ConfigFile[`Server`], this.Router); err != nil {
+	if server, err := NewServer(this.ConfigFile[`Server`], handler); err != nil {
 		return nil, err
 	} else {
-		this.Server = ws
+		this.Server = server
 	}
+
+	this.SystemLog.Print(`server initialized`)
+	this.SystemLog.Printf(`server listening on %s`, this.Server.Addr)
+	this.SystemLog.Printf(`server read timeout set to %s`, this.Server.ReadTimeout)
+	this.SystemLog.Printf(`server write timeout set to %s`, this.Server.WriteTimeout)
+	this.SystemLog.Printf(`server connection timeout set to %s`, this.ServerTimeout)
+	this.SystemLog.Printf(`server maximum connections set to %d`, this.MaxConnections)
 
 	return this, nil
 }

@@ -15,7 +15,6 @@
 package server
 
 import (
-	`fmt`
 	`net/http`
 	`time`
 	`github.com/jscherff/cmdbd/utils`
@@ -24,13 +23,20 @@ import (
 // server extends the http.Server object.
 type Server struct {
 	*http.Server
-	MaxConnections int
 }
 
 // NewServer creates and initializes a new Server instance.
 func NewServer(cf string, handler http.Handler) (*Server, error) {
 
-	this := &Server{MaxConnections: 50} // Sane default.
+	// -----------------------------------
+	// Create a Server with sane defaults.
+	// -----------------------------------
+
+	this := &Server{}
+
+	// ------------------------------
+	// Load the server configuration.
+	// ------------------------------
 
 	if err := utils.LoadConfig(this, cf); err != nil {
 		return nil, err
@@ -38,12 +44,7 @@ func NewServer(cf string, handler http.Handler) (*Server, error) {
 
 	this.ReadTimeout *= time.Second
 	this.WriteTimeout *= time.Second
-	this.Handler = MaxConnectionHandler(this.MaxConnections, handler)
+	this.Handler = handler
 
 	return this, nil
-}
-
-// String provides identifying information about the server.
-func (this *Server) String() (string) {
-	return fmt.Sprintf(`http daemon listening on %q`, this.Addr)
 }

@@ -2,6 +2,5 @@
 	"Addr": ":8080",
 	"ReadTimeout": 10,
 	"WriteTimeout": 10,
-	"MaxHeaderBytes": 1048576,
-	"MaxConnections": 150
+	"MaxHeaderBytes": 1048576
 }

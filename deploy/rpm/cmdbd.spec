@@ -66,12 +66,16 @@ the audit to the server for later analysis.
   install -s -m 755 %{_builddir}/%{name} %{buildroot}%{_sbindir}/
   install -s -m 755 %{_builddir}/bcrypt %{buildroot}%{_bindir}/
   install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
-  install -m 640 %{gopath}/src/%{package}/deploy/dml/reset.sql %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
   install -m 644 %{gopath}/src/%{package}/deploy/os%{lmtdir}/* %{buildroot}%{lmtdir}/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
-  cp -R %{gopath}/src/%{package}/config/* %{buildroot}%{confdir}/
+  install -m 640 %{gopath}/src/%{package}/config/*.json %{buildroot}%{confdir}/
+  install -m 640 %{gopath}/src/%{package}/config/model/*.json %{buildroot}%{confdir}/model/
+  install -m 640 %{gopath}/src/%{package}/config/server/*.json %{buildroot}%{confdir}/server/
+  install -m 640 %{gopath}/src/%{package}/config/service/*.json %{buildroot}%{confdir}/service/
+  install -m 640 %{gopath}/src/%{package}/config/service/*.pem %{buildroot}%{confdir}/service/
+  install -m 640 %{gopath}/src/%{package}/config/store/*.json %{buildroot}%{confdir}/store/
 
 %clean
 
@@ -169,8 +173,18 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Wed Apr 4 2018 - jscherff@24hourfit.com
+- Refactored server configuration source code
+- Refactored request router and handler logic
+- Refactored database connection pool configuration
+- Moved middleware chaining to server configuration source code
+- Added comprehensive logging during server configuration
+* Tue Apr 3 2018 - jscherff@24hourfit.com
+- Created MaxConnectionsHandler middleware to manage server concurrency
+- Created a MaxConnections property for the Server object with a default of 50
+- Added a concurrency testing endpoint and handler for testing concurrency
 * Mon Apr 2 2018 - jscherff@24hourfit.com
-- Set default MaxOpenConns to 50
+- Set default MaxOpenConns to 50 to limit concurrent open database connections
 - Added /etc/security/limits.d/cmdbd.conf with hard and soft limits
 * Mon Mar 12 2018 - jscherff@24hourfit.com
 - Added 'SET FOREIGN_KEY_CHECKS = 0' for table truncates in reset.sql

@@ -24,7 +24,9 @@ import (
 
 type DataStore interface {
 	String() (string)
-	SetPool(configFile string) (error)
+	SetConnPool(configFile string) (error)
+	GetConnPool() (*ConnPool)
+	GetOpenConns() (int)
 	Prepare(queryFile string) (error)
 	NamedStmt(queryName string, obj interface{}) (*sqlx.NamedStmt, error)
 	Exec(queryName string, arg interface{}) (int64, error)
@@ -33,11 +35,11 @@ type DataStore interface {
 	Close() (error)
 }
 
-// connPool contains database/sql settings for the connection pool.
-type connPool struct {
-	ConnMaxLifetime time.Duration
-	MaxIdleConns int
+// ConnPool contains database/sql settings for the connection pool.
+type ConnPool struct {
 	MaxOpenConns int
+	MaxIdleConns int
+	ConnMaxLifetime time.Duration
 }
 
 // namedStmt extends sqlx.NamedStmt with a query object.
@@ -49,6 +51,7 @@ type namedStmt struct {
 // dataStore is an implementation of the dataStore interface.
 type dataStore struct {
 	*sqlx.DB
+	connPool *ConnPool
 	namedStmts map[string]map[string]*namedStmt
 }
 
@@ -69,6 +72,7 @@ func newDataStore(driver, dsn string) (*dataStore, error) {
 	} else {
 		this = &dataStore{
 			DB: db,
+			connPool: new(ConnPool),
 			namedStmts: make(map[string]map[string]*namedStmt),
 		}
 	}
@@ -81,20 +85,34 @@ func (this *dataStore) String() (string) {
 	return this.DriverName()
 }
 
-// SetPool configures the database connection pool.
-func (this *dataStore) SetPool(configFile string) (error) {
+// SetConnPool configures the database connection pool.
+func (this *dataStore) SetConnPool(configFile string) (error) {
 
-	conf := &connPool{}
-
-	if err := utils.LoadConfig(conf, configFile); err != nil {
+	if err := utils.LoadConfig(this.connPool, configFile); err != nil {
 		return err
 	}
 
-	this.SetConnMaxLifetime(conf.ConnMaxLifetime * time.Second)
-	this.SetMaxIdleConns(conf.MaxIdleConns)
-	this.SetMaxOpenConns(conf.MaxOpenConns)
+	this.connPool.ConnMaxLifetime *= time.Second
+
+	if this.connPool.MaxOpenConns < this.connPool.MaxIdleConns {
+		this.connPool.MaxIdleConns = this.connPool.MaxOpenConns
+	}
+
+	this.SetMaxOpenConns(this.connPool.MaxOpenConns)
+	this.SetMaxIdleConns(this.connPool.MaxIdleConns)
+	this.SetConnMaxLifetime(this.connPool.ConnMaxLifetime)
 
 	return nil
+}
+
+// GetConnPool retrieves the database connection pool configuration.
+func (this *dataStore) GetConnPool() *ConnPool {
+	return this.connPool
+}
+
+// GetOpenConns retreives the number of open database connections.
+func (this *dataStore) GetOpenConns() int {
+	return this.Stats().OpenConnections
 }
 
 // Prepare converts a collection of JSON-encoded Query objects into 
