@@ -3,7 +3,7 @@
 	"Refresh": false,
 	"RecoveryStack": true,
 	"MaxConnections": 150,
-	"ServerTimeout": 300,
+	"ServerTimeout": 30,
 
 	"ConfigFile": {
 		"Server": "server/httpd.json",

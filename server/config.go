@@ -15,12 +15,11 @@
 package server
 
 import (
+	`fmt`
 	`net/http`
 	`path/filepath`
-	`strings`
 	`time`
 	`github.com/gorilla/handlers`
-	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 	`github.com/jscherff/cmdbd/utils`
@@ -88,8 +87,9 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	}
 
 	this.ServerTimeout *= time.Second
-	this.Console = this.Console || console
-	this.Refresh = this.Refresh || refresh
+
+	console = this.Console || console
+	refresh = this.Refresh || refresh
 
 	// -----------------------------------------------
 	// Prepend master config directory to other paths.
@@ -113,7 +113,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Create and initialize services.
 	// -------------------------------
 
-	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], this.Console, this.Syslog); err != nil {
+	if ls, err := service.NewLoggerSvc(this.ConfigFile[`LoggerSvc`], console, this.Syslog); err != nil {
 		return nil, err
 	} else {
 		this.LoggerSvc = ls
@@ -140,13 +140,27 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	this.SystemLog.Print(`serial number service initialized`)
 
-	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsbSvc`], refresh); err != nil {
+	if mus, err := service.NewMetaUsbSvc(this.ConfigFile[`MetaUsbSvc`]); err != nil {
 		return nil, err
 	} else {
 		this.MetaUsbSvc = mus
 	}
 
 	this.SystemLog.Print(`device metadata service initialized`)
+
+	// -------------------------------------
+	// Refresh Device Metadata if Requested.
+	// -------------------------------------
+
+	if refresh {
+		if err := this.RefreshMetaData(); err != nil {
+			this.ErrorLog.Print(fmt.Errorf(`device metadata refresh failed: %v`, err))
+		} else {
+			this.SystemLog.Print(`device metadata refresh succeeded`)
+		}
+	}
+
+	this.SystemLog.Printf(`device metadata last updated %s`, this.MetaUsbSvc.LastUpdate())
 
 	// ------------------------------------
 	// Create and initialize the DataStore.
@@ -162,12 +176,13 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.DataStore = ds
 	}
 
-	this.SystemLog.Printf(`data store initialized: %s`, this.DataStore)
+	this.SystemLog.Printf(`datastore initialized: %s`, this.DataStore)
 
 	connPool := this.DataStore.GetConnPool()
-	this.SystemLog.Printf(`data store maximum open connections set to %d`, connPool.MaxOpenConns)
-	this.SystemLog.Printf(`data store maximum idle connections set to %d`, connPool.MaxIdleConns)
-	this.SystemLog.Printf(`data store connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
+
+	this.SystemLog.Printf(`datastore maximum open connections set to %d`, connPool.MaxOpenConns)
+	this.SystemLog.Printf(`datastore maximum idle connections set to %d`, connPool.MaxIdleConns)
+	this.SystemLog.Printf(`datastore connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
 
 	// ------------------
 	// Initialize Models.
@@ -178,6 +193,18 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	model_usbmeta.Init(this.DataStore)
 
 	this.SystemLog.Print(`data models initialized`)
+
+	// ----------------------------------
+	// Load Device Metadata if Requested.
+	// ----------------------------------
+
+	if refresh {
+		if err := this.LoadMetaData(); err != nil {
+			this.ErrorLog.Print(fmt.Errorf(`data model metadata load failed: %v`, err))
+		} else {
+			this.SystemLog.Print(`data model metadata load succeeded`)
+		}
+	}
 
 	// ----------------------
 	// Initialize API Routes.
@@ -203,27 +230,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	this.SystemLog.Print(`request router/dispatcher initialized`)
 
-	router.Walk(func(rt *mux.Route, rtr *mux.Router, anc []*mux.Route) error {
-
-		var methods, path string
-
-		if m, err := rt.GetMethods(); err != nil {
-			methods = ``
-		} else {
-			methods = strings.Join(m, `|`)
-		}
-
-		if p, err := rt.GetPathTemplate(); err != nil {
-			path = ``
-		} else {
-			path = p
-		}
-
-		this.SystemLog.Printf(`route '%s' template '%s %s'`,
-			rt.GetName(), methods, path)
-
-		return nil
-	})
+	router.LogRoutes(this.SystemLog)
 
 	// ---------------------------
 	// Chain Middleware to Routes.
@@ -284,5 +291,33 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	this.SystemLog.Printf(`server connection timeout set to %s`, this.ServerTimeout)
 	this.SystemLog.Printf(`server maximum connections set to %d`, this.MaxConnections)
 
+	// -------------------------
+	// Start the signal handler.
+	// -------------------------
+
+	go SigHandler(this)
+
 	return this, nil
+}
+
+// RefreshMetaData downloads a fresh copy of the device metadata.
+func (this *Config) RefreshMetaData() error {
+
+	if err := this.MetaUsbSvc.Refresh(); err != nil {
+		return err
+	} else if err := this.MetaUsbSvc.Save(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// LoadMetaData loads the metadata tables in the datastore.
+func (this *Config) LoadMetaData() error {
+
+	if err := model_usbmeta.Load(this.MetaUsbSvc.Raw()); err != nil {
+		return err
+	}
+
+	return nil
 }

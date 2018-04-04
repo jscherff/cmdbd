@@ -27,31 +27,26 @@ type MetaUsbSvc interface {
 	SubClassDesc(cid, sid string) (string, error)
 	ProtocolDesc(cid, sid, pid string) (string, error)
 	LastUpdate() (time.Time)
-	Raw() (*peripheral.Usb)
+	Raw() *peripheral.Usb
+	Refresh() (error)
+	Save() (error)
 }
 
 // metaUsbSvc is a service that implements the MetaUsbSvc interface.
 type metaUsbSvc struct {
 	*peripheral.Usb
+	ConfigFile string
 }
 
 // NewMetaUsbSvc returns an object that implements the MetaUsbSvc interface.
-func NewMetaUsbSvc(cf string, refresh bool) (MetaUsbSvc, error) {
+func NewMetaUsbSvc(cf string) (MetaUsbSvc, error) {
 
 	var this *metaUsbSvc
 
 	if usb, err := peripheral.NewUsb(cf); err != nil {
 		return nil, err
 	} else {
-		this = &metaUsbSvc{usb}
-	}
-
-	if refresh {
-		if err := this.Refresh(); err != nil {
-			return this, err
-		} else if err := this.Save(cf); err != nil {
-			return this, err
-		}
+		this = &metaUsbSvc{Usb: usb, ConfigFile: cf}
 	}
 
 	return this, nil
@@ -112,7 +107,12 @@ func (this *metaUsbSvc) ProtocolDesc(cid, sid, pid string) (string, error) {
 
 // LastUpdate returns the date the metadata was last updated from source.
 func (this *metaUsbSvc) LastUpdate() (time.Time) {
-	return this.LastUpdate()
+	return this.Usb.LastUpdate()
+}
+
+// Save saves a copy of the in-memory metadata to the configuration file.
+func (this *metaUsbSvc) Save() (error) {
+	return this.Usb.Save(this.ConfigFile)
 }
 
 // Raw returns the raw underlying metadata object.

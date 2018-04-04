@@ -21,7 +21,6 @@ import (
 	`os`
 	`path/filepath`
 	`github.com/jscherff/cmdbd/server`
-	`github.com/jscherff/cmdbd/model/cmdb/usbmeta`
 )
 
 // Systemwide configuration.
@@ -46,15 +45,6 @@ func init() {
 
 	if config, err = server.NewConfig(*FConfig, *FConsole, *FRefresh); err != nil {
 		log.Fatal(err)
-	}
-
-	if *FRefresh {
-		if err := usbmeta.Load(config.MetaUsbSvc.Raw()); err != nil {
-			config.LoggerSvc.ErrorLog().Fatal(err)
-		} else {
-			config.SystemLog.Println(`USB Metadata refreshed.`)
-			os.Exit(0)
-		}
 	}
 
 	config.SystemLog.Printf(`%s version %s started`, program, version)
