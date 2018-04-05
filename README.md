@@ -378,6 +378,63 @@ Signals can be sent to the daemon with the `kill` command (where `pid` is the pr
 kill -s SIGNAL pid
 ```
 
+**Examples**:
+(Results from System Log.)
+```bash
+# kill -s SIGHUP 16876
+```
+```
+System 2018/04/04 17:55:08 caught SIGHUP, reloading metadata...
+System 2018/04/04 17:55:08 device metadata refresh and save succeeded
+System 2018/04/04 17:55:17 data model metadata load succeeded
+```
+```bash
+# kill -s SIGUSR1 16876
+```
+```
+System 2018/04/04 17:59:32 caught SIGUSR1, logging server information...
+System 2018/04/04 17:59:32 device metadata last updated 2018-04-04 17:55:08.588307819 -0700 PDT m=+53.216161937
+System 2018/04/04 17:59:32 datastore driver mysql 5.7.16-enterprise-commercial-advanced-log cmdbd@sysadm-dev-01.24hourfit.com/gocmdb
+System 2018/04/04 17:59:32 datastore maximum open connections set to 200
+System 2018/04/04 17:59:32 datastore maximum idle connections set to 0
+System 2018/04/04 17:59:32 datastore connection maximum lifetime set to 1h0m0s
+System 2018/04/04 17:59:32 datastore current open connections: 0
+System 2018/04/04 17:59:32 server listening on :8080
+System 2018/04/04 17:59:32 server read timeout set to 10s
+System 2018/04/04 17:59:32 server write timeout set to 10s
+System 2018/04/04 17:59:32 server connection timeout set to 30s
+System 2018/04/04 17:59:32 server maximum connections set to 150
+```
+```bash
+# kill -s SIGUSR2 16876
+```
+```
+System 2018/04/04 17:56:08 caught SIGUSR2, logging route information...
+System 2018/04/04 17:56:08 route 'CMDB Authenticator' template 'GET /v2/cmdb/authenticate/{host}'
+System 2018/04/04 17:56:08 route 'CMDB Event Logger' template 'POST /v2/cmdb/event/create/{host}'
+System 2018/04/04 17:56:08 route 'CMDB Health Check' template 'GET /v2/cmdb/health/check'
+System 2018/04/04 17:56:08 route 'CMDB Concurrency Check' template 'GET /v2/cmdb/concurrency/check/{id}'
+System 2018/04/04 17:56:08 route 'USB CI CheckIn Handler' template 'POST /v2/cmdb/ci/usb/checkin/{host}/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'USB CI Checkout Handler' template 'GET /v2/cmdb/ci/usb/checkout/{host}/{vid}/{pid}/{sn}'
+System 2018/04/04 17:56:08 route 'USB CI NewSn Handler' template 'POST /v2/cmdb/ci/usb/newsn/{host}/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'USB CI Audit Handler' template 'POST /v2/cmdb/ci/usb/audit/{host}/{vid}/{pid}/{sn}'
+System 2018/04/04 17:56:08 route 'USB Metadata Vendor Handler' template 'GET /v2/cmdb/meta/usb/vendor/{vid}'
+System 2018/04/04 17:56:08 route 'USB Metadata Product Handler' template 'GET /v2/cmdb/meta/usb/vendor/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'USB Metadata Class Handler' template 'GET /v2/cmdb/meta/usb/class/{cid}'
+System 2018/04/04 17:56:08 route 'USB Metadata SubClass Handler' template 'GET /v2/cmdb/meta/usb/subclass/{cid}/{sid}'
+System 2018/04/04 17:56:08 route 'USB Metadata Protocol Handler' template 'GET /v2/cmdb/meta/usb/protocol/{cid}/{sid}/{pid}'
+System 2018/04/04 17:56:08 route 'CMDB Authenticator' template 'GET /v1/cmdbauth'
+System 2018/04/04 17:56:08 route 'USBCI CheckIn Handler' template 'POST /v1/usbci/checkin/{host}/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'USBCI CheckOut Handler' template 'GET /v1/usbci/checkout/{host}/{vid}/{pid}/{sn}'
+System 2018/04/04 17:56:08 route 'USBCI NewSn Handler' template 'POST /v1/usbci/newsn/{host}/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'USBCI Audit Handler' template 'POST /v1/usbci/audit/{host}/{vid}/{pid}/{sn}'
+System 2018/04/04 17:56:08 route 'Metadata USB Vendor Handler' template 'GET /v1/usbmeta/vendor/{vid}'
+System 2018/04/04 17:56:08 route 'Metadata USB Product Handler' template 'GET /v1/usbmeta/vendor/{vid}/{pid}'
+System 2018/04/04 17:56:08 route 'Metadata USB Class Handler' template 'GET /v1/usbmeta/class/{cid}'
+System 2018/04/04 17:56:08 route 'Metadata USB SubClass Handler' template 'GET /v1/usbmeta/subclass/{cid}/{sid}'
+System 2018/04/04 17:56:08 route 'Metadata USB Protocol Handler' template 'GET /v1/usbmeta/protocol/{cid}/{sid}/{pid}'
+```
+
 ### Logging
 Service access, system events, and errors are written to the following log files:
 * **`system.log`** records significant, non-error events.
