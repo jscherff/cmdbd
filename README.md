@@ -219,7 +219,7 @@ The logger configuration file contains parameters that determine log file names 
             "Tag": "System",
             "Stdout": false,
             "Stderr": false,
-            "Syslog": false
+            "Syslog": false,
             "LogFile": "system.log",
             "LogFlags": ["date","time","shortfile"],
         },
