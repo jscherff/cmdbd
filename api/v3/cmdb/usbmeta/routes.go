@@ -14,51 +14,48 @@
 
 package usbmeta
 
-import (
-	`github.com/jscherff/cmdbd/api`
-	v3 `github.com/jscherff/cmdbd/api/v3/cmdb/usbmeta`
-)
+import `github.com/jscherff/cmdbd/api`
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
 
 	api.Route {
-		Name:		`Metadata USB Vendor Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}`,
+		Name:		`USB Metadata Vendor Handler`,
+		Path:		`/api/v3/cmdb/meta/usb/vendor/{vid}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Vendor,
+		HandlerFunc:	Vendor,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Product Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}/{pid}`,
+		Name:		`USB Metadata Product Handler`,
+		Path:		`/api/v3/cmdb/meta/usb/vendor/{vid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Product,
+		HandlerFunc:	Product,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Class Handler`,
-		Path:		`/v1/usbmeta/class/{cid}`,
+		Name:		`USB Metadata Class Handler`,
+		Path:		`/api/v3/cmdb/meta/usb/class/{cid}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Class,
+		HandlerFunc:	Class,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB SubClass Handler`,
-		Path:		`/v1/usbmeta/subclass/{cid}/{sid}`,
+		Name:		`USB Metadata SubClass Handler`,
+		Path:		`/api/v3/cmdb/meta/usb/subclass/{cid}/{sid}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.SubClass,
+		HandlerFunc:	SubClass,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Protocol Handler`,
-		Path:		`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
+		Name:		`USB Metadata Protocol Handler`,
+		Path:		`/api/v3/cmdb/meta/usb/protocol/{cid}/{sid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Protocol,
+		HandlerFunc:	Protocol,
 		Protected:	false,
 	},
 }

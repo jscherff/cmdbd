@@ -14,7 +14,11 @@
 
 package usbci
 
-import `github.com/jscherff/cmdbd/api`
+import (
+	`github.com/jscherff/cmdbd/api`
+	v3 `github.com/jscherff/cmdbd/api/v3/cmdb/usbci`
+)
+
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
@@ -23,7 +27,7 @@ var Routes = api.Routes {
 		Name:		`USB CI CheckIn Handler`,
 		Path:		`/v2/cmdb/ci/usb/checkin/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		HandlerFunc:	CheckIn,
+		HandlerFunc:	v3.CheckIn,
 		Protected:	false,
 	},
 
@@ -31,7 +35,7 @@ var Routes = api.Routes {
 		Name:		`USB CI Checkout Handler`,
 		Path:		`/v2/cmdb/ci/usb/checkout/{host}/{vid}/{pid}/{sn}`,
 		Method:		`GET`,
-		HandlerFunc:	CheckOut,
+		HandlerFunc:	v3.CheckOut,
 		Protected:	false,
 	},
 
@@ -39,7 +43,7 @@ var Routes = api.Routes {
 		Name:		`USB CI NewSn Handler`,
 		Path:		`/v2/cmdb/ci/usb/newsn/{host}/{vid}/{pid}`,
 		Method:		`POST`,
-		HandlerFunc:	NewSn,
+		HandlerFunc:	v3.NewSn,
 		Protected:	false,
 	},
 
@@ -47,7 +51,7 @@ var Routes = api.Routes {
 		Name:		`USB CI Audit Handler`,
 		Path:		`/v2/cmdb/ci/usb/audit/{host}/{vid}/{pid}/{sn}`,
 		Method:		`POST`,
-		HandlerFunc:	Audit,
+		HandlerFunc:	v3.Audit,
 		Protected:	false,
 	},
 }

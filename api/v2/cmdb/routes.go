@@ -14,7 +14,10 @@
 
 package cmdb
 
-import `github.com/jscherff/cmdbd/api`
+import (
+	`github.com/jscherff/cmdbd/api`
+	v3 `github.com/jscherff/cmdbd/api/v3/cmdb`
+)
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
@@ -23,7 +26,7 @@ var Routes = api.Routes {
 		Name:		`CMDB Authenticator`,
 		Path:		`/v2/cmdb/authenticate/{host}`,
 		Method:		`GET`,
-		HandlerFunc:	SetAuthToken,
+		HandlerFunc:	v3.SetAuthToken,
 		Protected:	false,
 	},
 
@@ -31,7 +34,7 @@ var Routes = api.Routes {
 		Name:		`CMDB Event Logger`,
 		Path:		`/v2/cmdb/event/create/{host}`,
 		Method:		`POST`,
-		HandlerFunc:	CreateEvent,
+		HandlerFunc:	v3.CreateEvent,
 		Protected:	false,
 	},
 
@@ -39,7 +42,7 @@ var Routes = api.Routes {
 		Name:		`CMDB Health Check`,
 		Path:		`/v2/cmdb/health/check`,
 		Method:		`GET`,
-		HandlerFunc:	CheckHealth,
+		HandlerFunc:	v3.CheckHealth,
 		Protected:	false,
 	},
 
@@ -47,7 +50,7 @@ var Routes = api.Routes {
 		Name:		`CMDB Concurrency Check`,
 		Path:		`/v2/cmdb/concurrency/check/{id}`,
 		Method:		`GET`,
-		HandlerFunc:	CheckConcurrency,
+		HandlerFunc:	v3.CheckConcurrency,
 		Protected:	false,
 	},
 }

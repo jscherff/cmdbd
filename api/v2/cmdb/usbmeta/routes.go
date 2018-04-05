@@ -14,7 +14,10 @@
 
 package usbmeta
 
-import `github.com/jscherff/cmdbd/api`
+import (
+	`github.com/jscherff/cmdbd/api`
+	v3 `github.com/jscherff/cmdbd/api/v3/cmdb/usbmeta`
+)
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
@@ -23,7 +26,7 @@ var Routes = api.Routes {
 		Name:		`USB Metadata Vendor Handler`,
 		Path:		`/v2/cmdb/meta/usb/vendor/{vid}`,
 		Method:		`GET`,
-		HandlerFunc:	Vendor,
+		HandlerFunc:	v3.Vendor,
 		Protected:	false,
 	},
 
@@ -31,7 +34,7 @@ var Routes = api.Routes {
 		Name:		`USB Metadata Product Handler`,
 		Path:		`/v2/cmdb/meta/usb/vendor/{vid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	Product,
+		HandlerFunc:	v3.Product,
 		Protected:	false,
 	},
 
@@ -39,7 +42,7 @@ var Routes = api.Routes {
 		Name:		`USB Metadata Class Handler`,
 		Path:		`/v2/cmdb/meta/usb/class/{cid}`,
 		Method:		`GET`,
-		HandlerFunc:	Class,
+		HandlerFunc:	v3.Class,
 		Protected:	false,
 	},
 
@@ -47,7 +50,7 @@ var Routes = api.Routes {
 		Name:		`USB Metadata SubClass Handler`,
 		Path:		`/v2/cmdb/meta/usb/subclass/{cid}/{sid}`,
 		Method:		`GET`,
-		HandlerFunc:	SubClass,
+		HandlerFunc:	v3.SubClass,
 		Protected:	false,
 	},
 
@@ -55,7 +58,7 @@ var Routes = api.Routes {
 		Name:		`USB Metadata Protocol Handler`,
 		Path:		`/v2/cmdb/meta/usb/protocol/{cid}/{sid}/{pid}`,
 		Method:		`GET`,
-		HandlerFunc:	Protocol,
+		HandlerFunc:	v3.Protocol,
 		Protected:	false,
 	},
 }

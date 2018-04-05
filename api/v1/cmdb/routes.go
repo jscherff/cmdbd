@@ -16,7 +16,7 @@ package cmdb
 
 import (
 	`github.com/jscherff/cmdbd/api`
-	v2 `github.com/jscherff/cmdbd/api/v2/cmdb`
+	v3 `github.com/jscherff/cmdbd/api/v3/cmdb`
 )
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
@@ -26,7 +26,7 @@ var Routes = api.Routes {
 		Name:		`CMDB Authenticator`,
 		Path:		`/v1/cmdbauth`,
 		Method:		`GET`,
-		HandlerFunc:	v2.SetAuthToken,
+		HandlerFunc:	v3.SetAuthToken,
 		Protected:	false,
 	},
 }

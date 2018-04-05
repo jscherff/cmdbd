@@ -38,6 +38,10 @@ import (
 	api_cmdb_v2	`github.com/jscherff/cmdbd/api/v2/cmdb`
 	api_usbci_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbci`
 	api_usbmeta_v2	`github.com/jscherff/cmdbd/api/v2/cmdb/usbmeta`
+
+	api_cmdb_v3	`github.com/jscherff/cmdbd/api/v3/cmdb`
+	api_usbci_v3	`github.com/jscherff/cmdbd/api/v3/cmdb/usbci`
+	api_usbmeta_v3	`github.com/jscherff/cmdbd/api/v3/cmdb/usbmeta`
 )
 
 // Message for server timeout middleware.
@@ -207,9 +211,9 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Initialize API Routes.
 	// ----------------------
 
-	api_cmdb_v2.Init(this.AuthSvc, this.SystemLog, this.ErrorLog)
-	api_usbci_v2.Init(this.AuthSvc, this.SerialSvc, this.SystemLog, this.ErrorLog)
-	api_usbmeta_v2.Init(this.MetaUsbSvc, this.SystemLog, this.ErrorLog)
+	api_cmdb_v3.Init(this.AuthSvc, this.SystemLog, this.ErrorLog)
+	api_usbci_v3.Init(this.AuthSvc, this.SerialSvc, this.SystemLog, this.ErrorLog)
+	api_usbmeta_v3.Init(this.MetaUsbSvc, this.SystemLog, this.ErrorLog)
 
 	this.SystemLog.Print(`route endpoints initialized`)
 
@@ -218,6 +222,9 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// -----------------------------
 
 	this.Router.
+		AddRoutes(api_cmdb_v3.Routes).
+		AddRoutes(api_usbci_v3.Routes).
+		AddRoutes(api_usbmeta_v3.Routes).
 		AddRoutes(api_cmdb_v2.Routes).
 		AddRoutes(api_usbci_v2.Routes).
 		AddRoutes(api_usbmeta_v2.Routes).

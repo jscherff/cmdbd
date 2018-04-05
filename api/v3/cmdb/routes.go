@@ -12,53 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usbmeta
+package cmdb
 
-import (
-	`github.com/jscherff/cmdbd/api`
-	v3 `github.com/jscherff/cmdbd/api/v3/cmdb/usbmeta`
-)
+import `github.com/jscherff/cmdbd/api`
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
 
 	api.Route {
-		Name:		`Metadata USB Vendor Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}`,
+		Name:		`CMDB Authenticator`,
+		Path:		`/api/v3/cmdb/authenticate/{host}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Vendor,
+		HandlerFunc:	SetAuthToken,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Product Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}/{pid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.Product,
+		Name:		`CMDB Event Logger`,
+		Path:		`/api/v3/cmdb/event/create/{host}`,
+		Method:		`POST`,
+		HandlerFunc:	CreateEvent,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Class Handler`,
-		Path:		`/v1/usbmeta/class/{cid}`,
+		Name:		`CMDB Health Check`,
+		Path:		`/api/v3/cmdb/health/check`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Class,
+		HandlerFunc:	CheckHealth,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB SubClass Handler`,
-		Path:		`/v1/usbmeta/subclass/{cid}/{sid}`,
+		Name:		`CMDB Concurrency Check`,
+		Path:		`/api/v3/cmdb/concurrency/check/{id}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.SubClass,
-		Protected:	false,
-	},
-
-	api.Route {
-		Name:		`Metadata USB Protocol Handler`,
-		Path:		`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.Protocol,
+		HandlerFunc:	CheckConcurrency,
 		Protected:	false,
 	},
 }

@@ -12,53 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package usbmeta
+package usbci
 
-import (
-	`github.com/jscherff/cmdbd/api`
-	v3 `github.com/jscherff/cmdbd/api/v3/cmdb/usbmeta`
-)
+import `github.com/jscherff/cmdbd/api`
 
 // Routes is a collection of HTTP verb/path-to-handler-function mappings.
 var Routes = api.Routes {
 
 	api.Route {
-		Name:		`Metadata USB Vendor Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.Vendor,
+		Name:		`USB CI CheckIn Handler`,
+		Path:		`/api/v3/cmdb/ci/usb/checkin/{host}/{vid}/{pid}`,
+		Method:		`POST`,
+		HandlerFunc:	CheckIn,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Product Handler`,
-		Path:		`/v1/usbmeta/vendor/{vid}/{pid}`,
+		Name:		`USB CI Checkout Handler`,
+		Path:		`/api/v3/cmdb/ci/usb/checkout/{host}/{vid}/{pid}/{sn}`,
 		Method:		`GET`,
-		HandlerFunc:	v3.Product,
+		HandlerFunc:	CheckOut,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB Class Handler`,
-		Path:		`/v1/usbmeta/class/{cid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.Class,
+		Name:		`USB CI NewSn Handler`,
+		Path:		`/api/v3/cmdb/ci/usb/newsn/{host}/{vid}/{pid}`,
+		Method:		`POST`,
+		HandlerFunc:	NewSn,
 		Protected:	false,
 	},
 
 	api.Route {
-		Name:		`Metadata USB SubClass Handler`,
-		Path:		`/v1/usbmeta/subclass/{cid}/{sid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.SubClass,
-		Protected:	false,
-	},
-
-	api.Route {
-		Name:		`Metadata USB Protocol Handler`,
-		Path:		`/v1/usbmeta/protocol/{cid}/{sid}/{pid}`,
-		Method:		`GET`,
-		HandlerFunc:	v3.Protocol,
+		Name:		`USB CI Audit Handler`,
+		Path:		`/api/v3/cmdb/ci/usb/audit/{host}/{vid}/{pid}/{sn}`,
+		Method:		`POST`,
+		HandlerFunc:	Audit,
 		Protected:	false,
 	},
 }

@@ -599,7 +599,10 @@ The **USB Protocol** table has the following columns:
 ### API Endpoints, Version 2
 |Endpoint|Method|Purpose|
 |:-------|:-----|:------|
-|/v2/cmdb/authenticate|`GET`|Submit basic authentication data, username and password, to obtain authentication token.|
+|/v2/cmdb/authenticate/`host`|`GET`|Submit basic authentication data, username and password, to obtain authentication token.|
+|/v2/cmdb/event/create/`host`|`POST`|Submit client events, such as errors, to the server for centralized event logging.|
+|/v2/cmdb/health/check|`GET`|Perform check to verify the server is operational.|
+|/v2/cmdb/concurrency/check/`id`|`GET`|Perform tests to verify the concurrency limits are functioning properly.|
 |/v2/cmdb/ci/usb/checkin/`host`/`vid`/`pid`|`POST`|Submit configuration information for a new device or update information for an existing device.|
 |/v2/cmdb/ci/usb/checkout/`host`/`vid`/`pid`/`sn`|`GET`|Obtain configuration information for a previously-registered, serialized device in order to perform a change audit.|
 |/v2/cmdb/ci/usb/newsn/`host`/`vid`/`pid`|`POST`|Obtain a new unique serial number from the server for assignment to the attached device.|
@@ -610,8 +613,25 @@ The **USB Protocol** table has the following columns:
 |/v2/cmdb/meta/usb/subclass/`cid`/`sid`|`GET`|Obtain the USB class and subclass descriptions given the class and subclass IDs.|
 |/v2/cmdb/meta/usb/protocol/`cid`/`sid`/`pid`|`GET`|Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs.|
 
+### API Endpoints, Version 3
+|Endpoint|Method|Purpose|
+|:-------|:-----|:------|
+|/api/v3/cmdb/authenticate/`host`|`GET`|Submit basic authentication data, username and password, to obtain authentication token.|
+|/api/v3/cmdb/event/create/`host`|`POST`|Submit client events, such as errors, to the server for centralized event logging.|
+|/api/v3/cmdb/health/check|`GET`|Perform check to verify the server is operational.|
+|/api/v3/cmdb/concurrency/check/`id`|`GET`|Perform tests to verify the concurrency limits are functioning properly.|
+|/api/v3/cmdb/ci/usb/checkin/`host`/`vid`/`pid`|`POST`|Submit configuration information for a new device or update information for an existing device.|
+|/api/v3/cmdb/ci/usb/checkout/`host`/`vid`/`pid`/`sn`|`GET`|Obtain configuration information for a previously-registered, serialized device in order to perform a change audit.|
+|/api/v3/cmdb/ci/usb/newsn/`host`/`vid`/`pid`|`POST`|Obtain a new unique serial number from the server for assignment to the attached device.|
+|/api/v3/cmdb/ci/usb/audit/`host`/`vid`/`pid`/`sn`|`POST`|Submit the results of a change audit on a serialized device. Results include the attribute name, previous value, and new value for each modified attribute.|
+|/api/v3/cmdb/meta/usb/vendor/`vid`|`GET`|Obtain the USB vendor name given the vendor ID.|
+|/api/v3/cmdb/meta/usb/vendor/`vid`/`pid`|`GET`|Obtain the USB vendor and product names given the vendor and product IDs.|
+|/api/v3/cmdb/meta/usb/class/`cid`|`GET`|Obtain the USB class description given the class ID.|
+|/api/v3/cmdb/meta/usb/subclass/`cid`/`sid`|`GET`|Obtain the USB class and subclass descriptions given the class and subclass IDs.|
+|/api/v3/cmdb/meta/usb/protocol/`cid`/`sid`/`pid`|`GET`|Obtain the USB class, subclass, and protocol descriptions given the class, subclass, and protocol IDs.|
 
 ### API Parameters
+* **`id`** is an arbitrary _identifier_ used by the client during concurrency checks to associate tests with server log entries.
 * **`host`** is the _hostname_ of the workstation to which the device is attached.
 * **`vid`** is the _vendor ID_ of the device.
 * **`pid`** is the _product ID_ of the device.
