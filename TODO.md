@@ -48,8 +48,8 @@ API Improvements
 
 - [X] Rename 'Endpoint' and 'Endpoints' to 'Route' and 'Routes'.
 - [X] Rename files containing Routes (formerly Endpoints) from endpoints.go to routes.go.
-- [ ] Use correct terminology in documentation — 'route', 'HTTP verb' (GET, POST, etc.), and 'URI' (vs 'endpoint')
-- [ ] Align response codes with generally-accepted standards:
+- [X] Use correct terminology in documentation — 'route', 'HTTP verb' (GET, POST, etc.), and 'URI' (vs 'endpoint')
+- [X] Align response codes with generally-accepted standards:
 	* 200 (OK) — successful HTTP request.
 	* 201 (CREATED) — request that resulted in an item being successfully created.
 	* 204 (NO CONTENT) —successful HTTP request where nothing is being returned in the response body.
