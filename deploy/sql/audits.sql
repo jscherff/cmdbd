@@ -8,10 +8,11 @@ SELECT
   vendor_id,
   product_id,
   vendor_name,
+  product_name,
   CASE
     WHEN
-      s.vendor_id = '0801' AND
-      s.product_id = '0001'
+      vendor_id = '0801' AND
+      product_id = '0001'
     THEN
       CASE
       WHEN product_ver = 'V05'
@@ -20,7 +21,6 @@ SELECT
       END
     ELSE 'NA'
   END AS product_ver,
-  product_name,
   firmware_ver,
   first_seen,
   last_seen,
@@ -40,10 +40,11 @@ SELECT
   vendor_id,
   product_id,
   vendor_name,
+  product_name,
   CASE
     WHEN
-      s.vendor_id = '0801' AND
-      s.product_id = '0001'
+      vendor_id = '0801' AND
+      product_id = '0001'
     THEN
       CASE
       WHEN product_ver = 'V05'
@@ -52,7 +53,6 @@ SELECT
       END
     ELSE 'NA'
   END AS product_ver,
-  product_name,
   firmware_ver,
   first_seen,
   last_seen,
@@ -72,10 +72,11 @@ SELECT
   vendor_id,
   product_id,
   vendor_name,
+  product_name,
   CASE
     WHEN
-      s.vendor_id = '0801' AND
-      s.product_id = '0001'
+      vendor_id = '0801' AND
+      product_id = '0001'
     THEN
       CASE
       WHEN product_ver = 'V05'
@@ -84,7 +85,6 @@ SELECT
       END
     ELSE 'NA'
   END AS product_ver,
-  product_name,
   firmware_ver,
   first_seen,
   last_seen,
@@ -104,6 +104,7 @@ SELECT
   c.vendor_id AS vendor_id,
   c.product_id AS product_id,
   vendor_name,
+  product_name,
   CASE
     WHEN
       s.vendor_id = '0801' AND
@@ -116,7 +117,6 @@ SELECT
       END
     ELSE 'NA'
   END AS product_ver,
-  product_name,
   firmware_ver,
   property_name,
   previous_value,
