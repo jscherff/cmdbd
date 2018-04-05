@@ -10,11 +10,13 @@ You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https:
 wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
-You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build. Once you've built the RPM, you can install it with the RPM command. If you're installing the package for the first time, use the `-i` (install) flag to install the package:
+You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build.
+
+Once you've built the RPM, you can install it with the `rpm` command. If you're installing the package for the first time, use the `-i` (install) flag to install the package:
 ```sh
 rpm -i ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
-If you're upgrading the package to a newer version, use the `-U` (upgrade) flag to upgrade the package:
+If you're upgrading the package to a newer version, use the `-U` (upgrade) flag:
 ```sh
 rpm -U ${HOME}/rpmbuild/RPMS/{arch}/cmdbd-{version}-{release}.{arch}.rpm
 ```
