@@ -46,22 +46,31 @@ The package will install the following files:
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `mysql.json` configuration file to reflect the correct database hostname, port, user, and password; modify `httpd.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
 
-####Default Accounts
+#### Default Accounts
 Default accounts are created for the database user and the application users; however, passwords are not configured.
 
-####Database Account Password
+#### Database Account Password
 For the appliation database account, a database administrator must set the password with the following SQL command:
 ```sql
 ALTER USER cmdbd
 IDENTIFIED BY 'password';
 ```
 
-A system administrator must then configure the password in the datastore configuration file, **```/etc/cmdbd/store/mysql.json```**.
+A system administrator must then configure the password in the datastore configuration file, `/etc/cmdbd/store/mysql.json`.
 
-####User Account Passwords
+#### User Account Passwords
 For application user accounts, a system administrator must first choose a good password and then generate a bcrypt hash of that password with the following command:
-```bash
+```sh
 bcrypt 'password'
+```
+
+**Example**:
+```sh
+$ bcrypt 'my_secure_password'
+```
+**Output**:
+```
+my_secure_password $2a$10$MZoCffku8mhnzNLjzD5DU.y/EE.Gir.9BaGMnhwqoiNVsCPO39Yzy
 ```
 
 A database administrator must then set the password of the application user with the following SQL command:
@@ -82,10 +91,12 @@ The master configuration file contains global parameters and file names of other
 {
     "Console": false,
     "Refresh": false,
+    "RecoveryStack": true,
+    "MaxConnections": 150,
+    "ServerTimeout": 30,
 
     "ConfigFile": {
         "Server": "server/httpd.json",
-        "Router": "server/router.json",
         "Syslog": "server/syslog.json",
         "AuthSvc": "service/auth.json",
         "LoggerSvc": "service/logger.json",
@@ -98,6 +109,9 @@ The master configuration file contains global parameters and file names of other
 ```
 * **`Console`** causes log output to be written to the console in addition to other destinations.
 * **`Refresh`** causes metadata files and datastores to be refreshed from source, where applicable.
+* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+* **`MaxConnections`** sets the maximum number of simultaneous connections to the server before requests are queued.
+* **`ServerTimeout`** sets the maximum amount of time in seconds that a request can take before the server responds to the client an HTTP 503 'Service Unavailable' status.
 * **`ConfigFile`** specifies configuration filenames for other components of the application. These components and their configuration settings are covered in more detail later in this document. All paths are relative to the directory of the master configuration file, `config.json`. 
     * **`Server`** names the file that contains settings for the HTTP daemon.
     * **`Router`** names the file that contains settings for the HTTP mux router.
@@ -124,14 +138,7 @@ The server configuration file contains parameters for the HTTP server:
 * **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
 
-#### HTTP Mux Router Settings (`server/router.json`)
-Contains parameters for the HTTP mux router and recovery handler:
-```json
-{
-        "RecoveryStack": true
-}
-```
-* **`RecoveryStack`** enables or suppresses writing of the stack track to the error log on panic conditions.
+
 
 #### Syslog Daemon Settings (`server/syslog.json`)
 The syslog configuration file contains parameters for communicating with an optional local or remote syslog server:
@@ -294,6 +301,19 @@ The datastore configuration file contains parameters required for the server to 
 * **`DBName`** is the database schema used by the application.
 * **`Params`** are additional parameters to pass to the driver (advanced).
 
+#### Datastore Connection Pool Settings (`store/pool.json`)
+The datastore connection pool configuration file contains parameters for managing the connection pool.
+```json
+{
+    "MaxOpenConns": 200,
+    "MaxIdleConns": 0,
+    "ConnMaxLifetime": 3600
+}
+```
+* **`MaxOpenConns`** is the maximum number of open database connections allowed. This should be equal to or greater than the `MaxConnections` setting in the *Master Config* file. A value of `0` means *unlimited*.
+* **`MaxIdleConns`** is the maximum number of idle database connections allowed. This should be equal to or less than the `MaxOpenConns` setting. A value of `0` means *unlimited*.
+* **`ConnMaxLifetime`** is the maximum amount of time in seconds that an idle connection can remain in the pool. A value of `0` means *unlimited*.
+
 #### Datastore Query Settings (`queries.json`)
 The query configuration file contains SQL queries used by the model to interact with the datastore. Do not change anything in this file unless directed to do so by a qualified database administrator.
 
@@ -346,6 +366,18 @@ Usage of /usr/sbin/cmdbd:
 system 2017/10/18 19:43:39 main.go:52: Database version 10.2.9-MariaDB (cmdbd@localhost/gocmdb)
 system 2017/10/18 19:43:39 main.go:53: Server version 1.1.0-6.el7.centos started and listening on ":8080"
 ```
+
+### Signals
+The daemon responds to the `SIGHUP`, `SIGUSR1`, and `SIGUSR2` signals.
+* **`SIGHUP`** causes the daemon to download a fresh copy of the device metadata, refresh the in-memory copy of the metadata, and update the metadata tables in the datastore.
+* **`SIGUSR1`** causes the daemon to record information about the HTTP server and datastore in the system log.
+* **`SIGUSR2`** causes the daemon to record information about API routes and route templates in the system log.
+
+Signals can be sent to the daemon with the `kill` command (where `pid` is the process ID of the daemon and `SIGNAL` is one of the signals listed above):
+```bash
+kill -s SIGNAL pid
+```
+
 ### Logging
 Service access, system events, and errors are written to the following log files:
 * **`system.log`** records significant, non-error events.
