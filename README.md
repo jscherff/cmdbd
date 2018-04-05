@@ -41,9 +41,10 @@ The package will install the following files:
 * **`/etc/security/limits.d/cmdbd.conf`** contains system limits for the appliation user account.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
-* **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** creates the application datastore.
-* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates the application tables.
-* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** creates the application users.
+* **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** creates the database tables and procedures.
+* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** creates the database user and application users.
+* **`/usr/share/doc/cmdbd-x.y.z/views.sql`** creates the database views.
+* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates the database tables.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `mysql.json` configuration file to reflect the correct database hostname, port, user, and password; modify `httpd.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.

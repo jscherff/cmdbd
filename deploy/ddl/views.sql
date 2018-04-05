@@ -162,7 +162,7 @@ WHERE
     (c.vendor_id = '0801' AND c.product_id = '0001') OR
     (c.vendor_id = '0acd' AND c.product_id = '2030')
   ) AND
-  DATEDIFF(NOW(), change_date) < 30;
+  (TO_DAYS(NOW()) - TO_DAYS(change_date) < 30);
 
 -- -------------------------------------------------------------------
 -- Unique Devices
@@ -175,7 +175,7 @@ SELECT
   product_id,
   vendor_name,
   product_name,
-  count(*) AS 'count'
+  count(*) AS 'checkins'
 FROM
   usbci_checkins
 GROUP BY
@@ -195,7 +195,7 @@ DROP VIEW IF EXISTS view_usbci_unique_hosts;
 CREATE SQL SECURITY INVOKER VIEW IF NOT EXISTS view_usbci_unique_hosts AS 
 SELECT
   host_name,
-  count(*) AS 'count'
+  count(*) AS 'checkins'
 FROM
   usbci_checkins
 GROUP BY
