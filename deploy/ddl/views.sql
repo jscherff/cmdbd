@@ -1,7 +1,8 @@
 -- -------------------------------------------------------------------
 -- Full Card Reader Inventory.
 -- -------------------------------------------------------------------
-
+DROP VIEW IF EXISTS view_usbci_cardreaders_all;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_all AS 
 SELECT
   serial_number,
   vendor_id,
@@ -38,6 +39,8 @@ ORDER BY
 -- New Card Readers.
 -- -------------------------------------------------------------------
 
+DROP VIEW IF EXISTS view_usbci_cardreaders_new;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_new AS
 SELECT
   serial_number,
   vendor_id,
@@ -76,7 +79,8 @@ ORDER BY
 -- -------------------------------------------------------------------
 -- Missing Card Readers.
 -- -------------------------------------------------------------------
-
+DROP VIEW IF EXISTS view_usbci_cardreaders_missing;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_missing AS 
 SELECT
   serial_number,
   vendor_id,
@@ -116,6 +120,8 @@ ORDER BY
 -- Card Readers with Recent Changes.
 -- -------------------------------------------------------------------
 
+DROP VIEW IF EXISTS view_usbci_cardreader_changes;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreader_changes AS 
 SELECT
   c.serial_number AS serial_number,
   c.vendor_id AS vendor_id,
@@ -159,106 +165,12 @@ WHERE
   DATEDIFF(NOW(), change_date) < 30;
 
 -- -------------------------------------------------------------------
--- New Devices.
--- -------------------------------------------------------------------
-
-SELECT
-  host_name,
-  serial_number,
-  vendor_id,
-  product_id,
-  vendor_name,
-  product_name,
-  CASE
-    WHEN
-      vendor_id = '0801' AND
-      product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  firmware_ver,
-  first_seen,
-  last_seen,
-  checkins
-FROM
-  usbci_serialized
-WHERE
-  checkins = 1;
-
--- -------------------------------------------------------------------
--- New Devices Since Date.
--- -------------------------------------------------------------------
-
-SELECT
-  host_name,
-  serial_number,
-  vendor_id,
-  product_id,
-  vendor_name,
-  product_name,
-  CASE
-    WHEN
-      vendor_id = '0801' AND
-      product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  firmware_ver,
-  first_seen,
-  last_seen,
-  checkins
-FROM
-  usbci_serialized
-WHERE
-  first_seen > '2018-03-28';
-
--- -------------------------------------------------------------------
--- Missing Devices.
--- -------------------------------------------------------------------
-
-SELECT
-  host_name,
-  serial_number,
-  vendor_id,
-  product_id,
-  vendor_name,
-  product_name,
-  CASE
-    WHEN
-      vendor_id = '0801' AND
-      product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  firmware_ver,
-  first_seen,
-  last_seen,
-  checkins
-FROM
-  usbci_serialized
-WHERE
-  DATEDIFF(NOW(), last_seen) > 30;
-
--- -------------------------------------------------------------------
 -- Unique Devices
 -- -------------------------------------------------------------------
 
-SELECT DISTINCT
+DROP VIEW IF EXISTS view_usbci_unique_devices;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_unique_devices AS 
+SELECT
   vendor_id,
   product_id,
   vendor_name,
@@ -275,4 +187,19 @@ ORDER BY
   vendor_id,
   product_id;
 
+-- -------------------------------------------------------------------
+-- Unique Hosts
+-- -------------------------------------------------------------------
+
+DROP VIEW IF EXISTS view_usbci_unique_hosts;
+CREATE SQL SECURITY INVOKER VIEW IF NOT EXISTS view_usbci_unique_hosts AS 
+SELECT
+  host_name,
+  count(*) AS 'count'
+FROM
+  usbci_checkins
+GROUP BY
+  host_name
+ORDER BY
+  host_name;
 

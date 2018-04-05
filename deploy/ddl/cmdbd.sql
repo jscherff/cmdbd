@@ -619,24 +619,6 @@ CREATE TABLE IF NOT EXISTS `usbmeta_vendor` (
   UNIQUE KEY `unique_id` (`vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Data exporting was unselected.
--- Dumping structure for view gocmdb.view_usbci_devices
-DROP VIEW IF EXISTS `view_usbci_devices`;
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `view_usbci_devices` (
-	`vendor_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_id` VARCHAR(4) NOT NULL COLLATE 'latin1_swedish_ci',
-	`vendor_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci',
-	`product_name` VARCHAR(127) NOT NULL COLLATE 'latin1_swedish_ci'
-) ENGINE=MyISAM;
-
--- Dumping structure for view gocmdb.view_usbci_hosts
-DROP VIEW IF EXISTS `view_usbci_hosts`;
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `view_usbci_hosts` (
-	`host_name` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci'
-) ENGINE=MyISAM;
-
 -- Dumping structure for trigger gocmdb.trig_insert_after_usbci_checkins
 DROP TRIGGER IF EXISTS `trig_insert_after_usbci_checkins`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
