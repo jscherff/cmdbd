@@ -11,7 +11,7 @@
 %define		docdir	%{_docdir}/%{name}-%{version}
 %define		logdir	%{_var}/log/%{name}
 %define		syslib	%{_prefix}/lib/systemd/system
-%define		lmtdir  %{_sysconfdir}/security/limits.d
+%define		limdir  %{_sysconfdir}/security/limits.d
 %define		confdir %{_sysconfdir}/%{name}
 # =============================================================================
 
@@ -61,23 +61,23 @@ the audit to the server for later analysis.
   test %{buildroot} != / && rm -rf %{buildroot}/*
 
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
-  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{lmtdir},%{docdir}}
+
+  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{limdir},%{docdir}}
+  mkdir -p %{buildroot}%{confdir}/{model,server,service,store}
 
   install -s -m 755 %{_builddir}/%{name} %{buildroot}%{_sbindir}/
   install -s -m 755 %{_builddir}/bcrypt %{buildroot}%{_bindir}/
-  install -m 640 %{gopath}/src/%{package}/deploy/ddl/%{name}.sql %{buildroot}%{docdir}/
-  install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
-  install -m 644 %{gopath}/src/%{package}/deploy/os%{lmtdir}/* %{buildroot}%{lmtdir}/
-  install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
-
-  mkdir -p %{buildroot}%{confdir}/{model,server,service,store}
-
   install -m 640 %{gopath}/src/%{package}/config/*.json %{buildroot}%{confdir}/
   install -m 640 %{gopath}/src/%{package}/config/model/*.json %{buildroot}%{confdir}/model/
   install -m 640 %{gopath}/src/%{package}/config/server/*.json %{buildroot}%{confdir}/server/
   install -m 640 %{gopath}/src/%{package}/config/service/*.json %{buildroot}%{confdir}/service/
   install -m 640 %{gopath}/src/%{package}/config/service/*.pem %{buildroot}%{confdir}/service/
   install -m 640 %{gopath}/src/%{package}/config/store/*.json %{buildroot}%{confdir}/store/
+  install -m 644 %{gopath}/src/%{package}/deploy/ddl/*.sql %{buildroot}%{docdir}/
+  install -m 644 %{gopath}/src/%{package}/deploy/dml/*.sql %{buildroot}%{docdir}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{limdir}/* %{buildroot}%{limdir}/
+  install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
 %clean
 
@@ -91,7 +91,7 @@ the audit to the server for later analysis.
   %{_sbindir}/*
   %{_bindir}/*
   %{syslib}/*
-  %{lmtdir}/*
+  %{limdir}/*
   %{docdir}/*
 
   %defattr(640,%{name},%{name},750)
@@ -107,12 +107,13 @@ the audit to the server for later analysis.
   case ${1} in
 
     1)
-      %{_sbindir}/useradd -Mrd %{_sbindir} -c '%{gecos}' -s /sbin/nologin %{name}
+      %{_sbindir}/useradd -Mrd %{_sharedstatedir}/%{name} -c '%{gecos}' -s /sbin/nologin %{name}
       ;;
 
     2)
       systemctl --quiet is-active %{name} && systemctl --quiet stop %{name}
       systemctl --quiet is-enabled %{name} && systemctl --quiet disable %{name}
+      %{_sbindir}/usermod -c '%{gecos}' -s /sbin/nologin %{name}
       ;;
 
   esac
@@ -176,15 +177,18 @@ the audit to the server for later analysis.
 
 %changelog
 * Wed Apr 4 2018 - jscherff@24hourfit.com
-- Added signal handling
+- Added signal handling for reloading metadata (SIGHUP)
+- Added signal handling for displaying server info (SIGUSR1)
+- Added signal handling for displaying route info (SIGUSR2)
 - Refactored server configuration source code
 - Refactored request router and handler logic
 - Refactored database connection pool configuration
 - Moved middleware chaining to server configuration source code
 - Added comprehensive logging during server configuration
 * Tue Apr 3 2018 - jscherff@24hourfit.com
+- Added TimeoutHandler middleware to force timeout on hung clients
 - Created MaxConnectionsHandler middleware to manage server concurrency
-- Created a MaxConnections property for the Server object with a default of 50
+- Created a MaxConnections property for the Server object with sane defaults
 - Added a concurrency testing endpoint and handler for testing concurrency
 * Mon Apr 2 2018 - jscherff@24hourfit.com
 - Set default MaxOpenConns to 50 to limit concurrent open database connections

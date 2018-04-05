@@ -15,7 +15,6 @@
 package server
 
 import (
-	`fmt`
 	`os`
 	`os/signal`
 	`runtime`
@@ -65,33 +64,21 @@ func SigHandler(conf *Config) {
 
 		case SigMap[`SIGHUP`]:
 
-			conf.SystemLog.Print(`caught SIGHUP`)
-
-			if err := conf.RefreshMetaData(); err != nil {
-				err = fmt.Errorf(`device metadata refresh failed: %v`, err)
-				conf.ErrorLog.Print(err)
-			} else {
-				conf.SystemLog.Print(`device metadata refresh succeeded`)
-			}
-
-			if err := conf.LoadMetaData(); err != nil {
-				err = fmt.Errorf(`data model metadata load failed: %v`, err)
-				conf.ErrorLog.Print(err)
-			} else {
-				conf.SystemLog.Print(`data model metadata load succeeded`)
-			}
+			conf.SystemLog.Print(`caught SIGHUP, reloading metadata...`)
+			conf.RefreshMetaData()
+			conf.LoadMetaData()
 
 		case SigMap[`SIGUSR1`]:
 
-			conf.SystemLog.Print(`caught SIGUSR1`)
-			conf.SystemLog.Printf(`current open database connections: %d`,
-				conf.DataStore.GetOpenConns())
+			conf.SystemLog.Print(`caught SIGUSR1, logging server information...`)
+			conf.SystemLog.Printf(`device metadata last updated %s`, conf.MetaUsbSvc.LastUpdate())
+			conf.LogDataStoreInfo()
+			conf.LogServerInfo()
 
 		case SigMap[`SIGUSR2`]:
 
-			conf.SystemLog.Print(`caught SIGUSR2`)
-			conf.SystemLog.Printf(`device metadata last updated %s`,
-				conf.MetaUsbSvc.LastUpdate())
+			conf.SystemLog.Print(`caught SIGUSR2, logging route information...`)
+			conf.LogRouteInfo()
 		}
 	}
 }

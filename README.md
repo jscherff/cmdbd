@@ -25,9 +25,9 @@ The package will install the following files:
 * **`/usr/bin/bcrypt`** is a utility for generating password hashes.
 * **`/etc/cmdbd/config.json`** is the master configuration file.
 * **`/etc/cmdbd/store/mysql.json`** contains settings for the datastore.
+* **`/etc/cmdbd/store/pool.json`** contains settings for the database connection pool.
 * **`/etc/cmdbd/model/queries.json`** contains SQL queries used by the model.
 * **`/etc/cmdbd/server/httpd.json`** contains settings for the HTTP daemon.
-* **`/etc/cmdbd/server/router.json`** contains settings for the HTTP mux router.
 * **`/etc/cmdbd/server/syslog.json`** contains settings for communicating with a syslog daemon.
 * **`/etc/cmdbd/service/auth.json`** contains settings for the authentication and authorization service.
 * **`/etc/cmdbd/service/metausb.json`** contains settings for the USB metadata service.
@@ -35,15 +35,43 @@ The package will install the following files:
 * **`/etc/cmdbd/service/logger.json`** contains settings for the logger service.
 * **`/etc/cmdbd/service/prikey.pem`** is the private key used by the authentication service.
 * **`/etc/cmdbd/service/pubkey.pem`** is the public key used by the authentication service.
-* **`/etc/cmdbd/metausb.json`** contains information about known USB devices.
 * **`/usr/lib/systemd/system/cmdbd.service`** is the SystemD service configuration.
+* **`/etc/security/limits.d/cmdbd.conf`** contains system limits for the appliation user account.
 * **`/usr/share/doc/cmdbd-x.y.z/LICENSE`** is the Apache 2.0 license.
 * **`/usr/share/doc/cmdbd-x.y.z/README.md`** is this documentation file.
 * **`/usr/share/doc/cmdbd-x.y.z/cmdbd.sql`** creates the application datastore.
-* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates all tables in the datastore.
+* **`/usr/share/doc/cmdbd-x.y.z/reset.sql`** truncates the application tables.
+* **`/usr/share/doc/cmdbd-x.y.z/users.sql`** creates the application users.
 * **`/var/log/cmdbd`** is the directory where CMDBd writes its log files.
 
 Once the package is installed, you must create the database schema, objects, and user account on the target database server using the provided SQL, `cmdbd.sql` and `users.sql`. You must also modify `mysql.json` configuration file to reflect the correct database hostname, port, user, and password; modify `httpd.json` to reflect the desired application listener port; and modify other configuration files as necessary and as desired (see below). By default, the config files are owned by the daemon user account and are not _'world-readable'_ as they contain potentially sensitive information. You should not relax the permissions mode of these files.
+
+####Default Accounts
+Default accounts are created for the database user and the application users; however, passwords are not configured.
+
+####Database Account Password
+For the appliation database account, a database administrator must set the password with the following SQL command:
+```sql
+ALTER USER cmdbd
+IDENTIFIED BY 'password';
+```
+
+A system administrator must then configure the password in the datastore configuration file, **```/etc/cmdbd/store/mysql.json```**.
+
+####User Account Passwords
+For application user accounts, a system administrator must first choose a good password and then generate a bcrypt hash of that password with the following command:
+```bash
+bcrypt 'password'
+```
+
+A database administrator must then set the password of the application user with the following SQL command:
+```sql
+UPDATE cmdb_users
+SET password = 'bcrypt_hash'
+WHERE username = 'username'
+```
+
+Future versions of the application will include a utility for creating and modifying application user accounts.
 
 ### Configuration
 The JSON configuration files are mostly self-explanatory. The default settings are sane and you should not have to change them in most use cases.

@@ -16,11 +16,9 @@ package server
 
 import (
 	`net/http`
-	`strings`
 	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/api`
 	`github.com/jscherff/cmdbd/service`
-	`github.com/jscherff/gox/log`
 )
 
 // Router is a Gorilla Mux router with additional methods.
@@ -30,9 +28,9 @@ type Router struct {
 }
 
 // NewRouter creates and initializes a new Router instance.
-func NewRouter(as service.AuthSvc) *Router {
+func NewRouter(as service.AuthSvc) (*Router, error) {
 	mr := mux.NewRouter().StrictSlash(true)
-	return &Router{Router: mr, AuthSvc: as}
+	return &Router{Router: mr, AuthSvc: as}, nil
 }
 
 // AddRoutes adds a collection of one or more routes to the Router.
@@ -55,33 +53,3 @@ func (this *Router) AddRoutes(routes api.Routes) *Router {
 
 	return this
 }
-
-// LogRoutes writes information about routes to the provided logger.
-func (this *Router) LogRoutes(logger log.MLogger) {
-
-	this.Walk(func(rt *mux.Route, rtr *mux.Router, anc []*mux.Route) error {
-
-		var methods, path string
-
-		if m, err := rt.GetMethods(); err != nil {
-			methods = ``
-		} else {
-			methods = strings.Join(m, `|`)
-		}
-
-		if p, err := rt.GetPathTemplate(); err != nil {
-			path = ``
-		} else {
-			path = p
-		}
-
-		logger.Printf(`route '%s' template '%s %s'`,
-			rt.GetName(),
-			methods,
-			path,
-		)
-
-		return nil
-	})
-}
-

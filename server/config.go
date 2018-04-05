@@ -18,8 +18,10 @@ import (
 	`fmt`
 	`net/http`
 	`path/filepath`
+	`strings`
 	`time`
 	`github.com/gorilla/handlers`
+	`github.com/gorilla/mux`
 	`github.com/jscherff/cmdbd/service`
 	`github.com/jscherff/cmdbd/store`
 	`github.com/jscherff/cmdbd/utils`
@@ -62,6 +64,7 @@ type Config struct {
 	ErrorLog	log.MLogger
 
 	Syslog		*Syslog
+	Router		*Router
 	Server		*Server
 }
 
@@ -152,14 +155,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Refresh Device Metadata if Requested.
 	// -------------------------------------
 
-	if refresh {
-		if err := this.RefreshMetaData(); err != nil {
-			this.ErrorLog.Print(fmt.Errorf(`device metadata refresh failed: %v`, err))
-		} else {
-			this.SystemLog.Print(`device metadata refresh succeeded`)
-		}
-	}
-
+	if refresh { this.RefreshMetaData() }
 	this.SystemLog.Printf(`device metadata last updated %s`, this.MetaUsbSvc.LastUpdate())
 
 	// ------------------------------------
@@ -176,13 +172,20 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		this.DataStore = ds
 	}
 
-	this.SystemLog.Printf(`datastore initialized: %s`, this.DataStore)
+	this.SystemLog.Printf(`datastore initialized`)
+	this.LogDataStoreInfo()
 
-	connPool := this.DataStore.GetConnPool()
+	// -------------------------------------
+	// Create and Initialize Request Router.
+	// -------------------------------------
 
-	this.SystemLog.Printf(`datastore maximum open connections set to %d`, connPool.MaxOpenConns)
-	this.SystemLog.Printf(`datastore maximum idle connections set to %d`, connPool.MaxIdleConns)
-	this.SystemLog.Printf(`datastore connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
+	if r, err := NewRouter(this.AuthSvc); err != nil {
+		return nil, err
+	} else {
+		this.Router = r
+	}
+
+	this.SystemLog.Print(`request router initialized`)
 
 	// ------------------
 	// Initialize Models.
@@ -198,13 +201,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Load Device Metadata if Requested.
 	// ----------------------------------
 
-	if refresh {
-		if err := this.LoadMetaData(); err != nil {
-			this.ErrorLog.Print(fmt.Errorf(`data model metadata load failed: %v`, err))
-		} else {
-			this.SystemLog.Print(`data model metadata load succeeded`)
-		}
-	}
+	if refresh { this.LoadMetaData() }
 
 	// ----------------------
 	// Initialize API Routes.
@@ -216,11 +213,11 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	this.SystemLog.Print(`route endpoints initialized`)
 
-	// --------------
-	// Route Handler.
-	// --------------
+	// -----------------------------
+	// Add Routes to Request Router.
+	// -----------------------------
 
-	router := NewRouter(this.AuthSvc).
+	this.Router.
 		AddRoutes(api_cmdb_v2.Routes).
 		AddRoutes(api_usbci_v2.Routes).
 		AddRoutes(api_usbmeta_v2.Routes).
@@ -228,9 +225,8 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 		AddRoutes(api_usbci_v1.Routes).
 		AddRoutes(api_usbmeta_v1.Routes)
 
-	this.SystemLog.Print(`request router/dispatcher initialized`)
-
-	router.LogRoutes(this.SystemLog)
+	this.SystemLog.Print(`route endpoints loaded`)
+	this.LogRouteInfo()
 
 	// ---------------------------
 	// Chain Middleware to Routes.
@@ -242,7 +238,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	// Prepend Max Connection Handler to Route Handler.
 	// ------------------------------------------------
 
-	handler = MaxConnectionHandler(router, this.MaxConnections)
+	handler = MaxConnectionHandler(this.Router, this.MaxConnections)
 
 	this.SystemLog.Print(`max connection handler initialized`)
 
@@ -285,11 +281,7 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 	}
 
 	this.SystemLog.Print(`server initialized`)
-	this.SystemLog.Printf(`server listening on %s`, this.Server.Addr)
-	this.SystemLog.Printf(`server read timeout set to %s`, this.Server.ReadTimeout)
-	this.SystemLog.Printf(`server write timeout set to %s`, this.Server.WriteTimeout)
-	this.SystemLog.Printf(`server connection timeout set to %s`, this.ServerTimeout)
-	this.SystemLog.Printf(`server maximum connections set to %d`, this.MaxConnections)
+	this.LogServerInfo()
 
 	// -------------------------
 	// Start the signal handler.
@@ -301,23 +293,73 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 }
 
 // RefreshMetaData downloads a fresh copy of the device metadata.
-func (this *Config) RefreshMetaData() error {
-
+func (this *Config) RefreshMetaData() {
 	if err := this.MetaUsbSvc.Refresh(); err != nil {
-		return err
+		err = fmt.Errorf(`device metadata refresh failed: %v`, err)
+		this.ErrorLog.Print(err)
 	} else if err := this.MetaUsbSvc.Save(); err != nil {
-		return err
+		err = fmt.Errorf(`device metadata save failed: %v`, err)
+		this.ErrorLog.Print(err)
+	} else {
+		this.SystemLog.Print(`device metadata refresh and save succeeded`)
 	}
-
-	return nil
 }
 
 // LoadMetaData loads the metadata tables in the datastore.
-func (this *Config) LoadMetaData() error {
-
+func (this *Config) LoadMetaData() {
 	if err := model_usbmeta.Load(this.MetaUsbSvc.Raw()); err != nil {
-		return err
+		err = fmt.Errorf(`data model metadata load failed: %v`, err)
+		this.ErrorLog.Print(err)
+	} else {
+		this.SystemLog.Print(`data model metadata load succeeded`)
 	}
-
-	return nil
 }
+
+// LogDataStoreInfo logs information about the datastore to the system log.
+func (this *Config) LogDataStoreInfo() {
+
+	connPool := this.DataStore.GetConnPool()
+
+	this.SystemLog.Printf(`datastore driver %s`, this.DataStore)
+	this.SystemLog.Printf(`datastore maximum open connections set to %d`, connPool.MaxOpenConns)
+	this.SystemLog.Printf(`datastore maximum idle connections set to %d`, connPool.MaxIdleConns)
+	this.SystemLog.Printf(`datastore connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
+	this.SystemLog.Printf(`datastore current open connections: %d`, this.DataStore.GetOpenConns())
+}
+
+// LogServerInfo logs information about the server to the system log.
+func (this *Config) LogServerInfo() {
+
+	this.SystemLog.Printf(`server listening on %s`, this.Server.Addr)
+	this.SystemLog.Printf(`server read timeout set to %s`, this.Server.ReadTimeout)
+	this.SystemLog.Printf(`server write timeout set to %s`, this.Server.WriteTimeout)
+	this.SystemLog.Printf(`server connection timeout set to %s`, this.ServerTimeout)
+	this.SystemLog.Printf(`server maximum connections set to %d`, this.MaxConnections)
+}
+
+// LogRouteInfo logs information about API endpoint routes.
+func (this *Config) LogRouteInfo() {
+
+	this.Router.Walk(func(rt *mux.Route, rtr *mux.Router, anc []*mux.Route) error {
+
+		var methods, path string
+
+		if m, err := rt.GetMethods(); err != nil {
+			methods = ``
+		} else {
+			methods = strings.Join(m, `|`)
+		}
+		if p, err := rt.GetPathTemplate(); err != nil {
+			path = ``
+		} else {
+			path = p
+		}
+		this.SystemLog.Printf(`route '%s' template '%s %s'`,
+			rt.GetName(),
+			methods,
+			path,
+		)
+		return nil
+	})
+}
+

@@ -14,7 +14,7 @@
 -- truncate all tables
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `cmdb_events`;
-TRUNCATE TABLE `cmdb_sequence`;
+-- TRUNCATE TABLE `cmdb_sequence`;
 -- TRUNCATE TABLE `cmdb_users`;
 TRUNCATE TABLE `usbci_audits`;
 TRUNCATE TABLE `usbci_changes`;
