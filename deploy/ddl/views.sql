@@ -192,7 +192,7 @@ ORDER BY
 -- -------------------------------------------------------------------
 
 DROP VIEW IF EXISTS view_usbci_unique_hosts;
-CREATE SQL SECURITY INVOKER VIEW IF NOT EXISTS view_usbci_unique_hosts AS 
+CREATE SQL SECURITY INVOKER VIEW view_usbci_unique_hosts AS 
 SELECT
   host_name,
   count(*) AS 'checkins'
