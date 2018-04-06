@@ -617,9 +617,9 @@ The **USB Protocol** table has the following columns:
 |Endpoint|Method|Purpose|
 |:-------|:-----|:------|
 |/api/v3/cmdb/authenticate/`host`|`GET`|Submit basic authentication data, username and password, to obtain authentication token.|
-|/api/v3/cmdb/event/create/`host`|`POST`|Submit client events, such as errors, to the server for centralized event logging.|
-|/api/v3/cmdb/health/check|`GET`|Perform check to verify the server is operational.|
-|/api/v3/cmdb/concurrency/check/`id`|`GET`|Perform tests to verify the concurrency limits are functioning properly.|
+|/api/v3/cmdb/event/create/`host`|`POST`|Submit client events to the server for centralized event logging.|
+|/api/v3/cmdb/health/check|`GET`|Perform a health check to verify the server is operational.|
+|/api/v3/cmdb/concurrency/check/`id`|`GET`|Perform concurrency checks to verify connection limits are functioning properly.|
 |/api/v3/cmdb/ci/usb/checkin/`host`/`vid`/`pid`|`POST`|Submit configuration information for a new device or update information for an existing device.|
 |/api/v3/cmdb/ci/usb/checkout/`host`/`vid`/`pid`/`sn`|`GET`|Obtain configuration information for a previously-registered, serialized device in order to perform a change audit.|
 |/api/v3/cmdb/ci/usb/newsn/`host`/`vid`/`pid`|`POST`|Obtain a new unique serial number from the server for assignment to the attached device.|
