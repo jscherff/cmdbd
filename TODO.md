@@ -14,7 +14,8 @@ Logging
 API Version Control
 -------------------
 
-- [X] Add /v1/prefix to all routes so future changes (v2) don't break things.
+- [X] Add version prefix (e.g., /v1) to routes so future changes don't break things.
+- [X] Add /api prefix to routes to differentiate REST API from UI.
 
 Authentication and Authorization
 --------------------------------
