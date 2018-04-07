@@ -15,10 +15,10 @@
 package server
 
 import (
-	`fmt`
 	`os`
 	`os/signal`
 	`runtime`
+	`syscall`
 )
 
 // Signal extends syscall.Signal to reimplment the String method.
@@ -29,22 +29,22 @@ var (
 	sigList []os.Signal
 
 	sigChan = make(chan os.Signal, 1)
-	sigName = make(map[os.Signal]string)
+	sigName = make(map[syscall.Signal]string)
 
-	sigMap = map[string]os.Signal {
-		`SIGHUP`:	Signal(0x01),
-		`SIGUSR1`:	Signal(0x0A),
-		`SIGUSR2`:	Signal(0x0C),
-		`SIGRTMAX`:	Signal(0x40),
-		`SIGRTMAX-1`:	Signal(0x3F),
-		`SIGRTMAX-2`:	Signal(0x3E),
-		`SIGRTMAX-3`:	Signal(0x3D),
-		`SIGRTMAX-4`:	Signal(0x3C),
-		`SIGRTMAX-5`:	Signal(0x3B),
-		`SIGRTMAX-6`:	Signal(0x3A),
-		`SIGRTMAX-7`:	Signal(0x39),
-		`SIGRTMAX-8`:	Signal(0x38),
-		`SIGRTMAX-9`:	Signal(0x37),
+	sigMap = map[string]syscall.Signal {
+		`SIGHUP`:	syscall.Signal(0x01),
+		`SIGUSR1`:	syscall.Signal(0x0A),
+		`SIGUSR2`:	syscall.Signal(0x0C),
+		`SIGRTMAX`:	syscall.Signal(0x40),
+		`SIGRTMAX-1`:	syscall.Signal(0x3F),
+		`SIGRTMAX-2`:	syscall.Signal(0x3E),
+		`SIGRTMAX-3`:	syscall.Signal(0x3D),
+		`SIGRTMAX-4`:	syscall.Signal(0x3C),
+		`SIGRTMAX-5`:	syscall.Signal(0x3B),
+		`SIGRTMAX-6`:	syscall.Signal(0x3A),
+		`SIGRTMAX-7`:	syscall.Signal(0x39),
+		`SIGRTMAX-8`:	syscall.Signal(0x38),
+		`SIGRTMAX-9`:	syscall.Signal(0x37),
 	}
 )
 
@@ -53,8 +53,8 @@ var (
 func init() {
 
 	if runtime.GOOS == `windows` {
-		sigMap[`SIGUSR1`] = Signal(0x1E)
-		sigMap[`SIGUSR2`] = Signal(0x1F)
+		sigMap[`SIGUSR1`] = syscall.Signal(0x1E)
+		sigMap[`SIGUSR2`] = syscall.Signal(0x1F)
 	}
 
 	for name, value := range sigMap {
@@ -79,7 +79,7 @@ func init() {
 		sigMap[`SIGRTMAX-9`],
 	)
 }
-
+/*
 // String returns a brief description of the signal.
 func (s Signal) String() string {
 	return fmt.Sprintf(`signal '%s' (%02d)`, sigName[s], s)
@@ -87,7 +87,7 @@ func (s Signal) String() string {
 
 // Signal is a noop method to satisfy the os.Signal interface.
 func (s Signal) Signal() {}
-
+*/
 // SignalHandler runs in an endless loop, blocking on the signal channel until a signal arrives,
 // then handles the signal.
 func SigHandler(conf *Config) {
