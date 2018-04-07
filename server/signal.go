@@ -63,7 +63,8 @@ func init() {
 		sigList = append(sigList, value)
 	}
 
-	signal.Notify(sigChan, sigList...)
+	//signal.Notify(sigChan, sigList...)
+	signal.Notify(sigChan, syscall.SIGHUP)
 }
 
 // String returns a brief description of the signal.
