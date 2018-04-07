@@ -69,7 +69,6 @@ func SigHandler(conf *Config) {
 	for true {
 
 		sig := <-sigChan
-
 		conf.SystemLog.Printf(`caught signal %s (%02d)`, sigName[sig], sig)
 
 		switch sig {
@@ -93,7 +92,7 @@ func SigHandler(conf *Config) {
 
 		default:
 
-			conf.SystemLog.Printf(`handler for %s not implemented`, sig)
+			conf.SystemLog.Printf(`handler for %s not implemented`, sigName[sig])
 		}
 	}
 }
