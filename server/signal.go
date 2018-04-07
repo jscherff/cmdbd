@@ -19,6 +19,7 @@ import (
 	`os`
 	`os/signal`
 	`runtime`
+	`syscall`
 )
 
 // Signal extends syscall.Signal to reimplment the String method.
