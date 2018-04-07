@@ -26,7 +26,7 @@ var (
 	sigList []os.Signal
 
 	sigChan = make(chan os.Signal, 1)
-	sigName = make(map[syscall.Signal]string)
+	sigName = make(map[os.Signal]string)
 
 	sigMap = map[string]syscall.Signal {
 		`SIGHUP`:	syscall.Signal(0x01),
@@ -60,23 +60,6 @@ func init() {
 	}
 
 	signal.Notify(sigChan, sigList...)
-	/*
-	signal.Notify(sigChan,
-		sigMap[`SIGHUP`],
-		sigMap[`SIGUSR1`],
-		sigMap[`SIGUSR2`],
-		sigMap[`SIGRTMAX`],
-		sigMap[`SIGRTMAX-1`],
-		sigMap[`SIGRTMAX-2`],
-		sigMap[`SIGRTMAX-3`],
-		sigMap[`SIGRTMAX-4`],
-		sigMap[`SIGRTMAX-5`],
-		sigMap[`SIGRTMAX-6`],
-		sigMap[`SIGRTMAX-7`],
-		sigMap[`SIGRTMAX-8`],
-		sigMap[`SIGRTMAX-9`],
-	)
-	*/
 }
 
 // SignalHandler runs in an endless loop, blocking on the signal channel until a signal arrives,
@@ -87,7 +70,7 @@ func SigHandler(conf *Config) {
 
 		sig := <-sigChan
 
-		conf.SystemLog.Printf(`caught %s`, sig)
+		conf.SystemLog.Printf(`caught signal %s (%02d)`, sigName[sig], sig)
 
 		switch sig {
 
