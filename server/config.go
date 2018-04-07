@@ -70,6 +70,8 @@ type Config struct {
 	Syslog		*Syslog
 	Router		*Router
 	Server		*Server
+
+	Profiler	*Profiler
 }
 
 // NewConfig creates a new master configuration object and reads its config
@@ -104,6 +106,14 @@ func NewConfig(cf string, console, refresh bool) (*Config, error) {
 
 	for key, fn := range this.ConfigFile {
 		this.ConfigFile[key] = filepath.Join(filepath.Dir(cf), fn)
+	}
+
+	// ------------------------------
+	// Start the profiler if enabled.
+	// ------------------------------
+
+	if this.Profiler.Enabled {
+		go this.Profiler.Serve()
 	}
 
 	// ----------------------------------------
@@ -328,9 +338,9 @@ func (this *Config) LogDataStoreInfo() {
 	connPool := this.DataStore.GetConnPool()
 
 	this.SystemLog.Printf(`datastore driver %s`, this.DataStore)
-	this.SystemLog.Printf(`datastore maximum open connections set to %d`, connPool.MaxOpenConns)
-	this.SystemLog.Printf(`datastore maximum idle connections set to %d`, connPool.MaxIdleConns)
-	this.SystemLog.Printf(`datastore connection maximum lifetime set to %s`, connPool.ConnMaxLifetime)
+	this.SystemLog.Printf(`datastore maximum open connections: %d`, connPool.MaxOpenConns)
+	this.SystemLog.Printf(`datastore maximum idle connections: %d`, connPool.MaxIdleConns)
+	this.SystemLog.Printf(`datastore connection maximum lifetime: %s`, connPool.ConnMaxLifetime)
 	this.SystemLog.Printf(`datastore current open connections: %d`, this.DataStore.GetOpenConns())
 }
 
@@ -338,10 +348,13 @@ func (this *Config) LogDataStoreInfo() {
 func (this *Config) LogServerInfo() {
 
 	this.SystemLog.Printf(`server listening on %s`, this.Server.Addr)
-	this.SystemLog.Printf(`server read timeout set to %s`, this.Server.ReadTimeout)
-	this.SystemLog.Printf(`server write timeout set to %s`, this.Server.WriteTimeout)
-	this.SystemLog.Printf(`server connection timeout set to %s`, this.ServerTimeout)
-	this.SystemLog.Printf(`server maximum connections set to %d`, this.MaxConnections)
+	this.SystemLog.Printf(`server read timeout: %s`, this.Server.ReadTimeout)
+	this.SystemLog.Printf(`server read header timeout: %s`, this.Server.ReadHeaderTimeout)
+	this.SystemLog.Printf(`server write timeout: %s`, this.Server.WriteTimeout)
+	this.SystemLog.Printf(`server idle timeout: %s`, this.Server.IdleTimeout)
+	this.SystemLog.Printf(`server connection timeout: %s`, this.ServerTimeout)
+	this.SystemLog.Printf(`server maximum connections: %d`, this.MaxConnections)
+	this.SystemLog.Printf(`server metadata last updated: %s`, this.MetaUsbSvc.LastUpdate())
 }
 
 // LogRouteInfo logs information about API endpoint routes.

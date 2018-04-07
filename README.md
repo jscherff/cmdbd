@@ -131,17 +131,19 @@ The server configuration file contains parameters for the HTTP server:
 ```json
 {
     "Addr": ":8080",
-    "ReadTimeout": 10,
-    "WriteTimeout": 10,
+    "ReadTimeout": 0,
+    "ReadHeaderTimeout": 0,
+    "WriteTimeout": 0,
+    "IdleTimeout": 0,
     "MaxHeaderBytes": 1048576
 }
 ```
 * **`Addr`** is the hostname (or IP address) and port of the listener, separated by a colon. If the hostname/address component is blank, the daemon will listen on all network interfaces.
 * **`ReadTimeout`** is the maximum duration in seconds for reading the entire HTTP request, including the body.
+* **`ReadHeaderTimeout`** is the amount of time allowed to read request headers.
 * **`WriteTimeout`** is the maximum duration in seconds before timing out writes of the response.
+* **`IdleTimeout`** is the maximum amount of time to wait for the next request when keep-alives are enabled.
 * **`MaxHeaderBytes`** is the maximum size in bytes of the request header.
-
-
 
 #### Syslog Daemon Settings (`server/syslog.json`)
 The syslog configuration file contains parameters for communicating with an optional local or remote syslog server:

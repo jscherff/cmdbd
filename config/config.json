@@ -2,8 +2,8 @@
 	"Console": false,
 	"Refresh": false,
 	"RecoveryStack": true,
-	"MaxConnections": 150,
-	"ServerTimeout": 30,
+	"MaxConnections": 250,
+	"ServerTimeout": 300,
 
 	"ConfigFile": {
 		"Server": "server/httpd.json",
@@ -15,5 +15,10 @@
 		"DataStore": "store/mysql.json",
 		"ConnPool": "store/pool.json",
 		"Queries": "model/queries.json"
+	},
+
+	"Profiler": {
+		"Enabled": true,
+		"Address": ":6060"
 	}
 }

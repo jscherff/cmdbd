@@ -5,6 +5,8 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=cmdbd
+LimitNOFILE=65536
+LimitNPROC=65536
 ExecStart=/usr/sbin/cmdbd -config /etc/cmdbd/config.json
 Restart=on-abort
 

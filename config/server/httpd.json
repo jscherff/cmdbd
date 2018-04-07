@@ -1,6 +1,8 @@
 {
 	"Addr": ":8080",
-	"ReadTimeout": 10,
-	"WriteTimeout": 10,
+	"ReadTimeout": 0,
+	"ReadHeaderTimeout": 0,
+	"WriteTimeout": 0,
+	"IdleTimeout": 0,
 	"MaxHeaderBytes": 1048576
 }

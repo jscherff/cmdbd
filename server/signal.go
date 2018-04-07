@@ -15,70 +15,96 @@
 package server
 
 import (
+	`fmt`
 	`os`
 	`os/signal`
 	`runtime`
-	`syscall`
 )
+
+// Signal extends syscall.Signal to reimplment the String method.
+type Signal int
 
 // Create a buffered channel for incoming signals.
 var (
-	SigChan = make(chan os.Signal, 1)
-	SigMap = make(map[string]syscall.Signal)
+	sigList []os.Signal
+
+	sigChan = make(chan os.Signal, 1)
+	sigName = make(map[os.Signal]string)
+
+	sigMap = map[string]os.Signal {
+		`SIGHUP`:	Signal(0x01),
+		`SIGUSR1`:	Signal(0x0A),
+		`SIGUSR2`:	Signal(0x0C),
+		`SIGRTMAX`:	Signal(0x40),
+		`SIGRTMAX-1`:	Signal(0x3F),
+		`SIGRTMAX-2`:	Signal(0x3E),
+		`SIGRTMAX-3`:	Signal(0x3D),
+		`SIGRTMAX-4`:	Signal(0x3C),
+		`SIGRTMAX-5`:	Signal(0x3B),
+		`SIGRTMAX-6`:	Signal(0x3A),
+		`SIGRTMAX-7`:	Signal(0x39),
+		`SIGRTMAX-8`:	Signal(0x38),
+		`SIGRTMAX-9`:	Signal(0x37),
+	}
 )
 
-// Create a map of signals appropriate for the operating system.
+// init makes some operating system-specific changes, creates a signal->name
+// map for the Signal String method, and creates the signal interceptor.
 func init() {
 
-	SigMap[`SIGHUP`] = syscall.Signal(0x01)
-	SigMap[`SIGINT`] = syscall.Signal(0x02)
-
-	switch runtime.GOOS {
-
-	case `windows`:
-		SigMap[`SIGUSR1`] = syscall.Signal(0x1E)
-		SigMap[`SIGUSR2`] = syscall.Signal(0x1F)
-
-	case `linux`:
-		SigMap[`SIGUSR1`] = syscall.Signal(0x0A)
-		SigMap[`SIGUSR2`] = syscall.Signal(0x0C)
+	if runtime.GOOS == `windows` {
+		sigMap[`SIGUSR1`] = Signal(0x1E)
+		sigMap[`SIGUSR2`] = Signal(0x1F)
 	}
 
-	signal.Notify(SigChan,
-		SigMap[`SIGHUP`],
-		SigMap[`SIGUSR1`],
-		SigMap[`SIGUSR2`],
-	)
+	for name, value := range sigMap {
+		sigName[value] = name
+		sigList = append(sigList, value)
+	}
+
+	signal.Notify(sigChan, sigList...)
 }
 
-// Create the signal handler. The handler runs in an endless
-// loop, blocking on the signal channel until a signal arrives,
+// String returns a brief description of the signal.
+func (s Signal) String() string {
+	return fmt.Sprintf(`signal '%s' (%02d)`, sigName[s], s)
+}
+
+// Signal is a noop method to satisfy the os.Signal interface.
+func (s Signal) Signal() {}
+
+// SignalHandler runs in an endless loop, blocking on the signal channel until a signal arrives,
 // then handles the signal.
 func SigHandler(conf *Config) {
 
 	for true {
 
-		sig := <-SigChan
+		sig := <-sigChan
+
+		conf.SystemLog.Printf(`caught %s`, sig)
 
 		switch sig {
 
-		case SigMap[`SIGHUP`]:
+		case sigMap[`SIGHUP`]:
 
-			conf.SystemLog.Print(`caught SIGHUP, reloading metadata...`)
+			conf.SystemLog.Print(`reloading metadata...`)
 			conf.RefreshMetaData()
 			conf.LoadMetaData()
 
-		case SigMap[`SIGUSR1`]:
+		case sigMap[`SIGUSR1`]:
 
-			conf.SystemLog.Print(`caught SIGUSR1, logging server information...`)
-			conf.SystemLog.Printf(`device metadata last updated %s`, conf.MetaUsbSvc.LastUpdate())
+			conf.SystemLog.Print(`logging server information...`)
 			conf.LogDataStoreInfo()
 			conf.LogServerInfo()
 
-		case SigMap[`SIGUSR2`]:
+		case sigMap[`SIGUSR2`]:
 
-			conf.SystemLog.Print(`caught SIGUSR2, logging route information...`)
+			conf.SystemLog.Print(`logging route information...`)
 			conf.LogRouteInfo()
+
+		default:
+
+			conf.SystemLog.Printf(`handler for %s not implemented`, sig)
 		}
 	}
 }

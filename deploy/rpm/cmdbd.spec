@@ -107,7 +107,7 @@ the audit to the server for later analysis.
   case ${1} in
 
     1)
-      %{_sbindir}/useradd -Mrd %{_sharedstatedir}/%{name} -c '%{gecos}' -s /sbin/nologin %{name}
+      %{_sbindir}/useradd -mrd %{_sharedstatedir}/%{name} -c '%{gecos}' -s /sbin/nologin %{name}
       ;;
 
     2)
