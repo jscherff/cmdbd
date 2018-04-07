@@ -19,7 +19,6 @@ import (
 	`os`
 	`os/signal`
 	`runtime`
-	`syscall`
 )
 
 // Signal extends syscall.Signal to reimplment the String method.
@@ -64,7 +63,21 @@ func init() {
 	}
 
 	//signal.Notify(sigChan, sigList...)
-	signal.Notify(sigChan, syscall.SIGHUP)
+	signal.Notify(sigChan,
+		sigMap[`SIGHUP`],
+		sigMap[`SIGUSR1`],
+		sigMap[`SIGUSR2`],
+		sigMap[`SIGRTMAX`],
+		sigMap[`SIGRTMAX-1`],
+		sigMap[`SIGRTMAX-2`],
+		sigMap[`SIGRTMAX-3`],
+		sigMap[`SIGRTMAX-4`],
+		sigMap[`SIGRTMAX-5`],
+		sigMap[`SIGRTMAX-6`],
+		sigMap[`SIGRTMAX-7`],
+		sigMap[`SIGRTMAX-8`],
+		sigMap[`SIGRTMAX-9`],
+	)
 }
 
 // String returns a brief description of the signal.
