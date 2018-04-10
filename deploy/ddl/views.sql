@@ -33,89 +33,33 @@ WHERE
   (vendor_id = '0801' AND product_id = '0001') OR
   (vendor_id = '0acd' AND product_id = '2030')
 ORDER BY
-  serial_number;
+  serial_number,
+  vendor_id,
+  product_id;
 
+-- -------------------------------------------------------------------
+-- Missing Card Readers.
+-- -------------------------------------------------------------------
+
+DROP VIEW IF EXISTS view_usbci_cardreaders_missing;
+CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_missing AS 
+SELECT *
+FROM view_usbci_cardreaders_all
+WHERE
+  TO_DAYS(NOW()) - TO_DAYS(last_seen) > 30;
+  
 -- -------------------------------------------------------------------
 -- New Card Readers.
 -- -------------------------------------------------------------------
 
 DROP VIEW IF EXISTS view_usbci_cardreaders_new;
 CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_new AS
-SELECT
-  serial_number,
-  vendor_id,
-  product_id,
-  vendor_name,
-  product_name,
-  CASE
-    WHEN
-      vendor_id = '0801' AND
-      product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  firmware_ver,
-  host_name,
-  SUBSTRING_INDEX(remote_addr, ':', 1) AS ip_address,
-  first_seen,
-  last_seen,
-  checkins
-FROM
-  usbci_serialized
-WHERE 
+SELECT *
+FROM view_usbci_cardreaders_all
+WHERE
   checkins = 1 AND
-  (
-    (vendor_id = '0801' AND product_id = '0001') OR
-    (vendor_id = '0acd' AND product_id = '2030')
-  )
-ORDER BY
-  serial_number;
+  TO_DAYS(NOW()) - TO_DAYS(first_seen) < 30;
 
--- -------------------------------------------------------------------
--- Missing Card Readers.
--- -------------------------------------------------------------------
-DROP VIEW IF EXISTS view_usbci_cardreaders_missing;
-CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_missing AS 
-SELECT
-  serial_number,
-  vendor_id,
-  product_id,
-  vendor_name,
-  product_name,
-  CASE
-    WHEN
-      vendor_id = '0801' AND
-      product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  firmware_ver,
-  host_name,
-  SUBSTRING_INDEX(remote_addr, ':', 1) AS ip_address,
-  first_seen,
-  last_seen,
-  checkins
-FROM
-  usbci_serialized
-WHERE 
-  (TO_DAYS(NOW()) - TO_DAYS(last_seen) > 30) AND
-  (
-    (vendor_id = '0801' AND product_id = '0001') OR
-    (vendor_id = '0acd' AND product_id = '2030')
-  )
-ORDER BY
-  serial_number;
-  
 -- -------------------------------------------------------------------
 -- Card Readers with Recent Changes.
 -- -------------------------------------------------------------------
@@ -123,26 +67,15 @@ ORDER BY
 DROP VIEW IF EXISTS view_usbci_cardreader_changes;
 CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreader_changes AS 
 SELECT
-  c.serial_number AS serial_number,
-  c.vendor_id AS vendor_id,
-  c.product_id AS product_id,
+  a.serial_number,
+  a.vendor_id,
+  a.product_id,
   vendor_name,
   product_name,
-  CASE
-    WHEN
-      s.vendor_id = '0801' AND
-      s.product_id = '0001'
-    THEN
-      CASE
-      WHEN product_ver = 'V05'
-        THEN 'Dynamag MagneSafe'
-      ELSE 'SureSwipe'
-      END
-    ELSE 'NA'
-  END AS product_ver,
-  c.host_name,
-  SUBSTRING_INDEX(c.remote_addr, ':', 1) AS ip_address,
+  product_ver,
   firmware_ver,
+  a.host_name,
+  ip_address,
   property_name,
   previous_value,
   current_value,
@@ -151,18 +84,16 @@ SELECT
   last_seen,
   checkins
 FROM
-  usbci_changes c,
-  usbci_serialized s
+  view_usbci_cardreaders_all a,
+  usbci_changes c
 WHERE
-  c.serial_number = s.serial_number AND
+  a.serial_number = c.serial_number AND
+  a.vendor_id = c.vendor_id AND
+  a.product_id = c.product_id AND
   NOT property_name = 'DescriptorSN' AND
   NOT previous_value = '' AND
   NOT previous_value = '0' AND
-  (
-    (c.vendor_id = '0801' AND c.product_id = '0001') OR
-    (c.vendor_id = '0acd' AND c.product_id = '2030')
-  ) AND
-  (TO_DAYS(NOW()) - TO_DAYS(change_date) < 30);
+  TO_DAYS(NOW()) - TO_DAYS(change_date) < 30;
 
 -- -------------------------------------------------------------------
 -- Unique Devices
