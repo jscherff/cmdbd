@@ -5,9 +5,9 @@ The _**Configuration Management Database Daemon**_ is a lightweight HTTP server 
 **CMDBd** is written in **Go** and can be compiled for any operating system and architecture. This document assumes **CMDBd** will be installed on **Red Hat Enterprise Linux** or **CentOS Release 7** -- or an equivalent operating system that supports **RPM** package management and uses **SystemD** initialization. It requires **MySQL 5.7** or **MariaDB 10.2** or higher for the back-end database.
 
 ### Installation
-You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/rpm/cmdbd.spec), using the following commands:
+You can build the RPM package with only the RPM spec file, [`cmdbd.spec`](https://github.com/jscherff/cmdbd/blob/master/deploy/rpm/cmdbd.spec), using the following commands:
 ```sh
-wget https://raw.githubusercontent.com/jscherff/cmdbd/master/rpm/cmdbd.spec
+wget https://raw.githubusercontent.com/jscherff/cmdbd/master/deploy/rpm/cmdbd.spec
 rpmbuild -bb --clean cmdbd.spec
 ```
 You will need to install the `git`, `golang`, `libusbx`, `libusbx-devel`, and `rpm-build` packages (and their dependencies) in order to perform the build.
