@@ -20,7 +20,6 @@ Version:	%{version}
 Release:	%{release}%{?dist}
 Summary:	%{summary}
 
-Group:		Applications/System
 License:	ASL 2.0
 URL:		https://www.24hourfitness.com
 Vendor:		24 Hour Fitness, Inc.
