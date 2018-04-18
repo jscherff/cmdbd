@@ -57,7 +57,6 @@ CREATE SQL SECURITY INVOKER VIEW view_usbci_cardreaders_new AS
 SELECT *
 FROM view_usbci_cardreaders_all
 WHERE
-  checkins = 1 AND
   TO_DAYS(NOW()) - TO_DAYS(first_seen) < 30;
 
 -- -------------------------------------------------------------------
