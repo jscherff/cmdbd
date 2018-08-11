@@ -1,4 +1,4 @@
-/var/log/cmdb/*.log
+/var/log/cmdbd/*.log
 {
     weekly
     maxage 90
