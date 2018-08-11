@@ -178,6 +178,8 @@ the audit to the server for later analysis.
   : Force zero return code
 
 %changelog
+* Sun Aug 11 2018 - jscherff@24hourfit.com
+- Added /etc/logrotate.d/cmdbd and modified spec file to include it
 * Wed Apr 4 2018 - jscherff@24hourfit.com
 - Added signal handling for reloading metadata (SIGHUP)
 - Added signal handling for displaying server info (SIGUSR1)
