@@ -1,0 +1,16 @@
+/var/log/cmdb/*.log
+{
+    weekly
+    maxage 90
+    rotate 13
+    compress
+    copytruncate
+    dateext
+    dateformat _%Y%m%d-%H%M
+    nocreate
+    notifempty
+    missingok
+    postrotate
+        /usr/bin/pkill -SIGHUP cmdbd
+    endscript
+}

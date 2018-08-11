@@ -10,8 +10,6 @@
 %define		gopath	%{_builddir}/go
 %define		docdir	%{_docdir}/%{name}-%{version}
 %define		logdir	%{_var}/log/%{name}
-%define		syslib	%{_prefix}/lib/systemd/system
-%define		limdir  %{_sysconfdir}/security/limits.d
 %define		confdir %{_sysconfdir}/%{name}
 # =============================================================================
 
@@ -61,8 +59,11 @@ the audit to the server for later analysis.
 
   mkdir -p %{buildroot}{%{_sbindir},%{_bindir}}
 
-  mkdir -p %{buildroot}{%{confdir},%{syslib},%{logdir},%{limdir},%{docdir}}
+  mkdir -p %{buildroot}{%{confdir},%{logdir},%{docdir}}
   mkdir -p %{buildroot}%{confdir}/{model,server,service,store}
+  mkdir -p %{buildroot}%{_prefix}/lib/systemd/system
+  mkdir -p %{buildroot}%{_sysconfdir}/security/limits.d
+  mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 
   install -s -m 755 %{_builddir}/%{name} %{buildroot}%{_sbindir}/
   install -s -m 755 %{_builddir}/bcrypt %{buildroot}%{_bindir}/
@@ -74,8 +75,9 @@ the audit to the server for later analysis.
   install -m 640 %{gopath}/src/%{package}/config/store/*.json %{buildroot}%{confdir}/store/
   install -m 644 %{gopath}/src/%{package}/deploy/ddl/*.sql %{buildroot}%{docdir}/
   install -m 644 %{gopath}/src/%{package}/deploy/dml/*.sql %{buildroot}%{docdir}/
-  install -m 644 %{gopath}/src/%{package}/deploy/os%{syslib}/* %{buildroot}%{syslib}/
-  install -m 644 %{gopath}/src/%{package}/deploy/os%{limdir}/* %{buildroot}%{limdir}/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{_prefix}/lib/systemd/system/* %{buildroot}%{_prefix}/lib/systemd/system/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{_sysconfdir}/security/limits.d/* %{buildroot}%{_sysconfdir}/security/limits.d/
+  install -m 644 %{gopath}/src/%{package}/deploy/os%{_sysconfdir}/logrotate.d/* %{buildroot}%{_sysconfdir}/logrotate.d/
   install -m 644 %{gopath}/src/%{package}/{LICENSE,*.md} %{buildroot}%{docdir}/
 
 %clean
@@ -89,8 +91,9 @@ the audit to the server for later analysis.
   %license %{docdir}/LICENSE
   %{_sbindir}/*
   %{_bindir}/*
-  %{syslib}/*
-  %{limdir}/*
+  %{_prefix}/lib/systemd/system/*
+  %{_sysconfdir}/security/limits.d/*
+  %{_sysconfdir}/logrotate.d/*
   %{docdir}/*
 
   %defattr(640,%{name},%{name},750)
