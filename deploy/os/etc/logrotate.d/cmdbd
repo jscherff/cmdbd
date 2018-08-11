@@ -6,11 +6,7 @@
     compress
     copytruncate
     dateext
-    dateformat _%Y%m%d-%H%M
     nocreate
     notifempty
     missingok
-    postrotate
-        /usr/bin/pkill -SIGHUP cmdbd
-    endscript
 }
