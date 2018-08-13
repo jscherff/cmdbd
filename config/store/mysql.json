@@ -14,7 +14,7 @@
 	"WriteTimeout": 0,
 	"AllowAllFiles": false,
 	"AllowCleartextPasswords": false,
-	"AllowNativePasswords": false,
+	"AllowNativePasswords": true,
 	"AllowOldPasswords": false,
 	"ClientFoundRows": false,
 	"ColumnsWithAlias": false,
